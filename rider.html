@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Littiwale Rider - Delivery Partner</title>
+    <link rel="stylesheet" href="./src/style.css">
+</head>
+<body class="bg-gray-950 text-white font-sans overflow-x-hidden">
+    <div id="app">
+        <header class="p-4 flex justify-between items-center bg-gray-900 border-b border-gray-800 fixed w-full top-0 z-50">
+            <h1 class="text-xl font-black text-accent tracking-widest">RIDER <span class="text-gray-500 font-light">PANEL</span></h1>
+            <div id="rider-status" class="text-xs text-green-500 font-bold flex items-center">
+                <span class="w-2 h-2 bg-green-500 rounded-full mr-2 animate-pulse"></span>
+                Active
+            </div>
+        </header>
+
+        <main class="mt-20 p-4 max-w-lg mx-auto pb-24">
+            <h2 class="text-lg font-bold mb-4 flex items-center">
+                Your Assigned Deliveries
+                <span id="assign-count" class="ml-2 bg-accent text-black text-[10px] px-2 py-0.5 rounded-full">0</span>
+            </h2>
+
+            <div id="rider-orders-list" class="space-y-4">
+                <div class="text-center py-20 text-gray-600">
+                    <p>No orders assigned to you yet.</p>
+                </div>
+            </div>
+        </main>
+
+        <nav class="fixed bottom-0 w-full bg-gray-900 border-t border-gray-800 p-4 flex justify-around items-center z-50">
+            <a href="/" class="text-xs text-gray-500 hover:text-white uppercase font-bold tracking-widest transition">Storefront</a>
+            <button id="rider-logout" class="text-xs text-red-500 uppercase font-bold tracking-widest">Logout</button>
+        </nav>
+    </div>
+
+    <!-- Notification Sound for Assignment -->
+    <audio id="notif-sound" src="https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3" preload="auto"></audio>
+
+    <script type="module" src="./src/rider.js"></script>
+</body>
+</html>

@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Full Menu | Littiwale Barbil | Litti Chokha, Pizza, & More</title>
+    <meta name="description" content="Browse the full menu at Littiwale Barbil. From authentic Litti Chokha to Pizzas, Biryanis, and Thalis.">
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&family=Playfair+Display:wght@700;900&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="./src/style.css">
+    <link rel="icon" type="image/png" href="/images/logo.png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- PWA -->
+    <meta name="theme-color" content="#0d0d0d">
+    <link rel="manifest" href="/manifest.json">
+
+    <style>
+        :root { --lw-nav-h: 80px; }
+
+        /* Premium Sticky Search Bar */
+        #lw-search-sticky-bar {
+            position: sticky;
+            top: var(--lw-nav-h);
+            z-index: 500;
+            background: rgba(13, 15, 20, 0.95);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(245, 168, 0, 0.1);
+            padding: 15px 20px;
+            transition: all 0.3s ease;
+        }
+
+        #lw-search-sticky-bar.lw-scrolled {
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            padding: 10px 20px;
+        }
+
+        #menu-search-wrapper {
+            width: 100%;
+            max-width: 600px;
+            margin: 0 auto;
+            position: relative;
+        }
+
+        #menu-search-input {
+            width: 100%;
+            padding: 14px 50px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(245, 168, 0, 0.2);
+            border-radius: 16px;
+            color: #fff;
+            font-size: 16px;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        #menu-search-input:focus {
+            border-color: var(--primary);
+            background: rgba(255, 255, 255, 0.08);
+            box-shadow: 0 0 0 4px rgba(245, 168, 0, 0.1);
+        }
+
+        .search-icon-lw {
+            position: absolute;
+            left: 18px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--primary);
+            font-size: 18px;
+            pointer-events: none;
+        }
+
+        #menu-search-clear {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(255,255,255,0.1);
+            border: none;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            color: #fff;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+
+        #menu-search-input.lw-has-text ~ #menu-search-clear {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        /* Suggestions Dropdown */
+        #menu-search-dropdown {
+            position: absolute;
+            top: calc(100% + 10px);
+            left: 0;
+            right: 0;
+            background: #1a1c23;
+            border: 1px solid rgba(245, 168, 0, 0.3);
+            border-radius: 12px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.6);
+            max-height: 350px;
+            overflow-y: auto;
+            display: none;
+            z-index: 1000;
+        }
+
+        .lw-suggestion-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 12px 18px;
+            cursor: pointer;
+            transition: background 0.2s ease;
+        }
+
+        .lw-suggestion-item:hover, .lw-suggestion-item.lw-active {
+            background: rgba(245, 168, 0, 0.1);
+        }
+
+        .lw-suggestion-icon {
+            width: 45px;
+            height: 45px;
+            border-radius: 8px;
+            object-fit: cover;
+        }
+
+        .lw-suggestion-text {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .lw-suggestion-name {
+            font-weight: 600;
+            color: #fff;
+        }
+
+        .lw-suggestion-name mark {
+            background: transparent;
+            color: var(--primary);
+            font-weight: 800;
+        }
+
+        .lw-suggestion-cat {
+            font-size: 12px;
+            color: #7a8098;
+        }
+
+        #lw-search-filter-notice {
+            display: none;
+            text-align: center;
+            font-size: 13px;
+            color: var(--primary);
+            margin-top: 10px;
+        }
+
+        #lw-search-filter-notice a {
+            color: #fff;
+            text-decoration: underline;
+            font-weight: 600;
+        }
+
+        #lw-search-spacer { height: 0; }
+
+        /* Pulse Highlight Animation */
+        .lw-search-highlight {
+            position: relative;
+        }
+        .lw-search-highlight::after {
+            content: '';
+            position: absolute;
+            inset: -5px;
+            border: 2px solid var(--primary);
+            border-radius: 20px;
+            animation: pulse-border 1.5s ease-out infinite;
+        }
+
+        @keyframes pulse-border {
+            0% { transform: scale(1); opacity: 1; }
+            100% { transform: scale(1.05); opacity: 0; }
+        }
+
+        .section-title {
+            font-family: var(--font-display), serif;
+            font-size: 48px;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="app" class="hidden">
+        
+        <!-- NAVBAR (Same as index) -->
+        <nav class="navbar">
+            <div class="container nav-container">
+                <a href="index.html" class="logo-link">
+                    <img src="/images/logo.png" alt="Littiwale" class="nav-logo">
+                </a>
+                <ul class="nav-links">
+                    <li><a href="index.html#home">Home</a></li>
+                    <li><a href="menu.html" class="active">Menu</a></li>
+                    <li><a href="index.html#about">About</a></li>
+                    <li><a href="index.html#reach">Reach Us</a></li>
+                    <li><a href="index.html#connect">Social</a></li>
+                    <li><a href="#" class="btn btn-primary nav-get-deals-btn" style="padding: 8px 16px; font-size: 12px;">🔥 Get Deals</a></li>
+                </ul>
+                <div class="nav-right">
+                    <div id="nav-profile-area"></div>
+                    <a href="#" class="cart-btn" id="nav-cart-btn">
+                        🛒 Cart <span id="cart-count" class="cart-badge">0</span>
+                    </a>
+                </div>
+            </div>
+        </nav>
+
+        <!-- MENU PAGE CONTENT -->
+        <section id="menu-page-section" style="padding-top: 100px; min-height: 100vh; background: #07080a;">
+            
+            <div class="container text-center mb-10">
+                <h1 class="section-title">Our Full Menu</h1>
+                <p style="color: #7a8098; font-size: 18px;">Handcrafted flavors, delivered with love.</p>
+                <div class="divider"></div>
+            </div>
+
+            <!-- STICKY SEARCH BAR -->
+            <div id="lw-search-sticky-bar">
+                <div id="menu-search-wrapper">
+                    <i class="fas fa-search search-icon-lw"></i>
+                    <input
+                        type="text"
+                        id="menu-search-input"
+                        placeholder="Search for litti, pizza, biryani..."
+                        autocomplete="off"
+                        spellcheck="false"
+                    >
+                    <button id="menu-search-clear">
+                        <i class="fas fa-times"></i>
+                    </button>
+                    <div id="menu-search-dropdown"></div>
+                </div>
+                <div id="lw-search-filter-notice">
+                    Showing results for your search &mdash;
+                    <a href="#" id="lw-clear-search-link">Clear search</a>
+                    to see everything.
+                </div>
+            </div>
+            <div id="lw-search-spacer"></div>
+
+            <div class="container mt-12">
+                <!-- Category Tabs Container -->
+                <div id="category-tabs" class="category-strip mb-12">
+                    <!-- Tabs injected by src/menu/render.js -->
+                </div>
+
+                <!-- Main Menu Grid -->
+                <div id="menu-grid-container" class="flex flex-col space-y-20">
+                    <div class="text-center py-20">
+                        <div class="animate-pulse flex flex-col items-center">
+                            <div class="h-12 w-12 border-4 border-t-accent border-gray-800 rounded-full animate-spin mb-4"></div>
+                            <p class="text-gray-500 font-bold tracking-widest uppercase text-xs">Cooking up the menu...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- FOOTER -->
+        <footer style="padding: 60px 0; text-align: center; color: var(--text-secondary); font-size: 14px; border-top: 1px solid var(--glass-border); background: #0d0f14;">
+            <div class="container">
+                <img src="/images/logo.png" alt="Littiwale" style="height: 50px; margin-bottom: 20px; opacity: 0.8;">
+                <p>&copy; 2026 Littiwale. Best Food in Barbil. All Rights Reserved.</p>
+            </div>
+        </footer>
+
+        <!-- FLOATING BUTTONS -->
+        <div class="float-buttons">
+            <a href="index.html" class="float-btn float-menu" title="Home">🏠</a>
+            <a href="#" class="float-btn float-cart" id="float-cart-btn" title="Cart">
+                🛒 <span class="cart-counter-bubble" id="float-cart-count">0</span>
+            </a>
+            <a href="tel:+916370680744" class="float-btn float-call" title="Call">📞</a>
+            <a href="https://wa.me/916370680744" target="_blank" class="float-btn float-wa" title="WhatsApp">💬</a>
+        </div>
+
+    </div>
+
+    <!-- CART MODAL -->
+    <div id="cart-modal" class="modal-overlay">
+        <div class="modal-content animate-up">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
+                <h3 style="font-size: 24px; font-weight: 900;">Your Cart</h3>
+                <button id="close-cart" style="background: none; border: none; font-size: 32px; color: #fff; cursor: pointer;">&times;</button>
+            </div>
+            <div id="cart-items" style="display: flex; flex-direction: column; gap: 20px;"></div>
+            <div style="margin-top: 40px; padding-top: 20px; border-top: 2px dashed var(--glass-border);">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+                    <span style="font-weight: 700; color: var(--text-secondary);">Subtotal</span>
+                    <span id="cart-total" style="font-size: 28px; font-weight: 900; color: var(--primary);">₹0</span>
+                </div>
+                <button id="checkout-btn" class="btn btn-primary w-full py-4 text-xl">Checkout Now</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- SCRIPTS -->
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+    <script type="module" src="./src/menu.js"></script>
+</body>
+</html>

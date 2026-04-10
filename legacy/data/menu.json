@@ -1,0 +1,947 @@
+[
+    {
+        "id": "mumbai-street-vada-pav",
+        "name": "Mumbai Street Vada Pav",
+        "category": "Star Special",
+        "price": 49,
+        "description": "nan",
+        "veg": "veg"
+    },
+    {
+        "id": "authentic-bihari-litti-chokha",
+        "name": "Authentic Bihari Litti Chokha",
+        "category": "Star Special",
+        "price": 69,
+        "description": "nan",
+        "veg": "veg",
+        "bestseller": true
+    },
+    {
+        "id": "desi-delight-chick-a-litti",
+        "name": "Desi Delight Chick-a-Litti",
+        "category": "Star Special",
+        "price": 129,
+        "description": "nan",
+        "veg": "nonveg"
+    },
+    {
+        "id": "a1-swag-combo---veg",
+        "name": "A1 Swag Combo - Veg",
+        "category": "Star Special",
+        "price": 189,
+        "description": "Litti Chokha + Veg Sandwich + Vada Pav or Veg Burger",
+        "veg": "veg",
+        "options": [
+            "sandwich",
+            "burger"
+        ]
+    },
+    {
+        "id": "a1-swag-combo---non-veg",
+        "name": "A1 Swag Combo - Non Veg",
+        "category": "Star Special",
+        "price": 209,
+        "description": "Litti Chicken + Chicken Sandwich",
+        "veg": "nonveg"
+    },
+    {
+        "id": "veg-hot-n-sour-soup",
+        "name": "Veg Hot n Sour Soup",
+        "category": "Soup",
+        "price": 89,
+        "description": "nan",
+        "veg": "veg"
+    },
+    {
+        "id": "veg-manchow-soup",
+        "name": "Veg Manchow Soup",
+        "category": "Soup",
+        "price": 109,
+        "description": "nan",
+        "veg": "veg"
+    },
+    {
+        "id": "chicken-hot-n-sour-soup",
+        "name": "Chicken Hot n Sour Soup",
+        "category": "Soup",
+        "price": 109,
+        "description": "nan",
+        "veg": "nonveg"
+    },
+    {
+        "id": "chicken-manchow-soup",
+        "name": "Chicken Manchow Soup",
+        "category": "Soup",
+        "price": 129,
+        "description": "nan",
+        "veg": "nonveg"
+    },
+    {
+        "id": "littiwale-mega-feast---chilly-paneer-veg-fried-rice-lacha-paratha",
+        "name": "Littiwale Mega Feast - Chilly Paneer Veg Fried Rice Lacha Paratha",
+        "category": "Littiwale Mega Feast",
+        "price": 189,
+        "description": "Chilly Paneer (5 pcs) + Veg Fried Rice + 2 Lacha Paratha",
+        "veg": "veg"
+    },
+    {
+        "id": "littiwale-mega-feast---chilly-chicken-veg-fried-rice-lacha-paratha",
+        "name": "Littiwale Mega Feast - Chilly Chicken Veg Fried Rice Lacha Paratha",
+        "category": "Littiwale Mega Feast",
+        "price": 189,
+        "description": "Chilly Chicken (5 pcs) + Veg Fried Rice + 2 Lacha Paratha",
+        "veg": "nonveg",
+        "bestseller": true
+    },
+    {
+        "id": "littiwale-mega-feast---chilly-chicken-egg-fried-rice-lacha-paratha",
+        "name": "Littiwale Mega Feast - Chilly Chicken Egg Fried Rice Lacha Paratha",
+        "category": "Littiwale Mega Feast",
+        "price": 209,
+        "description": "Chilly Chicken (5 pcs) + Egg Fried Rice + 2 Lacha Paratha",
+        "veg": "nonveg",
+        "bestseller": true
+    },
+    {
+        "id": "littiwale-mega-feast---chilly-chicken-chicken-fried-rice-lacha-paratha",
+        "name": "Littiwale Mega Feast - Chilly Chicken Chicken Fried Rice Lacha Paratha",
+        "category": "Littiwale Mega Feast",
+        "price": 219,
+        "description": "Chilly Chicken (5 pcs) + Chicken Fried Rice + 2 Lacha Paratha",
+        "veg": "nonveg",
+        "bestseller": true
+    },
+    {
+        "id": "meals-for-one---lacha-paratha-paneer-chilly",
+        "name": "Meals for one - Lacha Paratha Paneer Chilly",
+        "category": "Littiwale Meal for One",
+        "price": 139,
+        "description": "Chilly Paneer (4 pcs) + Lacha Paratha",
+        "veg": "veg"
+    },
+    {
+        "id": "meals-for-one---veg-noodles-paneer-chilly",
+        "name": "Meals for one - Veg Noodles Paneer Chilly",
+        "category": "Littiwale Meal for One",
+        "price": 139,
+        "description": "Chilly Paneer (4 pcs) + Veg Noodles",
+        "veg": "veg",
+        "bestseller": true
+    },
+    {
+        "id": "meals-for-one---veg-fried-rice-paneer-chilly",
+        "name": "Meals for one - Veg Fried Rice Paneer Chilly",
+        "category": "Littiwale Meal for One",
+        "price": 139,
+        "description": "Chilly Paneer (4 pcs) + Veg Fried Rice",
+        "veg": "veg"
+    },
+    {
+        "id": "meals-for-one---veg-fried-rice-chicken-chilly",
+        "name": "Meals for one - Veg Fried Rice Chicken Chilly",
+        "category": "Littiwale Meal for One",
+        "price": 139,
+        "description": "Chilly Chicken (4 pcs) + Veg Fried Rice",
+        "veg": "nonveg"
+    },
+    {
+        "id": "meals-for-one---lacha-paratha-chicken-chilly",
+        "name": "Meals for one - Lacha Paratha Chicken Chilly",
+        "category": "Littiwale Meal for One",
+        "price": 139,
+        "description": "Chilly Chicken (4 pcs) + Lacha Paratha",
+        "veg": "nonveg"
+    },
+    {
+        "id": "meals-for-one---veg-noodles-chicken-chilly",
+        "name": "Meals for one - Veg Noodles Chicken Chilly",
+        "category": "Littiwale Meal for One",
+        "price": 139,
+        "description": "Chilly Chicken (4 pcs) + Veg Noodles",
+        "veg": "nonveg",
+        "bestseller": true
+    },
+    {
+        "id": "meals-for-one---egg-fried-rice-chilly-chicken",
+        "name": "Meals for one - Egg Fried Rice Chilly Chicken",
+        "category": "Littiwale Meal for One",
+        "price": 149,
+        "description": "Chilly Chicken (4 pcs) + Egg Fried Rice",
+        "veg": "nonveg",
+        "bestseller": true
+    },
+    {
+        "id": "meals-for-one---egg-noodles-chilly-chicken",
+        "name": "Meals for one - Egg Noodles Chilly Chicken",
+        "category": "Littiwale Meal for One",
+        "price": 149,
+        "description": "Chilly Chicken (4 pcs) + Egg Noodles",
+        "veg": "nonveg",
+        "bestseller": true
+    },
+    {
+        "id": "meals-for-one---chicken-noodles-chilly-chicken",
+        "name": "Meals for one - Chicken Noodles Chilly Chicken",
+        "category": "Littiwale Meal for One",
+        "price": 159,
+        "description": "Chilly Chicken (4 pcs) + Chicken Noodles",
+        "veg": "nonveg",
+        "bestseller": true
+    },
+    {
+        "id": "meals-for-one---chicken-fried-rice-chilly-chicken",
+        "name": "Meals for one - Chicken Fried Rice Chilly Chicken",
+        "category": "Littiwale Meal for One",
+        "price": 159,
+        "description": "Chilly Chicken (4 pcs) + Chicken Fried Rice",
+        "veg": "nonveg",
+        "bestseller": true
+    },
+    {
+        "id": "veg-sandwich",
+        "name": "Veg Sandwich",
+        "category": "Sandwiches",
+        "price": 49,
+        "description": "nan",
+        "veg": "veg"
+    },
+    {
+        "id": "cheese-veg-grilled-sandwich",
+        "name": "Cheese Veg Grilled Sandwich",
+        "category": "Sandwiches",
+        "price": 59,
+        "description": "nan",
+        "veg": "veg"
+    },
+    {
+        "id": "veg-sandwich-clubbed-3-layered",
+        "name": "Veg Sandwich Clubbed (3 layered)",
+        "category": "Sandwiches",
+        "price": 79,
+        "description": "nan",
+        "veg": "veg"
+    },
+    {
+        "id": "corn-cheese-sandwich-grilled",
+        "name": "Corn Cheese Sandwich Grilled",
+        "category": "Sandwiches",
+        "price": 79,
+        "description": "nan",
+        "veg": "veg"
+    },
+    {
+        "id": "cheese-chicken-sandwich",
+        "name": "Cheese Chicken Sandwich",
+        "category": "Sandwiches",
+        "price": 89,
+        "description": "nan",
+        "veg": "nonveg"
+    },
+    {
+        "id": "corn-sandwich-clubbed-3-layered",
+        "name": "Corn Sandwich Clubbed (3 layered)",
+        "category": "Sandwiches",
+        "price": 99,
+        "description": "nan",
+        "veg": "veg"
+    },
+    {
+        "id": "paneer-sandwich-clubbed-3-layered",
+        "name": "Paneer Sandwich Clubbed (3 layered)",
+        "category": "Sandwiches",
+        "price": 99,
+        "description": "nan",
+        "veg": "veg"
+    },
+    {
+        "id": "chicken-clubbed-sandwich-3-layered",
+        "name": "Chicken Clubbed Sandwich (3 layered)",
+        "category": "Sandwiches",
+        "price": 99,
+        "description": "nan",
+        "veg": "nonveg"
+    },
+    {
+        "id": "mix-veg-sandwich-clubbed-3-layered",
+        "name": "Mix Veg Sandwich Clubbed (3 layered)",
+        "category": "Sandwiches",
+        "price": 119,
+        "description": "nan",
+        "veg": "veg"
+    },
+    {
+        "id": "veg-noodles-half",
+        "name": "Veg Noodles (Half)",
+        "category": "Noodles/Rice",
+        "price": 49,
+        "description": "nan",
+        "veg": "veg",
+        "bestseller": true
+    },
+    {
+        "id": "veg-noodles-full",
+        "name": "Veg Noodles (Full)",
+        "category": "Noodles/Rice",
+        "price": 99,
+        "description": "nan",
+        "veg": "veg",
+        "bestseller": true
+    },
+    {
+        "id": "egg-noodles-half",
+        "name": "Egg Noodles (Half)",
+        "category": "Noodles/Rice",
+        "price": 69,
+        "description": "nan",
+        "veg": "nonveg"
+    },
+    {
+        "id": "egg-noodles-full",
+        "name": "Egg Noodles (Full)",
+        "category": "Noodles/Rice",
+        "price": 129,
+        "description": "nan",
+        "veg": "nonveg"
+    },
+    {
+        "id": "chicken-noodles-half",
+        "name": "Chicken Noodles (Half)",
+        "category": "Noodles/Rice",
+        "price": 89,
+        "description": "nan",
+        "veg": "nonveg"
+    },
+    {
+        "id": "chicken-noodles-full",
+        "name": "Chicken Noodles (Full)",
+        "category": "Noodles/Rice",
+        "price": 159,
+        "description": "nan",
+        "veg": "nonveg"
+    },
+    {
+        "id": "mix-veg-noodles-half",
+        "name": "Mix Veg Noodles (Half)",
+        "category": "Noodles/Rice",
+        "price": 109,
+        "description": "nan",
+        "veg": "veg",
+        "bestseller": true
+    },
+    {
+        "id": "mix-veg-noodles-full",
+        "name": "Mix Veg Noodles (Full)",
+        "category": "Noodles/Rice",
+        "price": 209,
+        "description": "nan",
+        "veg": "veg",
+        "bestseller": true
+    },
+    {
+        "id": "mix-non-veg-noodles-half",
+        "name": "Mix Non Veg Noodles (Half)",
+        "category": "Noodles/Rice",
+        "price": 109,
+        "description": "nan",
+        "veg": "nonveg",
+        "bestseller": true
+    },
+    {
+        "id": "mix-non-veg-noodles-full",
+        "name": "Mix Non Veg Noodles (Full)",
+        "category": "Noodles/Rice",
+        "price": 209,
+        "description": "nan",
+        "veg": "nonveg",
+        "bestseller": true
+    },
+    {
+        "id": "veg-fried-rice-half",
+        "name": "Veg Fried Rice (Half)",
+        "category": "Noodles/Rice",
+        "price": 89,
+        "description": "nan",
+        "veg": "veg"
+    },
+    {
+        "id": "veg-fried-rice-full",
+        "name": "Veg Fried Rice (Full)",
+        "category": "Noodles/Rice",
+        "price": 159,
+        "description": "nan",
+        "veg": "veg"
+    },
+    {
+        "id": "egg-fried-rice-half",
+        "name": "Egg Fried Rice (Half)",
+        "category": "Noodles/Rice",
+        "price": 109,
+        "description": "nan",
+        "veg": "nonveg"
+    },
+    {
+        "id": "egg-fried-rice-full",
+        "name": "Egg Fried Rice (Full)",
+        "category": "Noodles/Rice",
+        "price": 229,
+        "description": "nan",
+        "veg": "nonveg"
+    },
+    {
+        "id": "chicken-fried-rice-half",
+        "name": "Chicken Fried RIce (Half)",
+        "category": "Noodles/Rice",
+        "price": 129,
+        "description": "nan",
+        "veg": "nonveg",
+        "bestseller": true
+    },
+    {
+        "id": "chicken-fried-rice-full",
+        "name": "Chicken Fried RIce (Full)",
+        "category": "Noodles/Rice",
+        "price": 239,
+        "description": "nan",
+        "veg": "nonveg",
+        "bestseller": true
+    },
+    {
+        "id": "chilly-gobi-half",
+        "name": "Chilly Gobi (Half)",
+        "category": "Starters",
+        "price": 59,
+        "description": "5 pc",
+        "veg": "veg"
+    },
+    {
+        "id": "chilly-gobi-full",
+        "name": "Chilly Gobi (Full)",
+        "category": "Starters",
+        "price": 119,
+        "description": "10 pc",
+        "veg": "veg"
+    },
+    {
+        "id": "veg-manchurian-half",
+        "name": "Veg Manchurian (Half)",
+        "category": "Starters",
+        "price": 69,
+        "description": "5 pc",
+        "veg": "veg"
+    },
+    {
+        "id": "veg-manchurian-full",
+        "name": "Veg Manchurian (Full)",
+        "category": "Starters",
+        "price": 119,
+        "description": "10 pc",
+        "veg": "veg"
+    },
+    {
+        "id": "mushroom-chilly-half",
+        "name": "Mushroom Chilly (Half)",
+        "category": "Starters",
+        "price": 79,
+        "description": "5 pc",
+        "veg": "veg"
+    },
+    {
+        "id": "mushroom-chilly-full",
+        "name": "Mushroom Chilly (Full)",
+        "category": "Starters",
+        "price": 159,
+        "description": "10 pc",
+        "veg": "veg"
+    },
+    {
+        "id": "chilly-paneer-half",
+        "name": "Chilly Paneer (Half)",
+        "category": "Starters",
+        "price": 79,
+        "description": "5 pc",
+        "veg": "veg"
+    },
+    {
+        "id": "chilly-paneer-full",
+        "name": "Chilly Paneer (Full)",
+        "category": "Starters",
+        "price": 159,
+        "description": "10 pc",
+        "veg": "veg"
+    },
+    {
+        "id": "chilly-chicken-half",
+        "name": "Chilly Chicken (Half)",
+        "category": "Starters",
+        "price": 99,
+        "description": "6 pc",
+        "veg": "nonveg",
+        "bestseller": true
+    },
+    {
+        "id": "chilly-chicken-full",
+        "name": "Chilly Chicken (Full)",
+        "category": "Starters",
+        "price": 199,
+        "description": "12 pc",
+        "veg": "nonveg",
+        "variant": "12 pc",
+        "bestseller": true
+    },
+    {
+        "id": "laccha-paratha",
+        "name": "Laccha Paratha",
+        "category": "Breads",
+        "price": 39,
+        "description": "1 pc",
+        "veg": "veg",
+        "variant": "1 pc"
+    },
+    {
+        "id": "tawa-roti",
+        "name": "Tawa Roti",
+        "category": "Breads",
+        "price": 9,
+        "description": "1 pc",
+        "veg": "veg",
+        "variant": "1 pc"
+    },
+    {
+        "id": "garam-gobi-gully-paratha",
+        "name": "Garam Gobi Gully Paratha",
+        "category": "Breads",
+        "price": 89,
+        "description": "2 pcs",
+        "veg": "veg",
+        "variant": "2 pcs"
+    },
+    {
+        "id": "punjabi-patiala-aloo-paratha",
+        "name": "Punjabi Patiala Aloo Paratha",
+        "category": "Breads",
+        "price": 89,
+        "description": "2 pcs",
+        "veg": "veg",
+        "variant": "2 pcs"
+    },
+    {
+        "id": "dil-se-paneer-paratha",
+        "name": "Dil Se Paneer Paratha",
+        "category": "Breads",
+        "price": 99,
+        "description": "2 pcs",
+        "veg": "veg",
+        "variant": "2 pcs"
+    },
+    {
+        "id": "cheesy-corn-chulbuli-paratha",
+        "name": "Cheesy Corn Chulbuli Paratha",
+        "category": "Breads",
+        "price": 109,
+        "description": "2 pcs",
+        "veg": "veg",
+        "variant": "2 pcs"
+    },
+    {
+        "id": "littiwale-loaded-paratha",
+        "name": "Littiwale Loaded Paratha",
+        "category": "Breads",
+        "price": 129,
+        "description": "2 pcs",
+        "veg": "veg",
+        "variant": "2 pcs"
+    },
+    {
+        "id": "veg-pizza",
+        "name": "Veg Pizza",
+        "category": "Pizza",
+        "price": 119,
+        "description": "nan",
+        "veg": "veg"
+    },
+    {
+        "id": "corn-pizza",
+        "name": "Corn Pizza",
+        "category": "Pizza",
+        "price": 129,
+        "description": "nan",
+        "veg": "veg"
+    },
+    {
+        "id": "paneer-pizza",
+        "name": "Paneer Pizza",
+        "category": "Pizza",
+        "price": 149,
+        "description": "nan",
+        "veg": "veg",
+        "bestseller": true
+    },
+    {
+        "id": "chicken-pizza",
+        "name": "Chicken Pizza",
+        "category": "Pizza",
+        "price": 199,
+        "description": "nan",
+        "veg": "nonveg"
+    },
+    {
+        "id": "red-sauce-pasta-half",
+        "name": "Red Sauce Pasta (Half)",
+        "category": "Pasta",
+        "price": 79,
+        "description": "nan",
+        "veg": "veg"
+    },
+    {
+        "id": "red-sauce-pasta-full",
+        "name": "Red Sauce Pasta (Full)",
+        "category": "Pasta",
+        "price": 159,
+        "description": "nan",
+        "veg": "veg"
+    },
+    {
+        "id": "white-sauce-pasta-half",
+        "name": "White Sauce Pasta (Half)",
+        "category": "Pasta",
+        "price": 99,
+        "description": "nan",
+        "veg": "veg"
+    },
+    {
+        "id": "white-sauce-pasta-full",
+        "name": "White Sauce Pasta (Full)",
+        "category": "Pasta",
+        "price": 199,
+        "description": "nan",
+        "veg": "veg"
+    },
+    {
+        "id": "veg-maggie-half",
+        "name": "Veg Maggie (Half)",
+        "category": "Maggi",
+        "price": 39,
+        "description": "nan",
+        "veg": "veg"
+    },
+    {
+        "id": "veg-maggie-full",
+        "name": "Veg Maggie (Full)",
+        "category": "Maggi",
+        "price": 79,
+        "description": "nan",
+        "veg": "veg"
+    },
+    {
+        "id": "cheese-maggie-half",
+        "name": "Cheese Maggie (Half)",
+        "category": "Maggi",
+        "price": 49,
+        "description": "nan",
+        "veg": "veg"
+    },
+    {
+        "id": "cheese-maggie-full",
+        "name": "Cheese Maggie (Full)",
+        "category": "Maggi",
+        "price": 99,
+        "description": "nan",
+        "veg": "veg"
+    },
+    {
+        "id": "dal-makhani-half",
+        "name": "Dal Makhani (Half)",
+        "category": "Main Course",
+        "price": 99,
+        "description": "nan",
+        "veg": "veg"
+    },
+    {
+        "id": "dal-makhani-full",
+        "name": "Dal Makhani (Full)",
+        "category": "Main Course",
+        "price": 189,
+        "description": "nan",
+        "veg": "veg"
+    },
+    {
+        "id": "dal-tadka-half",
+        "name": "Dal Tadka (Half)",
+        "category": "Main Course",
+        "price": 89,
+        "description": "nan",
+        "veg": "veg"
+    },
+    {
+        "id": "dal-tadka-full",
+        "name": "Dal Tadka (Full)",
+        "category": "Main Course",
+        "price": 179,
+        "description": "nan",
+        "veg": "veg"
+    },
+    {
+        "id": "mix-veg-half",
+        "name": "Mix Veg (Half)",
+        "category": "Main Course",
+        "price": 99,
+        "description": "nan",
+        "veg": "veg"
+    },
+    {
+        "id": "mix-veg-full",
+        "name": "Mix Veg (Full)",
+        "category": "Main Course",
+        "price": 189,
+        "description": "nan",
+        "veg": "veg"
+    },
+    {
+        "id": "paneer-butter-masala-half",
+        "name": "Paneer Butter Masala (Half)",
+        "category": "Main Course",
+        "price": 129,
+        "description": "nan",
+        "veg": "veg",
+        "bestseller": true
+    },
+    {
+        "id": "paneer-butter-masala-full",
+        "name": "Paneer Butter Masala (Full)",
+        "category": "Main Course",
+        "price": 219,
+        "description": "nan",
+        "veg": "veg",
+        "bestseller": true
+    },
+    {
+        "id": "paneer-masala-half",
+        "name": "Paneer Masala (Half)",
+        "category": "Main Course",
+        "price": 99,
+        "description": "nan",
+        "veg": "veg"
+    },
+    {
+        "id": "paneer-masala-full",
+        "name": "Paneer Masala (Full)",
+        "category": "Main Course",
+        "price": 189,
+        "description": "nan",
+        "veg": "veg"
+    },
+    {
+        "id": "egg-tadka-half",
+        "name": "Egg tadka (Half)",
+        "category": "Main Course",
+        "price": 109,
+        "description": "nan",
+        "veg": "nonveg"
+    },
+    {
+        "id": "egg-tadka-full",
+        "name": "Egg tadka (Full)",
+        "category": "Main Course",
+        "price": 199,
+        "description": "nan",
+        "veg": "nonveg"
+    },
+    {
+        "id": "mushroom-masala-half",
+        "name": "Mushroom Masala (Half)",
+        "category": "Main Course",
+        "price": 99,
+        "description": "nan",
+        "veg": "veg"
+    },
+    {
+        "id": "mushroom-masala-full",
+        "name": "Mushroom Masala (Full)",
+        "category": "Main Course",
+        "price": 189,
+        "description": "nan",
+        "veg": "veg"
+    },
+    {
+        "id": "chicken-chatpata-half",
+        "name": "Chicken Chatpata (Half)",
+        "category": "Main Course",
+        "price": 129,
+        "description": "nan",
+        "veg": "nonveg"
+    },
+    {
+        "id": "chicken-chatpata-full",
+        "name": "Chicken Chatpata (Full)",
+        "category": "Main Course",
+        "price": 219,
+        "description": "nan",
+        "veg": "nonveg"
+    },
+    {
+        "id": "chicken-masala-half",
+        "name": "Chicken Masala (Half)",
+        "category": "Main Course",
+        "price": 99,
+        "description": "nan",
+        "veg": "nonveg"
+    },
+    {
+        "id": "chicken-masala-full",
+        "name": "Chicken Masala (Full)",
+        "category": "Main Course",
+        "price": 189,
+        "description": "nan",
+        "veg": "nonveg"
+    },
+    {
+        "id": "chicken-handi-half",
+        "name": "Chicken Handi (Half)",
+        "category": "Main Course",
+        "price": 139,
+        "description": "nan",
+        "veg": "nonveg"
+    },
+    {
+        "id": "chicken-handi-full",
+        "name": "Chicken Handi (Full)",
+        "category": "Main Course",
+        "price": 279,
+        "description": "nan",
+        "veg": "nonveg"
+    },
+    {
+        "id": "chicken-champaran-half",
+        "name": "Chicken Champaran (Half)",
+        "category": "Main Course",
+        "price": 289,
+        "description": "half kg",
+        "veg": "nonveg"
+    },
+    {
+        "id": "chicken-champaran-full",
+        "name": "Chicken Champaran (Full)",
+        "category": "Main Course",
+        "price": 549,
+        "description": "1 kg",
+        "veg": "nonveg"
+    },
+    {
+        "id": "fish-curry-half",
+        "name": "Fish Curry (Half)",
+        "category": "Main Course",
+        "price": 49,
+        "description": "nan",
+        "veg": "nonveg"
+    },
+    {
+        "id": "fish-curry-full",
+        "name": "Fish Curry (Full)",
+        "category": "Main Course",
+        "price": 99,
+        "description": "nan",
+        "veg": "nonveg"
+    },
+    {
+        "id": "veg-thali",
+        "name": "Veg Thali",
+        "category": "Thali",
+        "price": 79,
+        "description": "Roti(5pc) or (Rice+Dal)+1 type of Sabzi+ 1 type of Bhujia+Papad",
+        "veg": "veg",
+        "options": [
+            "roti",
+            "rice"
+        ]
+    },
+    {
+        "id": "paneer-thali",
+        "name": "Paneer Thali",
+        "category": "Thali",
+        "price": 109,
+        "description": "Roti(5pc) or (Rice+Dal)+1 type of Paneer Sabzi+ 1 type of Bhujia+Papad",
+        "veg": "veg",
+        "options": [
+            "roti",
+            "rice"
+        ]
+    },
+    {
+        "id": "egg-thali",
+        "name": "Egg Thali",
+        "category": "Thali",
+        "price": 99,
+        "description": "Roti(5pc) or (Rice+Dal)+Egg Curry (2 pcs)+ 1 type of Bhujia+Papad",
+        "veg": "nonveg",
+        "options": [
+            "roti",
+            "rice"
+        ],
+        "variant": "Roti(5pc) or (Rice+Dal)+Egg Curry (2 pcs)+ 1 type of Bhujia+Papad"
+    },
+    {
+        "id": "fish-thali",
+        "name": "Fish Thali",
+        "category": "Thali",
+        "price": 109,
+        "description": "Roti(5pc) or (Rice+Dal)+Fish Curry(2 pcs )+ 1 type of Bhujia+Papad",
+        "veg": "nonveg",
+        "options": [
+            "roti",
+            "rice"
+        ],
+        "variant": "Roti(5pc) or (Rice+Dal)+Fish Curry(2 pcs )+ 1 type of Bhujia+Papad"
+    },
+    {
+        "id": "chicken-thali",
+        "name": "Chicken Thali",
+        "category": "Thali",
+        "price": 129,
+        "description": "Roti(5pc) or (Rice+Dal)+Chicken Curry (4 pcs)+ 1 type of Bhujia+Papad",
+        "veg": "nonveg",
+        "options": [
+            "roti",
+            "rice"
+        ]
+    },
+    {
+        "id": "masterchef-special-thecha-chowmein-half",
+        "name": "Masterchef Special Thecha Chowmein (Half)",
+        "category": "Star Special",
+        "price": 79,
+        "description": "nan",
+        "veg": "veg"
+    },
+    {
+        "id": "masterchef-special-thecha-chowmein-full",
+        "name": "Masterchef Special Thecha Chowmein (Full)",
+        "category": "Star Special",
+        "price": 149,
+        "description": "nan",
+        "veg": "veg"
+    },
+    {
+        "id": "rajma-chawal",
+        "name": "Rajma Chawal",
+        "category": "Littiwale Rice Bowl Combos",
+        "price": 79,
+        "description": "nan",
+        "veg": "veg"
+    },
+    {
+        "id": "chole-chawal",
+        "name": "Chole Chawal",
+        "category": "Littiwale Rice Bowl Combos",
+        "price": 79,
+        "description": "nan",
+        "veg": "veg"
+    },
+    {
+        "id": "kadhi-chawal",
+        "name": "Kadhi Chawal",
+        "category": "Littiwale Rice Bowl Combos",
+        "price": 79,
+        "description": "nan",
+        "veg": "veg"
+    }
+]

@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Littiwale - Taste of Desi Swag | Best Food in Barbil</title>
+    <meta name="description" content="Order authentic Bihari Litti Chokha, Pizza, Burgers, and Thalis in Barbil. Premium taste, fast delivery.">
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&family=Playfair+Display:wght@700;900&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="./src/style.css">
+    <link rel="icon" type="image/png" href="/images/logo.png">
+    
+    <!-- PWA -->
+    <meta name="theme-color" content="#0d0d0d">
+    <link rel="manifest" href="/manifest.json">
+</head>
+<body>
+
+    <div id="app" class="hidden">
+        
+        <!-- SECTION 1: NAVBAR -->
+        <nav class="navbar">
+            <div class="container nav-container">
+                <a href="index.html" class="logo-link">
+                    <img src="/images/logo.png" alt="Littiwale" class="nav-logo">
+                </a>
+                
+                <ul class="nav-links">
+                    <li><a href="#home">Home</a></li>
+                    <li><a href="menu.html">Menu</a></li>
+                    <li><a href="#about">About</a></li>
+                    <li><a href="#reach">Reach Us</a></li>
+                    <li><a href="#connect">Social</a></li>
+                    <li><a href="#" class="btn btn-primary nav-get-deals-btn" style="padding: 8px 16px; font-size: 12px;">🔥 Get Deals</a></li>
+                </ul>
+
+                <div class="nav-right">
+                    <!-- Profile area: injected by JS -->
+                    <div id="nav-profile-area"></div>
+                    
+                    <a href="#" class="cart-btn" id="nav-cart-btn">
+                        🛒 Cart <span id="cart-count" class="cart-badge">0</span>
+                    </a>
+                </div>
+            </div>
+        </nav>
+
+        <!-- SECTION 2: ANNOUNCEMENT CAROUSEL -->
+        <section id="announcement" style="display:none;">
+            <div class="announcement-container">
+                <h2 class="announcement-title">📢 New Announcement</h2>
+                <div id="announcement-carousel">
+                    <!-- Slides injected by JS -->
+                </div>
+                <div id="announcement-dots" style="display: flex; justify-content: center; gap: 8px; margin-top: 10px;"></div>
+            </div>
+        </section>
+
+        <!-- SECTION 3: HERO -->
+        <header id="home" class="hero">
+            <div class="hero-bg-text">DESI SWAG</div>
+            <div class="hero-content container animate-up">
+                <span style="color: var(--primary); font-weight: 800; text-transform: uppercase; letter-spacing: 4px; display: block; margin-bottom: 10px;">PREMIUM COMFORT FOOD</span>
+                <h1 style="font-family: var(--font-display), serif;">Best Restaurant in Barbil for Litti Chokha, Meals, Pizza & Combos</h1>
+                <p>Authentic Indian flavors served fresh every day. Experience the soul of Bihar at your doorstep.</p>
+                <div class="hero-buttons">
+                    <a href="menu.html" class="btn btn-primary">Explore Menu</a>
+                    <a href="https://zomato.onelink.me/xqzv/pehoc5j0" target="_blank" class="btn btn-secondary">Order on Zomato</a>
+                    <a href="https://wa.me/916370680744" target="_blank" class="btn btn-whatsapp">💬 WhatsApp Order</a>
+                </div>
+            </div>
+            <div class="hero-glow"></div>
+        </header>
+
+        <!-- BESTSELLER SECTION (HALL OF FAME) -->
+        <section id="bestseller-section" style="padding: 60px 20px; background: #0d0f14;">
+          <div style="text-align:center; margin-bottom: 40px;">
+            <p style="color: #F5A800; letter-spacing: 3px; font-size: 12px; text-transform: uppercase; font-weight: 600;">Trending Now</p>
+            <h2 style="font-family: var(--font-display), serif; font-size: 42px; font-weight: 800; color: #fff; margin-top: 8px;">🔥 Hall of Fame</h2>
+            <p style="color: #7a8098; margin-top: 8px; font-size: 18px;">Top Rated by Our Customers</p>
+          </div>
+          <div id="bestseller-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px; max-width: 1100px; margin: 0 auto;"></div>
+          <div style="text-align:center; margin-top: 40px;">
+            <a href="menu.html" style="background: #F5A800; color: #000; padding: 14px 36px; border-radius: 10px; font-weight: 700; font-size: 15px; text-decoration: none; letter-spacing: 1px;">VIEW FULL MENU →</a>
+          </div>
+        </section>
+
+        <!-- SECTION 4: ABOUT -->
+        <section id="about" class="about-section section-padding">
+            <div class="container text-center animate-up">
+                <h2 style="font-size: 32px;">A Local Favorite for Authentic Indian Comfort Food</h2>
+                <div class="divider"></div>
+                <p style="color: var(--primary); font-weight: 700; font-size: 18px; margin-bottom: 20px;">🍽️ Best food in Barbil | Pizza, Burgers, Meals, Thali & Combos</p>
+                <p style="max-width: 800px; margin: 0 auto; color: var(--text-secondary);">
+                    Looking for food near me in Barbil? Littiwale offers the best pizza, burgers, thali, and combo meals with fast delivery and great taste. We pride ourselves on using traditional recipes and fresh local ingredients to bring you a taste that feels like home.
+                </p>
+            </div>
+        </section>
+
+        <!-- SECTION 5: CRAZIEST DEALS OF THE HOUR -->
+        <section id="craziest-deals-section" style="display:none;" class="section-padding">
+            <div class="container">
+                <h2 class="text-center">🔥 Craziest Deals of the Hour</h2>
+                <div class="divider"></div>
+                <div class="menu-grid" id="deals-grid">
+                    <!-- Dynamic deals injected by JS -->
+                </div>
+            </div>
+        </section>
+
+
+        <!-- SECTION 8: CATERING & MEAL SERVICES -->
+        <section id="catering" class="section-padding" style="background: var(--bg-light);">
+            <div class="container text-center">
+                <h2>🎪 Catering & Meal Services</h2>
+                <div class="divider"></div>
+                <div class="catering-grid">
+                    <div class="catering-card">
+                        <span class="catering-icon">🎉</span>
+                        <h3>Party Orders</h3>
+                        <p>Bulk orders for family events and get-togethers.</p>
+                        <a href="https://wa.me/916370680744?text=Party Order Inquiry" target="_blank" class="btn btn-outline">Book Now</a>
+                    </div>
+                    <div class="catering-card">
+                        <span class="catering-icon">🎂</span>
+                        <h3>Birthday Orders</h3>
+                        <p>Special kids combo and snack platters for birthdays.</p>
+                        <a href="https://wa.me/916370680744?text=Birthday Order Inquiry" target="_blank" class="btn btn-outline">Book Now</a>
+                    </div>
+                    <div class="catering-card">
+                        <span class="catering-icon">🏢</span>
+                        <h3>Office Meals</h3>
+                        <p>Daily thali or bulk corporate lunches.</p>
+                        <a href="https://wa.me/916370680744?text=Office Meal Inquiry" target="_blank" class="btn btn-outline">Book Now</a>
+                    </div>
+                    <div class="catering-card">
+                        <span class="catering-icon">✨</span>
+                        <h3>Custom Menu</h3>
+                        <p>Tailored catering requests exactly to your taste.</p>
+                        <a href="https://wa.me/916370680744?text=Custom Menu Inquiry" target="_blank" class="btn btn-outline">Book Now</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 9: WHAT PEOPLE ARE LOVING -->
+        <section id="social-love" class="section-padding">
+            <div class="container">
+                <h2 class="section-title text-center">📸 What People Are Loving at Littiwale Barbil 💗</h2>
+                <div class="divider"></div>
+                <div class="social-strip" id="social-images-strip">
+                    <img src="/images/instagram/reel1.png" alt="Littiwale Love" onerror="this.src='/images/logo.png'">
+                    <img src="/images/instagram/reel2.png" alt="Littiwale Love" onerror="this.src='/images/logo.png'">
+                    <img src="/images/instagram/reel3.png" alt="Littiwale Love" onerror="this.src='/images/logo.png'">
+                    <img src="/images/instagram/reel4.png" alt="Littiwale Love" onerror="this.src='/images/logo.png'">
+                    <img src="/images/instagram/reel5.png" alt="Littiwale Love" onerror="this.src='/images/logo.png'">
+                    <img src="/images/instagram/reel6.png" alt="Littiwale Love" onerror="this.src='/images/logo.png'">
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 10: REACH US -->
+        <section id="reach" class="section-padding" style="background: var(--bg-light); border-top: 1px solid var(--glass-border);">
+            <div class="container">
+                <div class="reach-grid">
+                    <div class="reach-left">
+                        <h2 style="font-size: 36px;">Reach Us</h2>
+                        <div class="divider left"></div>
+                        <div class="reach-info">
+                            <p>📍 Ward no-7, Punjabi Para, Barbil, Odisha 758035</p>
+                            <p>📞 +91 63706 80744</p>
+                            <p>🕐 11:00 AM – 10:30 PM (Mon–Sun)</p>
+                        </div>
+                        <div class="reach-buttons">
+                            <a href="tel:+916370680744" class="btn btn-outline">Call Now</a>
+                            <a href="https://wa.me/916370680744" target="_blank" class="btn btn-whatsapp">WhatsApp</a>
+                            <a href="https://maps.google.com/?q=Littiwale+Barbil" target="_blank" class="btn btn-primary">Get Directions</a>
+                        </div>
+                    </div>
+                    <div class="reach-right">
+                        <iframe
+                            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3691.564756550616!2d85.39578641495393!3d22.11568288542283!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3a1e39a3f9e9e9e9%3A0x9e9e9e9e9e9e9e9e!2sLittiwale!5e0!3m2!1sen!2sin!4v1620000000000!5m2!1sen!2sin"
+                            width="100%" height="350" style="border:0;border-radius:16px; filter: grayscale(1) invert(1) contrast(1.2);" allowfullscreen="" loading="lazy">
+                        </iframe>
+                    </div>
+                </div>
+                <!-- Connect With Us -->
+                <div id="connect" style="text-align:center; margin-top:80px;">
+                    <h3>Connect With Us</h3>
+                    <div class="divider"></div>
+                    <div style="display: flex; justify-content: center; gap: 30px; font-weight: 700; color: var(--primary);">
+                        <a href="https://instagram.com/littiwale" target="_blank" style="color: inherit; text-decoration: none;">Instagram</a>
+                        <a href="https://facebook.com/littiwale" target="_blank" style="color: inherit; text-decoration: none;">Facebook</a>
+                        <a href="#" target="_blank" style="color: inherit; text-decoration: none;">YouTube</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- FOOTER -->
+        <footer style="padding: 40px 0; text-align: center; color: var(--text-secondary); font-size: 14px; border-top: 1px solid var(--glass-border);">
+            <p>&copy; 2026 Littiwale. Best Food in Barbil. All Rights Reserved.</p>
+        </footer>
+
+        <!-- SECTION 11: FLOATING BUTTONS -->
+        <div class="float-buttons">
+            <a href="menu.html" class="float-btn float-menu" title="Menu">🍴</a>
+            <a href="#" class="float-btn float-cart" id="float-cart-btn" title="Cart">
+                🛒 <span class="cart-counter-bubble" id="float-cart-count">0</span>
+            </a>
+            <a href="tel:+916370680744" class="float-btn float-call" title="Call">📞</a>
+            <a href="https://wa.me/916370680744" target="_blank" class="float-btn float-wa" title="WhatsApp">💬</a>
+        </div>
+
+    </div>
+
+    <!-- MODALS -->
+    <div id="cart-modal" class="modal-overlay">
+        <div class="modal-content animate-up">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
+                <h3 style="font-size: 24px; font-weight: 900;">Your Cart</h3>
+                <button id="close-cart" style="background: none; border: none; font-size: 32px; color: #fff; cursor: pointer;">&times;</button>
+            </div>
+            <div id="cart-items" style="display: flex; flex-direction: column; gap: 20px;">
+                <!-- Items injected by JS -->
+            </div>
+            <div style="margin-top: 40px; padding-top: 20px; border-top: 2px dashed var(--glass-border);">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+                    <span style="font-weight: 700; color: var(--text-secondary);">Subtotal</span>
+                    <span id="cart-total" style="font-size: 28px; font-weight: 900; color: var(--primary);">₹0</span>
+                </div>
+                <button id="checkout-btn" class="btn btn-primary w-full py-4 text-xl">Checkout Now</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- SCRIPTS -->
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+    <script type="module" src="./src/main.js"></script>
+</body>
+</html>
