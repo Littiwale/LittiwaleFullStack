@@ -1,4 +1,4 @@
-import { collection, addDoc, getDoc, doc, serverTimestamp, updateDoc } from 'firebase/firestore';
+import { collection, addDoc, getDoc, getDocs, doc, serverTimestamp, updateDoc, query, where, orderBy, limit } from 'firebase/firestore';
 import { db } from '../firebase/config';
 import { ORDER_STATUS } from '../constants/orderStatus';
 
@@ -117,3 +117,26 @@ export const assignRiderToOrder = async (docId, riderId, riderName) => {
         status: ORDER_STATUS.ASSIGNED
     });
 };
+
+/**
+ * Fetches the last 10 orders for a given user UID (for My Orders modal)
+ * @param {string} uid
+ * @returns {Promise<Array>}
+ */
+export const fetchOrdersByUser = async (uid) => {
+    try {
+        const ordersRef = collection(db, 'orders');
+        const q = query(
+            ordersRef,
+            where('userId', '==', uid),
+            orderBy('createdAt', 'desc'),
+            limit(10)
+        );
+        const snapshot = await getDocs(q);
+        return snapshot.docs.map(d => ({ docId: d.id, ...d.data() }));
+    } catch (error) {
+        console.error('Error fetching user orders:', error);
+        return [];
+    }
+};
+

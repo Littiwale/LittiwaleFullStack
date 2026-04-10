@@ -4,6 +4,7 @@ import { initCheckout } from './menu/checkout';
 import { onAuthChange, logoutUser } from './api/auth';
 import { fetchAnnouncements } from './api/announcements';
 import { addItem } from './store/cart';
+import { fetchOrdersByUser } from './api/orders';
 
 /**
  * 🚀 LITTIWALE CORE ENGINE (VANILLA JS)
@@ -113,12 +114,23 @@ const init = async () => {
             announcements.forEach((ann, idx) => {
                 const slide = document.createElement('div');
                 slide.className = 'announcement-slide';
-                slide.innerHTML = `<p>${ann.title} - ${ann.description}</p>`;
+
+                // Item 8: if imageUrl exists → image slide, else text slide
+                if (ann.imageUrl) {
+                    slide.innerHTML = `
+                        <img src="${ann.imageUrl}" alt="${ann.title || 'Announcement'}"
+                            style="width:100%;max-height:220px;object-fit:cover;border-radius:12px;display:block;">
+                        ${ann.title ? `<p style="margin-top:8px;font-size:13px;font-weight:700;text-align:center;">${ann.title}</p>` : ''}
+                    `;
+                } else {
+                    slide.innerHTML = `<p>${ann.title || ''}${ann.title && ann.description ? ' — ' : ''}${ann.description || ''}</p>`;
+                }
+
                 annCarousel.appendChild(slide);
 
                 const dot = document.createElement('div');
                 dot.className = 'ann-dot';
-                dot.style = `width: 8px; height: 8px; border-radius: 50%; background: ${idx === 0 ? '#000' : 'rgba(0,0,0,0.2)'}; cursor: pointer;`;
+                dot.style = `width: 8px; height: 8px; border-radius: 50%; background: ${idx === 0 ? '#F5A800' : 'rgba(255,255,255,0.3)'}; cursor: pointer; transition: background 0.3s;`;
                 annDots.appendChild(dot);
             });
 
@@ -128,11 +140,12 @@ const init = async () => {
                 currentSlide = (currentSlide + 1) % announcements.length;
                 annCarousel.scrollTo({ left: currentSlide * annCarousel.clientWidth, behavior: 'smooth' });
                 Array.from(annDots.children).forEach((dot, i) => {
-                    dot.style.background = i === currentSlide ? '#000' : 'rgba(0,0,0,0.2)';
+                    dot.style.background = i === currentSlide ? '#F5A800' : 'rgba(255,255,255,0.3)';
                 });
             }, 5000);
         }
     } catch (err) { console.error('Announcements failed:', err); }
+
 
     // 3. MENU DATA & SECTIONS
     try {
@@ -170,11 +183,156 @@ const init = async () => {
     [cartBtn, floatCartBtn].forEach(btn => btn?.addEventListener('click', (e) => {
         e.preventDefault();
         modal.style.display = 'flex';
+        // Refresh delivery estimate every time cart opens
+        updateDeliveryEstimate();
     }));
 
     closeModal?.addEventListener('click', () => modal.style.display = 'none');
     modal?.addEventListener('click', (e) => { if (e.target === modal) modal.style.display = 'none'; });
+
+    // ── DELIVERY ESTIMATE (Item 7) ──
+    updateDeliveryEstimate();
+
+    // ── MY ORDERS MODAL (Item 5) ──
+    const myOrdersBtn = document.querySelector('#my-orders-btn');
+    const myOrdersModal = document.querySelector('#my-orders-modal');
+    const closeMyOrders = document.querySelector('#close-my-orders');
+
+    if (myOrdersBtn && myOrdersModal) {
+        myOrdersBtn.addEventListener('click', () => {
+            modal.style.display = 'none';
+            myOrdersModal.style.display = 'flex';
+            loadMyOrders();
+        });
+        closeMyOrders?.addEventListener('click', () => myOrdersModal.style.display = 'none');
+        myOrdersModal.addEventListener('click', (e) => {
+            if (e.target === myOrdersModal) myOrdersModal.style.display = 'none';
+        });
+    }
 };
+
+/**
+ * 🕐 DELIVERY ESTIMATE ENGINE (Item 7)
+ * Checks online riders in Firestore, adjusts for peak hours.
+ */
+const updateDeliveryEstimate = async () => {
+    const el = document.querySelector('#delivery-estimate');
+    if (!el) return;
+
+    try {
+        const { collection, query, where, getDocs } = await import('firebase/firestore');
+        const { db } = await import('./firebase/config');
+
+        const ridersSnap = await getDocs(
+            query(collection(db, 'users'), where('role', '==', 'rider'), where('isOnline', '==', true))
+        );
+        const onlineCount = ridersSnap.size;
+
+        // Base estimate
+        let low = onlineCount > 0 ? 25 : 35;
+        let high = onlineCount > 0 ? 35 : 50;
+
+        // Peak hour check (12–14 or 19–21)
+        const hour = new Date().getHours();
+        const isPeak = (hour >= 12 && hour < 14) || (hour >= 19 && hour < 21);
+        if (isPeak) { low += 10; high += 10; }
+
+        el.textContent = `🕐 Estimated delivery: ${low}–${high} min`;
+    } catch {
+        el.textContent = '🕐 Estimated delivery: 30–45 min';
+    }
+};
+
+/**
+ * 📦 MY ORDERS LOADER (Item 5)
+ */
+const loadMyOrders = async () => {
+    const list = document.querySelector('#my-orders-list');
+    if (!list) return;
+
+    // Need auth user
+    const { auth } = await import('./firebase/config');
+    const user = auth.currentUser;
+    if (!user) {
+        list.innerHTML = '<p style="text-align:center;color:#7a8098;padding:40px 0;">Please log in to see your orders.</p>';
+        return;
+    }
+
+    list.innerHTML = '<p style="text-align:center;color:#7a8098;padding:40px 0;">Loading...</p>';
+
+    try {
+        const orders = await fetchOrdersByUser(user.uid);
+        if (orders.length === 0) {
+            list.innerHTML = '<p style="text-align:center;color:#7a8098;padding:40px 0;">No orders yet! Start ordering 🍽️</p>';
+            return;
+        }
+
+        list.innerHTML = orders.map(order => {
+            const date = order.createdAt?.toDate ? order.createdAt.toDate().toLocaleDateString('en-IN', { day:'numeric', month:'short', year:'numeric' }) : 'Recently';
+            const items = order.items?.map(i => `${i.name} × ${i.quantity}`).join(', ') || '—';
+            const statusColor = {
+                'DELIVERED': '#10B981', 'PLACED': '#3B82F6', 'CANCELLED': '#ef4444',
+                'PREPARING': '#F59E0B', 'ASSIGNED': '#8B5CF6'
+            }[order.status] || '#7a8098';
+
+            return `
+                <div style="padding:16px;border-bottom:1px solid #252830;">
+                    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px;">
+                        <div>
+                            <p style="font-size:10px;color:#7a8098;font-weight:800;letter-spacing:1px;text-transform:uppercase;">${order.orderId || order.docId?.slice(0,8)}</p>
+                            <p style="font-size:12px;color:#9ca3af;margin-top:2px;">${date}</p>
+                        </div>
+                        <div style="text-align:right;">
+                            <p style="font-size:18px;font-weight:900;color:#F5A800;">₹${order.total}</p>
+                            <span style="font-size:9px;font-weight:900;color:${statusColor};text-transform:uppercase;letter-spacing:1px;">${order.status?.replace(/_/g,' ')}</span>
+                        </div>
+                    </div>
+                    <p style="font-size:12px;color:#9ca3af;margin-bottom:12px;line-height:1.5;">${items}</p>
+                    <button
+                        onclick="window.reorderItems(${JSON.stringify(order.items).replace(/"/g, '&quot;')})"
+                        style="width:100%;padding:10px;background:transparent;border:1px solid #F5A800;border-radius:10px;color:#F5A800;font-size:12px;font-weight:800;letter-spacing:1px;cursor:pointer;text-transform:uppercase;">
+                        🔄 Reorder
+                    </button>
+                </div>
+            `;
+        }).join('');
+    } catch (err) {
+        console.error('My orders failed:', err);
+        list.innerHTML = '<p style="text-align:center;color:#ef4444;padding:40px 0;">Failed to load orders. Try again.</p>';
+    }
+};
+
+// ── REORDER GLOBAL HANDLER ──
+window.reorderItems = (items) => {
+    if (!Array.isArray(items) || items.length === 0) return;
+    items.forEach(item => addItem(item, item.variant || 'single', item.price));
+
+    // Close My Orders modal, show cart
+    const myOrdersModal = document.querySelector('#my-orders-modal');
+    const cartModal = document.querySelector('#cart-modal');
+    if (myOrdersModal) myOrdersModal.style.display = 'none';
+    if (cartModal) cartModal.style.display = 'flex';
+
+    // Toast
+    showToast('Items added to cart! 🛒');
+};
+
+// ── TOAST HELPER ──
+const showToast = (msg) => {
+    let toast = document.querySelector('#lw-toast');
+    if (!toast) {
+        toast = document.createElement('div');
+        toast.id = 'lw-toast';
+        toast.style.cssText = 'position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:#F5A800;color:#000;padding:12px 24px;border-radius:40px;font-weight:800;font-size:13px;z-index:9999;opacity:0;transition:opacity 0.3s;pointer-events:none;';
+        document.body.appendChild(toast);
+    }
+    toast.textContent = msg;
+    toast.style.opacity = '1';
+    clearTimeout(toast._timer);
+    toast._timer = setTimeout(() => toast.style.opacity = '0', 3000);
+};
+
+window.showToast = showToast;
 
 /**
  * 🔥 HOURLY DEALS ENGINE
@@ -292,6 +450,48 @@ window.addToCart = (id) => {
     }
 };
 
+// ── PWA SERVICE WORKER & INSTALL PROMPT (Phase 4) ──
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js').then((reg) => {
+            console.log('✅ PWA Service Worker registered:', reg.scope);
+        }).catch((err) => console.log('❌ PWA SW Registration failed:', err));
+    });
+}
 
+let deferredPrompt;
+window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    deferredPrompt = e;
+    
+    let btn = document.querySelector('#pwa-install-btn');
+    if (!btn) {
+        btn = document.createElement('button');
+        btn.id = 'pwa-install-btn';
+        btn.innerHTML = '📱 Install App';
+        btn.style.cssText = 'position:fixed;bottom:24px;left:24px;background:#F5A800;color:#000;border:none;border-radius:40px;padding:12px 20px;font-weight:900;font-size:13px;box-shadow:0 4px 15px rgba(245,168,0,0.4);cursor:pointer;z-index:9999;animation:fadeUp 0.5s ease;letter-spacing:0.5px;text-transform:uppercase;';
+        document.body.appendChild(btn);
+
+        btn.addEventListener('click', async () => {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                const { outcome } = await deferredPrompt.userChoice;
+                if (outcome === 'accepted') {
+                    console.log('✅ User accepted PWA install');
+                    btn.style.display = 'none';
+                }
+                deferredPrompt = null;
+            }
+        });
+    }
+    btn.style.display = 'block';
+});
+
+window.addEventListener('appinstalled', () => {
+    const btn = document.querySelector('#pwa-install-btn');
+    if (btn) btn.style.display = 'none';
+    deferredPrompt = null;
+    console.log('✅ PWA was installed successfully');
+});
 
 init();

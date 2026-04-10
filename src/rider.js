@@ -1,4 +1,4 @@
-import { collection, query, where, onSnapshot, doc, updateDoc, serverTimestamp } from 'firebase/firestore';
+import { collection, query, where, onSnapshot, doc, updateDoc, serverTimestamp, getDoc } from 'firebase/firestore';
 import { db } from './firebase/config';
 import { ORDER_STATUS } from './constants/orderStatus';
 import { onAuthChange, logoutUser } from './api/auth';
@@ -79,6 +79,41 @@ const initRider = () => {
         });
 
         startRiderListener(user.uid);
+        initRiderToggle(user.uid);
+    });
+};
+
+const initRiderToggle = async (riderId) => {
+    const toggle = document.getElementById('rider-status-toggle');
+    const text = document.getElementById('rider-status-text');
+    const knob = document.getElementById('rider-toggle-knob');
+    const slider = document.getElementById('rider-toggle-slider');
+    if (!toggle) return;
+
+    try {
+        const userDoc = await getDoc(doc(db, 'users', riderId));
+        if (userDoc.exists()) {
+            const isOnline = userDoc.data().isOnline || false;
+            toggle.checked = isOnline;
+            text.textContent = isOnline ? 'Online' : 'Offline';
+            text.style.color = isOnline ? '#10B981' : '#7a8098';
+            slider.style.backgroundColor = isOnline ? '#10B981' : '#ef4444';
+            knob.style.transform = isOnline ? 'translateX(24px)' : 'translateX(0)';
+        }
+    } catch(e) {}
+
+    toggle.addEventListener('change', async (e) => {
+        const isOnline = e.target.checked;
+        try {
+            await updateDoc(doc(db, 'users', riderId), { isOnline });
+            text.textContent = isOnline ? 'Online' : 'Offline';
+            text.style.color = isOnline ? '#10B981' : '#7a8098';
+            slider.style.backgroundColor = isOnline ? '#10B981' : '#ef4444';
+            knob.style.transform = isOnline ? 'translateX(24px)' : 'translateX(0)';
+        } catch(err) {
+            console.error('Failed to toggle status', err);
+            e.target.checked = !isOnline; // revert
+        }
     });
 };
 
@@ -97,19 +132,43 @@ const startRiderListener = (riderId) => {
             if (change.type === 'added' && !isInitialLoad) playNotificationSound();
         });
 
-        // Collect all active orders, sort by createdAt desc in memory
+        // Collect all orders and separate today's delivered for earnings
+        const today = new Date();
+        today.setHours(0,0,0,0);
+        let todaysEarnings = 0;
+        let deliveriesCount = 0;
+
         const allOrders = snapshot.docs
             .map(snap => ({ id: snap.id, ...snap.data() }))
-            .filter(o => ![ORDER_STATUS.DELIVERED, ORDER_STATUS.CANCELLED, ORDER_STATUS.REJECTED].includes(o.status))
             .sort((a, b) => {
                 const aTime = a.createdAt?.toMillis ? a.createdAt.toMillis() : 0;
                 const bTime = b.createdAt?.toMillis ? b.createdAt.toMillis() : 0;
                 return bTime - aTime;
             });
 
+        // Filter active orders
+        const activeOrders = allOrders.filter(o => ![ORDER_STATUS.DELIVERED, ORDER_STATUS.CANCELLED, ORDER_STATUS.REJECTED].includes(o.status));
+
+        // Calculate Earnings
+        allOrders.forEach(o => {
+            if (o.status === ORDER_STATUS.DELIVERED && o.updatedAt) {
+                const updatedDate = o.updatedAt.toDate ? o.updatedAt.toDate() : new Date(o.updatedAt);
+                if (updatedDate >= today) {
+                    // Assuming rider gets ₹20 per delivery locally (or it could be hardcoded for now)
+                    todaysEarnings += 20; 
+                    deliveriesCount++;
+                }
+            }
+        });
+
+        const earnEl = document.getElementById('rider-earnings');
+        const countEl = document.getElementById('rider-deliveries');
+        if (earnEl) earnEl.textContent = `₹${todaysEarnings}`;
+        if (countEl) countEl.textContent = `${deliveriesCount} deliveries`;
+
         // Split into pending (READY) and current (ASSIGNED)
-        const pendingOrders = allOrders.filter(o => o.status === ORDER_STATUS.READY);
-        const currentOrders = allOrders.filter(o => o.status === ORDER_STATUS.ASSIGNED);
+        const pendingOrders = activeOrders.filter(o => o.status === ORDER_STATUS.READY);
+        const currentOrders = activeOrders.filter(o => o.status === ORDER_STATUS.ASSIGNED);
 
         renderPendingPickups(pendingOrders);
         renderCurrentDelivery(currentOrders);

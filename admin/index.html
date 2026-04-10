@@ -3,7 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Littiwale Admin - Kitchen & Business Manager</title>
+    <title>Littiwale Admin Console</title>
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#0d0d0d">
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -53,6 +55,14 @@
                     <button class="nav-item" data-view="riders">
                         <span class="nav-icon">🛵</span>
                         <span class="nav-text">Riders</span>
+                    </button>
+                    <button class="nav-item" data-view="coupons">
+                        <span class="nav-icon">🎟️</span>
+                        <span class="nav-text">Coupons</span>
+                    </button>
+                    <button class="nav-item" data-view="announcements">
+                        <span class="nav-icon">📢</span>
+                        <span class="nav-text">Announcements</span>
                     </button>
                 </nav>
             </div>
@@ -205,6 +215,74 @@
                 <section id="view-riders" class="content-view">
                     <div id="riders-list-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                         <!-- Riders injected here -->
+                    </div>
+                </section>
+
+                <!-- VIEW: COUPONS (Item 6) -->
+                <section id="view-coupons" class="content-view">
+                    <div class="admin-card p-8 mb-8">
+                        <h3 class="font-bold text-lg mb-6">🎟️ Create New Coupon</h3>
+                        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin-bottom:16px;">
+                            <div>
+                                <label style="font-size:11px;font-weight:800;color:#7a8098;text-transform:uppercase;display:block;margin-bottom:6px;">Coupon Code</label>
+                                <input id="new-coupon-code" type="text" placeholder="e.g. SAVE50" style="width:100%;padding:10px 14px;background:#1a1c23;border:1px solid #252830;border-radius:10px;color:#fff;font-size:14px;outline:none;">
+                            </div>
+                            <div>
+                                <label style="font-size:11px;font-weight:800;color:#7a8098;text-transform:uppercase;display:block;margin-bottom:6px;">Discount Amount (₹)</label>
+                                <input id="new-coupon-discount" type="number" placeholder="e.g. 50" min="1" style="width:100%;padding:10px 14px;background:#1a1c23;border:1px solid #252830;border-radius:10px;color:#fff;font-size:14px;outline:none;">
+                            </div>
+                            <div>
+                                <label style="font-size:11px;font-weight:800;color:#7a8098;text-transform:uppercase;display:block;margin-bottom:6px;">Min Order Value (₹)</label>
+                                <input id="new-coupon-min" type="number" placeholder="e.g. 200" min="0" style="width:100%;padding:10px 14px;background:#1a1c23;border:1px solid #252830;border-radius:10px;color:#fff;font-size:14px;outline:none;">
+                            </div>
+                            <div>
+                                <label style="font-size:11px;font-weight:800;color:#7a8098;text-transform:uppercase;display:block;margin-bottom:6px;">Expiry Date</label>
+                                <input id="new-coupon-expiry" type="datetime-local" style="width:100%;padding:10px 14px;background:#1a1c23;border:1px solid #252830;border-radius:10px;color:#fff;font-size:14px;outline:none;">
+                            </div>
+                        </div>
+                        <button id="create-coupon-btn" style="padding:12px 28px;background:#F5A800;color:#000;border:none;border-radius:10px;font-weight:900;font-size:14px;cursor:pointer;">Create Coupon</button>
+                        <p id="coupon-create-msg" style="margin-top:10px;font-size:13px;font-weight:600;"></p>
+                    </div>
+                    <div class="admin-card p-6">
+                        <h3 class="font-bold text-lg mb-4">Active Coupons</h3>
+                        <div id="coupons-list" style="display:flex;flex-direction:column;gap:12px;">
+                            <p style="color:#7a8098;">Loading...</p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- VIEW: ANNOUNCEMENTS (Item 8) -->
+                <section id="view-announcements" class="content-view">
+                    <div class="admin-card p-8 mb-8">
+                        <h3 class="font-bold text-lg mb-6">📢 Create Announcement</h3>
+                        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;margin-bottom:16px;">
+                            <div>
+                                <label style="font-size:11px;font-weight:800;color:#7a8098;text-transform:uppercase;display:block;margin-bottom:6px;">Title (optional)</label>
+                                <input id="ann-title" type="text" placeholder="e.g. Grand Opening Offer!"
+                                    style="width:100%;padding:10px 14px;background:#1a1c23;border:1px solid #252830;border-radius:10px;color:#fff;font-size:14px;outline:none;">
+                            </div>
+                            <div>
+                                <label style="font-size:11px;font-weight:800;color:#7a8098;text-transform:uppercase;display:block;margin-bottom:6px;">Expiry Date &amp; Time</label>
+                                <input id="ann-expiry" type="datetime-local"
+                                    style="width:100%;padding:10px 14px;background:#1a1c23;border:1px solid #252830;border-radius:10px;color:#fff;font-size:14px;outline:none;">
+                            </div>
+                            <div>
+                                <label style="font-size:11px;font-weight:800;color:#7a8098;text-transform:uppercase;display:block;margin-bottom:6px;">Banner Image</label>
+                                <input id="ann-image" type="file" accept="image/*"
+                                    style="width:100%;padding:10px 14px;background:#1a1c23;border:1px solid #252830;border-radius:10px;color:#aaa;font-size:13px;outline:none;">
+                            </div>
+                        </div>
+                        <div id="ann-preview" style="margin-bottom:16px;display:none;">
+                            <img id="ann-preview-img" src="" alt="Preview" style="max-height:140px;border-radius:12px;object-fit:cover;">
+                        </div>
+                        <button id="create-ann-btn" style="padding:12px 28px;background:#F5A800;color:#000;border:none;border-radius:10px;font-weight:900;font-size:14px;cursor:pointer;">Upload &amp; Publish</button>
+                        <p id="ann-create-msg" style="margin-top:10px;font-size:13px;font-weight:600;"></p>
+                    </div>
+                    <div class="admin-card p-6">
+                        <h3 class="font-bold text-lg mb-4">All Announcements</h3>
+                        <div id="announcements-list" style="display:flex;flex-direction:column;gap:12px;">
+                            <p style="color:#7a8098;">Loading...</p>
+                        </div>
                     </div>
                 </section>
             </div>

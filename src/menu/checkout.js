@@ -1,9 +1,11 @@
 import { getCart, getCartTotal, clearCart } from '../store/cart';
 import { validateOrder, createOrderEntry, updateOrderDetails } from '../api/orders';
-import { functions, auth } from '../firebase/config';
+import { validateCoupon } from '../api/coupons';
+import { functions, auth, db } from '../firebase/config';
 import { normalizePhone } from '../api/auth';
 import { ORDER_STATUS } from '../constants/orderStatus';
 import { httpsCallable } from 'firebase/functions';
+import { collection, getDocs, addDoc, query, orderBy, serverTimestamp } from 'firebase/firestore';
 
 const checkoutModal = document.querySelector('#checkout-modal');
 const checkoutForm = document.querySelector('#checkout-form');
@@ -13,6 +15,10 @@ const proceedBtn = document.querySelector('#checkout-btn');
 const cartModal = document.querySelector('#cart-modal');
 const errorDisplay = document.querySelector('#checkout-error');
 const placeOrderBtn = document.querySelector('#place-order-btn');
+
+// Coupon state — module-level so handleCheckoutSubmit can read it
+let appliedDiscount = 0;
+let appliedCouponCode = '';
 
 export const initCheckout = () => {
     if (!proceedBtn || !checkoutModal || !closeCheckout) return;
@@ -25,18 +31,118 @@ export const initCheckout = () => {
             return;
         }
 
+        // Reset coupon state every time modal opens
+        appliedDiscount = 0;
+        appliedCouponCode = '';
+        const couponInput = document.querySelector('#coupon-input');
+        const couponMsg = document.querySelector('#coupon-message');
+        if (couponInput) couponInput.value = '';
+        if (couponMsg) { couponMsg.textContent = ''; couponMsg.style.color = ''; }
+
         cartModal.classList.add('hidden');
-        checkoutModal.classList.remove('hidden');
-        checkoutAmount.textContent = getCartTotal();
+        cartModal.style.display = 'none';
+        checkoutModal.style.display = 'flex';
+
+        // Show total (before coupon)
+        if (checkoutAmount) checkoutAmount.textContent = `₹${getCartTotal()}`;
+
+        // Item 9: Load Saved Addresses
+        loadSavedAddresses();
     });
 
     // Close Checkout Modal
     closeCheckout.addEventListener('click', () => {
-        checkoutModal.classList.add('hidden');
+        checkoutModal.style.display = 'none';
     });
+    checkoutModal.addEventListener('click', (e) => {
+        if (e.target === checkoutModal) checkoutModal.style.display = 'none';
+    });
+
+    // ── COUPON APPLY (Item 6) ──
+    const applyBtn = document.querySelector('#apply-coupon-btn');
+    const couponInput = document.querySelector('#coupon-input');
+    const couponMsg = document.querySelector('#coupon-message');
+
+    if (applyBtn && couponInput && couponMsg) {
+        applyBtn.addEventListener('click', async () => {
+            const code = couponInput.value.trim();
+            if (!code) return;
+
+            applyBtn.textContent = '...';
+            applyBtn.disabled = true;
+
+            const rawTotal = getCartTotal();
+            const result = await validateCoupon(code, rawTotal);
+
+            applyBtn.textContent = 'Apply';
+            applyBtn.disabled = false;
+
+            if (result.valid) {
+                appliedDiscount = result.discount;
+                appliedCouponCode = code.toUpperCase();
+                const newTotal = Math.max(0, rawTotal - appliedDiscount);
+                if (checkoutAmount) checkoutAmount.textContent = `₹${newTotal}`;
+                couponMsg.textContent = result.message;
+                couponMsg.style.color = '#10B981';
+            } else {
+                appliedDiscount = 0;
+                appliedCouponCode = '';
+                if (checkoutAmount) checkoutAmount.textContent = `₹${rawTotal}`;
+                couponMsg.textContent = result.message;
+                couponMsg.style.color = '#ef4444';
+            }
+        });
+    }
 
     // Form Submission
     checkoutForm.addEventListener('submit', handleCheckoutSubmit);
+};
+
+const loadSavedAddresses = async () => {
+    const selectEl = document.querySelector('#saved-addresses-select');
+    const saveCb = document.querySelector('#save-address-cb');
+    if (!selectEl) return;
+    
+    // Hide for guests
+    if (!auth?.currentUser) {
+        selectEl.style.display = 'none';
+        if (saveCb) saveCb.parentElement.style.display = 'none';
+        return;
+    }
+
+    if (saveCb) saveCb.parentElement.style.display = 'flex'; // Show checkbox for logged-in
+
+    try {
+        const q = query(
+            collection(db, 'users', auth.currentUser.uid, 'addresses'),
+            orderBy('createdAt', 'desc')
+        );
+        const snap = await getDocs(q);
+        if (snap.empty) {
+            selectEl.style.display = 'none';
+            return;
+        }
+
+        selectEl.innerHTML = '<option value="">-- Saved Addresses --</option>';
+        let idx = 1;
+        snap.forEach(doc => {
+            const val = doc.data().address;
+            const opt = document.createElement('option');
+            opt.value = val;
+            opt.textContent = `Address ${idx++}: ${val.substring(0, 25)}...`;
+            selectEl.appendChild(opt);
+        });
+        
+        selectEl.style.display = 'block';
+        selectEl.onchange = (e) => {
+            if (e.target.value) {
+                document.querySelector('#cust-address').value = e.target.value;
+            }
+        };
+    } catch (err) {
+        console.error('Error fetching saved addresses:', err);
+        selectEl.style.display = 'none';
+    }
 };
 
 const handleCheckoutSubmit = async (e) => {
@@ -66,7 +172,9 @@ const handleCheckoutSubmit = async (e) => {
         }
 
         const cart = getCart();
-        const total = getCartTotal();
+        const rawTotal = getCartTotal();
+        // Apply coupon discount (floor at 0)
+        const total = Math.max(0, rawTotal - appliedDiscount);
 
         // 3. Server-side Style Validation
         const validation = await validateOrder(cart);
@@ -81,11 +189,28 @@ const handleCheckoutSubmit = async (e) => {
             customer: customerDetails,
             items: cart,
             total: total,
-            paymentMethod: paymentMethod
+            rawTotal: rawTotal,
+            paymentMethod: paymentMethod,
+            // Attach userId if logged in
+            userId: auth?.currentUser?.uid || null,
+            ...(appliedCouponCode ? { couponCode: appliedCouponCode, discount: appliedDiscount } : {})
         };
 
         const { success, orderId, docId } = await createOrderEntry(orderData);
         if (!success) throw new Error('Failed to create order entry');
+
+        // Item 9: Save Address logic
+        const saveCb = document.querySelector('#save-address-cb');
+        if (auth?.currentUser && saveCb?.checked) {
+            try {
+                await addDoc(collection(db, 'users', auth.currentUser.uid, 'addresses'), {
+                    address: customerDetails.address,
+                    createdAt: serverTimestamp()
+                });
+            } catch (err) {
+                console.error('Failed to save address:', err);
+            }
+        }
 
         // 5. Branch based on Payment Method
         if (paymentMethod === 'COD') {
@@ -94,7 +219,6 @@ const handleCheckoutSubmit = async (e) => {
             // Online Payment Disabled - Show Notice
             alert("Online payment coming soon! Please select Cash on Delivery.");
             resetButton(originalBtnText);
-            // await handleOnlinePayment(orderId, docId, total, customerDetails);
         }
 
     } catch (error) {
@@ -106,92 +230,11 @@ const handleCheckoutSubmit = async (e) => {
 
 const handleCODSuccess = async (orderId) => {
     clearCart();
-    window.location.href = `/track.html?id=${orderId}`;
+    window.location.href = `/customer/track.html?id=${orderId}`;
 };
 
 /* 
-const handleOnlinePayment = async (orderId, docId, amount, customer) => {
-    try {
-        // A. Create Razorpay Order via Cloud Function
-        const createRzpOrder = httpsCallable(functions, 'createRazorpayOrder');
-        const rzpResult = await createRzpOrder({ amount, receipt: orderId });
-        
-        if (!rzpResult.data.success) throw new Error('Razorpay order creation failed');
-
-        const rzpOrderId = rzpResult.data.orderId;
-
-        // B. Configure Razorpay Options
-        const options = {
-            key: 'rzp_test_placeholder', // Replaced with actual key later
-            amount: amount * 100,
-            currency: 'INR',
-            name: 'Littiwale',
-            description: `Order ${orderId}`,
-            image: '/images/logo.png',
-            order_id: rzpOrderId,
-            handler: async (response) => {
-                await verifyAndComplete(response, orderId, docId);
-            },
-            prefill: {
-                name: customer.name,
-                contact: customer.phone
-            },
-            notes: {
-                internal_order_id: orderId
-            },
-            theme: {
-                color: '#FACC15' // Updated to match new accent
-            },
-            modal: {
-                ondismiss: async () => {
-                    await handlePaymentCancel(docId);
-                    placeOrderBtn.disabled = false;
-                    placeOrderBtn.innerHTML = `Place Order (₹${getCartTotal()})`;
-                }
-            }
-        };
-
-        const rzp = new window.Razorpay(options);
-        rzp.on('payment.failed', async (response) => {
-            console.error('Payment Failed Event:', response.error);
-            await handlePaymentCancel(docId);
-            showError(`Payment Failed: ${response.error.description}`);
-            resetButton(`Place Order (₹${amount})`);
-        });
-
-        rzp.open();
-
-    } catch (error) {
-        console.error('Online payment initialization failed:', error);
-        await handlePaymentCancel(docId);
-        throw error;
-    }
-};
-
-const verifyAndComplete = async (rzpResponse, orderId, docId) => {
-    try {
-        placeOrderBtn.textContent = 'Verifying Payment...';
-        
-        const verifyPayment = httpsCallable(functions, 'verifyRazorpayPayment');
-        const verifyResult = await verifyPayment({
-            razorpay_order_id: rzpResponse.razorpay_order_id,
-            razorpay_payment_id: rzpResponse.razorpay_payment_id,
-            razorpay_signature: rzpResponse.razorpay_signature,
-            internal_order_id: docId
-        });
-
-        if (verifyResult.data.success) {
-            clearCart();
-            window.location.href = `/track.html?id=${orderId}`;
-        } else {
-            throw new Error('Verification failed');
-        }
-    } catch (error) {
-        console.error('Verification error:', error);
-        showError('Payment verification failed. Please contact support if amount was deducted.');
-        resetButton(`Retry Payment`);
-    }
-};
+const handleOnlinePayment = async (orderId, docId, amount, customer) => { ... };
 */
 
 const handlePaymentCancel = async (docId) => {

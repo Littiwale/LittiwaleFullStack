@@ -1,4 +1,4 @@
-import { collection, query, where, getDocs, limit } from 'firebase/firestore';
+import { collection, query, where, onSnapshot, limit, addDoc, serverTimestamp, doc } from 'firebase/firestore';
 import { db } from './firebase/config';
 import { requestNotificationPermission, saveFCMTokenToOrder } from './notifications';
 import { getUserProfile, onAuthChange, normalizePhone } from './api/auth';
@@ -39,32 +39,62 @@ const initTracking = async () => {
     try {
         const ordersRef = collection(db, 'orders');
         const q = query(ordersRef, where('orderId', '==', orderId), limit(1));
-        const querySnapshot = await getDocs(q);
+        
+        let previousStatus = null;
+        let isFirstLoad = true;
 
-        if (querySnapshot.empty) {
-            showError();
-            return;
-        }
-
-        const doc = querySnapshot.docs[0];
-        const orderData = doc.data();
-        renderOrder(orderData);
-
-        // Handle Notifications
-        setTimeout(async () => {
-            const token = await requestNotificationPermission();
-            if (token && !orderData.fcmToken) {
-                await saveFCMTokenToOrder(doc.id, token);
+        onSnapshot(q, async (querySnapshot) => {
+            if (querySnapshot.empty) {
+                showError();
+                return;
             }
-        }, 2000);
+
+            const docRef = querySnapshot.docs[0];
+            const orderData = docRef.data();
+            
+            // Audio Notification Logic (Item 12)
+            if (!isFirstLoad && previousStatus !== orderData.status) {
+                const triggerStatuses = [
+                    ORDER_STATUS.PREPARING, 
+                    ORDER_STATUS.READY, 
+                    ORDER_STATUS.ASSIGNED, 
+                    ORDER_STATUS.DELIVERED
+                ];
+                if (triggerStatuses.includes(orderData.status)) {
+                    const audio = document.getElementById('status-sound');
+                    if (audio) {
+                        audio.currentTime = 0;
+                        audio.play().catch(e => console.warn('Audio play failed', e));
+                    }
+                }
+            }
+            
+            previousStatus = orderData.status;
+
+            renderOrder(orderData, docRef.id);
+
+            // Handle Notifications (only on first load)
+            if (isFirstLoad) {
+                setTimeout(async () => {
+                    const token = await requestNotificationPermission();
+                    if (token && !orderData.fcmToken) {
+                        await saveFCMTokenToOrder(docRef.id, token);
+                    }
+                }, 2000);
+                isFirstLoad = false;
+            }
+        }, (error) => {
+            console.error('Tracking listen failed:', error);
+            showError();
+        });
 
     } catch (error) {
-        console.error('Tracking fetch failed:', error);
+        console.error('Tracking setup failed:', error);
         showError();
     }
 };
 
-const renderOrder = async (order) => {
+const renderOrder = async (order, docId) => {
     loading.classList.add('hidden');
     result.classList.remove('hidden');
 
@@ -113,6 +143,64 @@ const renderOrder = async (order) => {
     custName.textContent = order.customer.name;
     custPhone.textContent = order.customer.phone;
     custAddress.textContent = order.customer.address;
+
+    // ── RATING (Item 10) ──
+    const ratingContainer = document.querySelector('#rating-container');
+    if (order.status === ORDER_STATUS.DELIVERED && order.userId) {
+        // Check if already rated
+        try {
+            const rSnap = await getDocs(query(collection(db, 'orders', docId, 'rating')));
+            if (rSnap.empty) {
+                ratingContainer.style.display = 'block';
+                setupRatingInput(docId);
+            }
+        } catch (e) { console.warn('Could not fetch rating info', e); }
+    } else if (ratingContainer) {
+        ratingContainer.style.display = 'none';
+    }
+};
+
+const setupRatingInput = (orderDocId) => {
+    const starContainer = document.querySelector('#star-rating');
+    const msg = document.querySelector('#rating-msg');
+    if (!starContainer) return;
+
+    const stars = Array.from(starContainer.children);
+    let selectedRating = 0;
+
+    const updateStars = (val) => {
+        stars.forEach(s => {
+            const sVal = parseInt(s.dataset.val);
+            s.style.color = sVal <= val ? '#F5A800' : '#4b5563';
+        });
+    };
+
+    stars.forEach(s => {
+        s.addEventListener('mouseenter', () => updateStars(parseInt(s.dataset.val)));
+        s.addEventListener('mouseleave', () => updateStars(selectedRating));
+        s.addEventListener('click', async () => {
+            selectedRating = parseInt(s.dataset.val);
+            updateStars(selectedRating);
+            starContainer.style.pointerEvents = 'none';
+            msg.style.display = 'block';
+            msg.textContent = 'Submitting...';
+            msg.style.color = '#F5A800';
+
+            try {
+                await addDoc(collection(db, 'orders', orderDocId, 'rating'), {
+                    rating: selectedRating,
+                    createdAt: serverTimestamp()
+                });
+                msg.textContent = `Thanks for your ${selectedRating}-star rating! 🎉`;
+                msg.style.color = '#10B981';
+            } catch (err) {
+                console.error('Rating failed:', err);
+                msg.textContent = 'Failed to submit rating.';
+                msg.style.color = '#ef4444';
+                starContainer.style.pointerEvents = 'auto'; // allow retry
+            }
+        });
+    });
 };
 
 const showError = () => {

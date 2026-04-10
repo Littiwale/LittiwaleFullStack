@@ -1,14 +1,10 @@
-// Import the functions you need from the SDKs you need
 import { initializeApp } from "firebase/app";
 import { getFirestore } from "firebase/firestore";
 import { getFunctions } from "firebase/functions";
 import { getMessaging } from "firebase/messaging";
 import { getAuth } from "firebase/auth";
-// TODO: Add SDKs for Firebase products that you want to use
-// https://firebase.google.com/docs/web/setup#available-libraries
+import { getStorage } from "firebase/storage";
 
-// Your web app's Firebase configuration
-// For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
   apiKey: "AIzaSyDEgXj63A1Ut0ldXLJmM9QRmtGeh66KAmw",
   authDomain: "littiwale-90990.firebaseapp.com",
@@ -19,19 +15,12 @@ const firebaseConfig = {
   measurementId: "G-CRSQF7SR49"
 };
 
-// Initialize Firebase
 const app = initializeApp(firebaseConfig);
 
-// Database
 export const db = getFirestore(app);
-
-// Backend functions
 export const functions = getFunctions(app);
-
-// Messaging
 export const messaging = getMessaging(app);
-
-// Auth
 export const auth = getAuth(app);
+export const storage = getStorage(app);  // For image uploads (announcements, etc.)
 
 console.log("🔥 Firebase Connected");

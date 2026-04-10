@@ -5,6 +5,8 @@ import { fetchAllUsers, fetchUsersByRole, updateUserRole } from './api/users';
 import { assignRiderToOrder } from './api/orders';
 import { fetchAnalyticsData } from './api/analytics';
 import { ORDER_STATUS } from './constants/orderStatus';
+import { fetchAllCoupons, createCoupon, deleteCoupon } from './api/coupons';
+import { fetchAllAnnouncements, createAnnouncement, toggleAnnouncementActive, deleteAnnouncement } from './api/announcements';
 
 /**
  * 👑 LITTIWALE ADMIN PANEL CORE (PREMIUM REDESIGN)
@@ -82,6 +84,8 @@ const initAdmin = () => {
 
         startOrderListener();
         setupLogout();
+        setupCouponAdmin();
+        setupAnnouncementAdmin();
     });
 };
 
@@ -172,6 +176,8 @@ const switchView = (viewName) => {
 
     if (viewName === 'analytics') loadDashboardAnalytics();
     if (viewName === 'customers') loadCustomers();
+    if (viewName === 'coupons') loadCoupons();
+    if (viewName === 'announcements') loadAnnouncements();
 };
 
 const setupOrderFiltering = () => {
@@ -523,3 +529,188 @@ const setupLogout = () => {
 
 // Fire it up
 document.addEventListener('DOMContentLoaded', initAdmin);
+
+/**
+ * 🎟️ COUPON ADMIN (Item 6)
+ */
+const loadCoupons = async () => {
+    const listEl = document.querySelector('#coupons-list');
+    if (!listEl) return;
+    listEl.innerHTML = '<p style="color:#7a8098;">Loading...</p>';
+    const coupons = await fetchAllCoupons();
+    if (coupons.length === 0) {
+        listEl.innerHTML = '<p style="color:#7a8098;">No coupons created yet.</p>';
+        return;
+    }
+    listEl.innerHTML = coupons.map(c => {
+        const expiry = c.expiresAt?.toDate ? c.expiresAt.toDate().toLocaleString('en-IN') : 'No expiry';
+        const isExpired = c.expiresAt?.toDate && new Date() > c.expiresAt.toDate();
+        return `
+            <div style="display:flex;justify-content:space-between;align-items:center;padding:14px 18px;background:#0d0f14;border:1px solid #252830;border-radius:14px;">
+                <div>
+                    <p style="font-weight:900;color:#F5A800;font-size:15px;letter-spacing:1px;">${c.id}</p>
+                    <p style="font-size:12px;color:#9ca3af;margin-top:4px;">Discount: ₹${c.discountAmount} &nbsp;|&nbsp; Min: ₹${c.minOrderValue || 0} &nbsp;|&nbsp; Expires: ${expiry}</p>
+                    ${isExpired ? '<span style="font-size:10px;font-weight:800;color:#ef4444;text-transform:uppercase;">EXPIRED</span>' : '<span style="font-size:10px;font-weight:800;color:#10B981;text-transform:uppercase;">ACTIVE</span>'}
+                </div>
+                <button onclick="window.adminDeleteCoupon('${c.id}')" style="padding:8px 16px;background:#ef4444;color:#fff;border:none;border-radius:8px;font-size:12px;font-weight:800;cursor:pointer;">Delete</button>
+            </div>
+        `;
+    }).join('');
+};
+
+const setupCouponAdmin = () => {
+    const createBtn = document.querySelector('#create-coupon-btn');
+    if (!createBtn) return;
+
+    createBtn.addEventListener('click', async () => {
+        const code = document.querySelector('#new-coupon-code')?.value.trim();
+        const discount = parseInt(document.querySelector('#new-coupon-discount')?.value);
+        const minOrder = parseInt(document.querySelector('#new-coupon-min')?.value || '0');
+        const expiryVal = document.querySelector('#new-coupon-expiry')?.value;
+        const msg = document.querySelector('#coupon-create-msg');
+
+        if (!code || !discount) {
+            if (msg) { msg.textContent = 'Code and discount amount are required.'; msg.style.color = '#ef4444'; }
+            return;
+        }
+
+        try {
+            createBtn.textContent = 'Creating...';
+            createBtn.disabled = true;
+            await createCoupon({
+                code,
+                discountAmount: discount,
+                minOrderValue: minOrder || 0,
+                expiresAt: expiryVal ? new Date(expiryVal) : null
+            });
+            if (msg) { msg.textContent = `✅ Coupon "${code.toUpperCase()}" created!`; msg.style.color = '#10B981'; }
+            // Clear fields
+            ['#new-coupon-code','#new-coupon-discount','#new-coupon-min','#new-coupon-expiry'].forEach(sel => {
+                const el = document.querySelector(sel);
+                if (el) el.value = '';
+            });
+            loadCoupons();
+        } catch (e) {
+            if (msg) { msg.textContent = 'Failed to create coupon. Try again.'; msg.style.color = '#ef4444'; }
+        } finally {
+            createBtn.textContent = 'Create Coupon';
+            createBtn.disabled = false;
+        }
+    });
+};
+
+window.adminDeleteCoupon = async (code) => {
+    if (!confirm(`Delete coupon "${code}"?`)) return;
+    try {
+        await deleteCoupon(code);
+        loadCoupons();
+    } catch (e) { console.error('Delete coupon failed:', e); }
+};
+
+/**
+ * 📢 ANNOUNCEMENT ADMIN (Item 8)
+ */
+const loadAnnouncements = async () => {
+    const listEl = document.querySelector('#announcements-list');
+    if (!listEl) return;
+    listEl.innerHTML = '<p style="color:#7a8098;">Loading...</p>';
+    const anns = await fetchAllAnnouncements();
+    if (anns.length === 0) {
+        listEl.innerHTML = '<p style="color:#7a8098;">No announcements yet.</p>';
+        return;
+    }
+    listEl.innerHTML = anns.map(a => {
+        const expiry = a.expiresAt?.toDate ? a.expiresAt.toDate().toLocaleString('en-IN') : 'No expiry';
+        const isExpired = a.expiresAt?.toDate && new Date() > a.expiresAt.toDate();
+        return `
+            <div style="display:flex;align-items:center;gap:16px;padding:14px 18px;background:#0d0f14;border:1px solid #252830;border-radius:14px;">
+                ${a.imageUrl ? `<img src="${a.imageUrl}" style="width:80px;height:56px;object-fit:cover;border-radius:8px;flex-shrink:0;">` : '<div style="width:80px;height:56px;background:#1a1c23;border-radius:8px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:24px;">📢</div>'}
+                <div style="flex:1;min-width:0;">
+                    <p style="font-weight:800;color:#fff;font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${a.title || '(No title)'}</p>
+                    <p style="font-size:12px;color:#9ca3af;margin-top:3px;">Expires: ${expiry}</p>
+                    ${isExpired ? '<span style="font-size:10px;font-weight:800;color:#ef4444;">EXPIRED</span>' : (a.active ? '<span style="font-size:10px;font-weight:800;color:#10B981;">ACTIVE</span>' : '<span style="font-size:10px;font-weight:800;color:#7a8098;">HIDDEN</span>')}
+                </div>
+                <div style="display:flex;gap:8px;flex-shrink:0;">
+                    <button onclick="window.adminToggleAnn('${a.id}', ${!a.active})" style="padding:8px 12px;background:${a.active ? '#374151' : '#10B981'};color:#fff;border:none;border-radius:8px;font-size:11px;font-weight:800;cursor:pointer;">${a.active ? 'Hide' : 'Show'}</button>
+                    <button onclick="window.adminDeleteAnn('${a.id}', '${a.storagePath || ''}')" style="padding:8px 12px;background:#ef4444;color:#fff;border:none;border-radius:8px;font-size:11px;font-weight:800;cursor:pointer;">Delete</button>
+                </div>
+            </div>
+        `;
+    }).join('');
+};
+
+const setupAnnouncementAdmin = () => {
+    const createBtn = document.querySelector('#create-ann-btn');
+    const imageInput = document.querySelector('#ann-image');
+    const preview = document.querySelector('#ann-preview');
+    const previewImg = document.querySelector('#ann-preview-img');
+
+    if (!createBtn) return;
+
+    // Image preview
+    imageInput?.addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = (ev) => {
+                previewImg.src = ev.target.result;
+                preview.style.display = 'block';
+            };
+            reader.readAsDataURL(file);
+        } else {
+            preview.style.display = 'none';
+        }
+    });
+
+    createBtn.addEventListener('click', async () => {
+        const title = document.querySelector('#ann-title')?.value.trim() || '';
+        const expiryVal = document.querySelector('#ann-expiry')?.value;
+        const imageFile = imageInput?.files[0] || null;
+        const msg = document.querySelector('#ann-create-msg');
+
+        if (!imageFile && !title) {
+            if (msg) { msg.textContent = 'Provide at least an image or a title.'; msg.style.color = '#ef4444'; }
+            return;
+        }
+
+        try {
+            createBtn.textContent = 'Uploading...';
+            createBtn.disabled = true;
+
+            await createAnnouncement(imageFile, {
+                title,
+                expiresAt: expiryVal ? new Date(expiryVal) : null,
+                active: true
+            });
+
+            if (msg) { msg.textContent = '✅ Announcement published!'; msg.style.color = '#10B981'; }
+            // Reset
+            if (document.querySelector('#ann-title')) document.querySelector('#ann-title').value = '';
+            if (document.querySelector('#ann-expiry')) document.querySelector('#ann-expiry').value = '';
+            if (imageInput) imageInput.value = '';
+            if (preview) preview.style.display = 'none';
+            loadAnnouncements();
+        } catch (e) {
+            if (msg) { msg.textContent = 'Upload failed. Check Storage rules.'; msg.style.color = '#ef4444'; }
+        } finally {
+            createBtn.textContent = 'Upload & Publish';
+            createBtn.disabled = false;
+        }
+    });
+};
+
+window.adminToggleAnn = async (id, active) => {
+    try {
+        await toggleAnnouncementActive(id, active);
+        loadAnnouncements();
+    } catch (e) { console.error('Toggle failed:', e); }
+};
+
+window.adminDeleteAnn = async (id, storagePath) => {
+    if (!confirm('Delete this announcement?')) return;
+    try {
+        await deleteAnnouncement(id, storagePath || null);
+        loadAnnouncements();
+    } catch (e) { console.error('Delete ann failed:', e); }
+};
+
