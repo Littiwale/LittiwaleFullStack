@@ -1,107 +1,401 @@
-import { collection, query, orderBy, onSnapshot, doc, updateDoc, serverTimestamp } from 'firebase/firestore';
+import { collection, query, orderBy, onSnapshot, doc, updateDoc, serverTimestamp, where, Timestamp } from 'firebase/firestore';
 import { db } from './firebase/config';
-import { onAuthChange } from './api/auth';
+import { onAuthChange, logoutUser } from './api/auth';
 import { fetchAllUsers, fetchUsersByRole, updateUserRole } from './api/users';
 import { assignRiderToOrder } from './api/orders';
 import { fetchAnalyticsData } from './api/analytics';
+import { ORDER_STATUS } from './constants/orderStatus';
 
-const activeList = document.querySelector('#active-orders-list');
-const completedList = document.querySelector('#completed-orders-list');
-const activeCount = document.querySelector('#active-count');
-const completedCount = document.querySelector('#completed-count');
-const alertBanner = document.querySelector('#new-order-alert');
-const notifSound = document.querySelector('#notif-sound');
+/**
+ * 👑 LITTIWALE ADMIN PANEL CORE (PREMIUM REDESIGN)
+ */
 
-// Tabs
-const tabViewOrders = document.querySelector('#view-orders');
-const tabViewUsers = document.querySelector('#view-users');
-const tabViewAnalytics = document.querySelector('#view-analytics');
+// View Elements
+const viewDashboard = document.querySelector('#view-dashboard');
+const viewOrders = document.querySelector('#view-orders');
+const viewCustomers = document.querySelector('#view-customers');
+const viewRiders = document.querySelector('#view-riders');
+const viewAnalytics = document.querySelector('#view-analytics');
 
-const sectionOrders = document.querySelector('.grid');
-const sectionUsers = document.querySelector('#users-section');
-const sectionAnalytics = document.querySelector('#analytics-section');
-const usersListBody = document.querySelector('#users-list-body');
+// Stats Elements
+const kpiRevenue = document.querySelector('#kpi-revenue');
+const kpiActive = document.querySelector('#kpi-active');
+const kpiCompleted = document.querySelector('#kpi-completed');
+const kpiCancelled = document.querySelector('#kpi-cancelled');
+const orderBadge = document.querySelector('#order-badge');
+const notifCountBadge = document.querySelector('#notif-count');
+const newOrderToast = document.querySelector('#new-order-toast');
 
+// Lists
+const ordersContainer = document.querySelector('#orders-list-container');
+const customersTableBody = document.querySelector('#customers-table-body');
+const ridersContainer = document.querySelector('#riders-list-container');
+
+// State
 let isInitialLoad = true;
 let currentUser = null;
 let ridersList = [];
+let activeOrders = [];
+let completedOrders = [];
+let currentFilter = 'ALL';
+let currentView = 'dashboard';
 
 /**
- * Initializes the real-time order listener with role security
+ * 🚀 Initialization
  */
 const initAdmin = () => {
     onAuthChange(async (user) => {
-        if (!user || !['admin', 'manager'].includes(user.profile?.role)) {
-            console.warn('⛔ Unauthorized Admin Access Attempt');
-            alert('Access Denied: Admin/Manager privileges required.');
-            window.location.href = '/';
+        // No session → login
+        if (!user) {
+            window.location.href = '/login.html';
             return;
         }
 
+        const role = user.profile?.role;
+
+        // Rider → rider panel
+        if (role === 'rider') {
+            window.location.href = '/rider/index.html';
+            return;
+        }
+
+        // Customer or unknown → storefront
+        if (role !== 'admin' && role !== 'manager') {
+            window.location.href = '/customer/index.html';
+            return;
+        }
+
+        // Admin / Manager → ALLOW
         currentUser = user;
-        setupTabs();
-        
-        // Fetch riders for assignment dropdowns
-        ridersList = await fetchUsersByRole('rider');
-        
+        updateAdminProfileUI();
+        setupNavigation();
+        setupOrderFiltering();
+
+        Promise.all([
+            fetchUsersByRole('rider'),
+            loadCustomers(),
+            loadDashboardAnalytics()
+        ]).then(([riders]) => {
+            ridersList = riders;
+            renderRiders(riders);
+        });
+
         startOrderListener();
-        
-        if (currentUser.profile.role === 'admin') {
-            loadUsersList();
-            loadAnalytics();
-        } else {
-            // Managers don't see the Users tab
-            tabViewUsers?.classList.add('hidden');
-            loadAnalytics(); // Still load analytics (filtered)
+        setupLogout();
+    });
+};
+
+const updateAdminProfileUI = () => {
+    const name = currentUser.profile?.name || 'Admin';
+    const email = currentUser.email || '';
+    const initial = name.charAt(0).toUpperCase();
+    
+    document.querySelector('#admin-name-display').textContent = name;
+    document.querySelector('#admin-avatar-initial').textContent = initial;
+
+    // Populate dropdown header
+    const trigger = document.querySelector('#admin-avatar-trigger');
+    if (trigger) trigger.textContent = initial;
+    const ddName = document.querySelector('#admin-dd-name');
+    const ddEmail = document.querySelector('#admin-dd-email');
+    if (ddName) ddName.textContent = name;
+    if (ddEmail) ddEmail.textContent = email;
+
+    setupProfileDropdown('admin-avatar-trigger', 'admin-profile-dropdown', 'admin-dd-logout');
+};
+
+/**
+ * Shared helper — mount toggle + outside-click for any dropdown
+ */
+const setupProfileDropdown = (triggerId, dropdownId, logoutId) => {
+    const trigger = document.getElementById(triggerId);
+    const dropdown = document.getElementById(dropdownId);
+    if (!trigger || !dropdown) return;
+
+    // Toggle open/close on avatar click
+    trigger.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const isOpen = dropdown.classList.contains('open');
+        document.querySelectorAll('.lw-dropdown.open').forEach(d => d.classList.remove('open'));
+        if (!isOpen) dropdown.classList.add('open');
+        trigger.setAttribute('aria-expanded', String(!isOpen));
+    });
+
+    // Close when clicking outside
+    document.addEventListener('click', (e) => {
+        if (!trigger.contains(e.target) && !dropdown.contains(e.target)) {
+            dropdown.classList.remove('open');
+            trigger.setAttribute('aria-expanded', 'false');
+        }
+    });
+
+    // Navigation items — plain click, no preventDefault so navigation is never blocked
+    document.getElementById('admin-dd-storefront')?.addEventListener('click', function() {
+        window.location.href = '/customer/index.html';
+    });
+    document.getElementById('admin-dd-rider')?.addEventListener('click', function() {
+        window.location.href = '/rider/index.html';
+    });
+
+    // Logout
+    document.getElementById(logoutId)?.addEventListener('click', async function() {
+        if (confirm('Logout from Admin Session?')) {
+            await logoutUser();
+            window.location.href = '/login.html';
         }
     });
 };
 
-const setupTabs = () => {
-    const tabs = [
-        { btn: tabViewOrders, section: sectionOrders, display: 'grid' },
-        { btn: tabViewUsers, section: sectionUsers, display: 'block' },
-        { btn: tabViewAnalytics, section: sectionAnalytics, display: 'block' }
-    ];
+/**
+ * 🗺️ Navigation Logic
+ */
+const setupNavigation = () => {
+    const navItems = document.querySelectorAll('.nav-item[data-view]');
+    const pageTitle = document.querySelector('#page-title');
 
-    tabs.forEach(tab => {
-        tab.btn?.addEventListener('click', () => {
-            tabs.forEach(t => {
-                t.section?.classList.add('hidden');
-                t.section?.classList.remove('grid', 'block');
-                t.btn?.classList.remove('bg-accent', 'text-black');
-                t.btn?.classList.add('text-gray-500');
-            });
-            tab.section?.classList.remove('hidden');
-            tab.section?.classList.add(tab.display);
-            tab.btn?.classList.add('bg-accent', 'text-black');
-            tab.btn?.classList.remove('text-gray-500');
+    navItems.forEach(item => {
+        item.addEventListener('click', () => {
+            const view = item.getAttribute('data-view');
+            switchView(view);
             
-            if (tab.btn === tabViewAnalytics) loadAnalytics();
+            navItems.forEach(i => i.classList.toggle('active', i === item));
+            pageTitle.textContent = view.charAt(0).toUpperCase() + view.slice(1);
         });
     });
 };
 
-const loadUsersList = async () => {
+const switchView = (viewName) => {
+    currentView = viewName;
+    document.querySelectorAll('.content-view').forEach(v => {
+        v.classList.toggle('active', v.id === `view-${viewName}`);
+    });
+
+    if (viewName === 'analytics') loadDashboardAnalytics();
+    if (viewName === 'customers') loadCustomers();
+};
+
+const setupOrderFiltering = () => {
+    const tabs = document.querySelectorAll('.filter-tab');
+    tabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+            currentFilter = tab.getAttribute('data-filter');
+            tabs.forEach(t => t.classList.toggle('active', t === tab));
+            renderOrders();
+        });
+    });
+};
+
+/**
+ * 📦 Order Lifecycle & Real-time Listeners
+ */
+const startOrderListener = () => {
+    const ordersRef = collection(db, 'orders');
+    const q = query(ordersRef, orderBy('createdAt', 'desc'));
+
+    onSnapshot(q, (snapshot) => {
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+
+        activeOrders = [];
+        completedOrders = [];
+
+        let newDetected = false;
+        snapshot.docChanges().forEach(change => {
+            if (change.type === 'added' && !isInitialLoad) newDetected = true;
+        });
+
+        snapshot.docs.forEach(doc => {
+            const data = doc.id ? { id: doc.id, ...doc.data() } : doc.data();
+            const status = data.status;
+            
+            // Stats logic (Today's metrics)
+            const orderDate = data.createdAt?.toDate ? data.createdAt.toDate() : new Date();
+            const isToday = orderDate >= today;
+
+            if ([ORDER_STATUS.DELIVERED, ORDER_STATUS.CANCELLED, ORDER_STATUS.REJECTED].includes(status)) {
+                if (isToday) completedOrders.push(data);
+            } else {
+                activeOrders.push(data);
+            }
+        });
+
+        if (newDetected) triggerNewOrderAlert();
+        
+        updateKPIs();
+        renderOrders();
+        isInitialLoad = false;
+    });
+};
+
+const updateKPIs = () => {
+    const today = new Date();
+    today.setHours(0,0,0,0);
+    
+    // Revenue today
+    const revenue = activeOrders.concat(completedOrders)
+        .filter(o => o.status !== ORDER_STATUS.REJECTED && o.status !== ORDER_STATUS.CANCELLED)
+        .reduce((sum, o) => sum + (Number(o.total) || 0), 0);
+
+    const pendingCount = activeOrders.filter(o => o.status === ORDER_STATUS.PLACED).length;
+
+    if (kpiRevenue) kpiRevenue.textContent = `₹${revenue.toLocaleString()}`;
+    if (kpiActive) kpiActive.textContent = activeOrders.length;
+    if (kpiCompleted) kpiCompleted.textContent = completedOrders.filter(o => o.status === ORDER_STATUS.DELIVERED).length;
+    if (kpiCancelled) kpiCancelled.textContent = completedOrders.filter(o => [ORDER_STATUS.CANCELLED, ORDER_STATUS.REJECTED].includes(o.status)).length;
+
+    // Badges
+    if (pendingCount > 0) {
+        orderBadge?.classList.remove('hidden');
+        orderBadge.textContent = pendingCount;
+        notifCountBadge?.classList.remove('hidden');
+        notifCountBadge.textContent = pendingCount;
+    } else {
+        orderBadge?.classList.add('hidden');
+        notifCountBadge?.classList.add('hidden');
+    }
+};
+
+const renderOrders = () => {
+    if (!ordersContainer) return;
+
+    let filtered = activeOrders.concat(completedOrders);
+
+    if (currentFilter !== 'ALL') {
+        if (currentFilter === 'COMPLETED') {
+            filtered = filtered.filter(o => o.status === ORDER_STATUS.DELIVERED);
+        } else {
+            filtered = filtered.filter(o => o.status === currentFilter);
+        }
+    }
+
+    ordersContainer.innerHTML = filtered.length > 0 
+        ? filtered.map(order => createOrderCard(order)).join('')
+        : `<div class="col-span-full py-20 text-center text-gray-600">No orders found for this category.</div>`;
+};
+
+const createOrderCard = (order) => {
+    const time = order.createdAt?.toDate ? new Date(order.createdAt.toDate()).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'Now';
+    
+    // Status color mapping
+    const statusColors = {
+        [ORDER_STATUS.PLACED]: 'bg-blue-500/10 text-blue-400 border-blue-500/30',
+        [ORDER_STATUS.ACCEPTED]: 'bg-indigo-500/10 text-indigo-400 border-indigo-500/30',
+        [ORDER_STATUS.PREPARING]: 'bg-orange-500/10 text-orange-400 border-orange-500/30',
+        [ORDER_STATUS.READY]: 'bg-yellow-500/10 text-yellow-400 border-yellow-500/30',
+        [ORDER_STATUS.ASSIGNED]: 'bg-purple-500/10 text-purple-400 border-purple-500/30',
+        [ORDER_STATUS.DELIVERED]: 'bg-green-500/10 text-green-400 border-green-500/30',
+        [ORDER_STATUS.CANCELLED]: 'bg-red-500/10 text-red-500 border-red-500/30',
+        [ORDER_STATUS.REJECTED]: 'bg-red-500/10 text-red-500 border-red-500/30'
+    };
+
+    const colorClass = statusColors[order.status] || 'bg-gray-800 text-gray-400 border-gray-700';
+
+    return `
+        <div class="admin-order-card">
+            <div class="flex justify-between items-start mb-4">
+                <div>
+                    <span class="text-[10px] font-black tracking-widest text-gray-500 uppercase">${order.orderId || order.id.slice(0,8)}</span>
+                    <h3 class="font-bold text-lg text-white">${order.customer.name}</h3>
+                </div>
+                <div class="text-right">
+                    <span class="text-xl font-black text-accent">₹${order.total}</span>
+                    <p class="text-[10px] text-gray-500 font-bold uppercase mt-1">${time}</p>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-2 mb-4">
+                <span class="order-badge-pill border ${colorClass}">${order.status.replace(/_/g, ' ')}</span>
+                <span class="px-2 py-0.5 rounded bg-gray-800 text-[10px] font-bold text-gray-400 border border-gray-700">${order.paymentMethod}</span>
+            </div>
+
+            <div class="bg-black/20 p-4 rounded-2xl mb-4 text-xs">
+                ${order.items.map(i => `<div class="flex justify-between py-1 border-b border-gray-800/30 last:border-0"><span class="text-gray-300 font-medium">${i.name} × ${i.quantity}</span> <span class="text-gray-500">${i.variant}</span></div>`).join('')}
+                <div class="pt-3 mt-3 border-t border-gray-800/50 text-gray-400 leading-relaxed text-[11px]">
+                    📍 ${order.customer.address}
+                </div>
+            </div>
+
+            <!-- ACTIONS -->
+            <div class="action-btn-group">
+                ${renderActionButtons(order)}
+            </div>
+            
+            ${[ORDER_STATUS.READY, ORDER_STATUS.ASSIGNED].includes(order.status) ? `
+                <div class="mt-4 pt-4 border-t border-gray-800">
+                    <p class="text-[10px] font-bold text-gray-500 uppercase mb-2">Assignment</p>
+                    <select onchange="handleRiderAssignment('${order.id}', this.value)" class="w-full bg-gray-800 border border-gray-700 rounded-xl px-3 py-2 text-xs outline-none">
+                        <option value="">-- Choose Rider --</option>
+                        ${ridersList.map(r => `<option value="${r.uid}" ${order.riderId === r.uid ? 'selected' : ''}>${r.name}</option>`).join('')}
+                    </select>
+                </div>
+            ` : ''}
+        </div>
+    `;
+};
+
+const renderActionButtons = (order) => {
+    switch(order.status) {
+        case ORDER_STATUS.PLACED:
+            return `
+                <button onclick="updateOrderStatus('${order.id}', '${ORDER_STATUS.ACCEPTED}')" class="action-btn-sm bg-indigo-600 text-white flex-1">Accept</button>
+                <button onclick="updateOrderStatus('${order.id}', '${ORDER_STATUS.REJECTED}')" class="action-btn-sm bg-red-900/40 text-red-500 border border-red-500/20">Reject</button>
+            `;
+        case ORDER_STATUS.ACCEPTED:
+            return `<button onclick="updateOrderStatus('${order.id}', '${ORDER_STATUS.PREPARING}')" class="action-btn-sm bg-orange-600 text-white w-full">Start Preparing</button>`;
+        case ORDER_STATUS.PREPARING:
+            return `<button onclick="updateOrderStatus('${order.id}', '${ORDER_STATUS.READY}')" class="action-btn-sm bg-yellow-500 text-black w-full">Mark Ready</button>`;
+        case ORDER_STATUS.READY:
+            return `<p class="text-[10px] text-gray-500 font-bold uppercase italic">Awaiting Rider Pickup</p>`;
+        case ORDER_STATUS.ASSIGNED:
+             return `<button onclick="updateOrderStatus('${order.id}', '${ORDER_STATUS.DELIVERED}')" class="action-btn-sm bg-green-600 text-white w-full">Mark Delivered</button>`;
+        default:
+            return `<span class="text-[10px] text-gray-600 font-bold uppercase">Archive: ${order.status}</span>`;
+    }
+};
+
+/**
+ * 🛠️ Global Actions (Exposed to Window)
+ */
+window.updateOrderStatus = async (docId, newStatus) => {
+    try {
+        const orderRef = doc(db, 'orders', docId);
+        await updateDoc(orderRef, {
+            status: newStatus,
+            updatedAt: serverTimestamp()
+        });
+    } catch (e) { console.error('Status Update Failed:', e); }
+};
+
+window.handleRiderAssignment = async (orderId, riderId) => {
+    if (!riderId) return;
+    const rider = ridersList.find(r => r.uid === riderId);
+    if (confirm(`Assign tracking to ${rider.name}?`)) {
+        await assignRiderToOrder(orderId, riderId, rider.name);
+    }
+};
+
+/**
+ * 👥 People & Directory
+ */
+const loadCustomers = async () => {
     const users = await fetchAllUsers();
-    if (usersListBody) {
-        usersListBody.innerHTML = users.map(user => `
+    if (customersTableBody) {
+        customersTableBody.innerHTML = users.map(u => `
             <tr class="hover:bg-white/5 transition">
-                <td class="p-6">
-                    <div class="font-bold">${user.name}</div>
-                    <div class="text-[10px] text-gray-500">${user.email}</div>
+                <td class="p-4">
+                    <p class="font-bold text-white">${u.name}</p>
+                    <p class="text-[10px] text-gray-500 font-bold uppercase tracking-wider">${u.email}</p>
                 </td>
-                <td class="p-6">
-                    <span class="px-3 py-1 bg-gray-800 rounded-full text-[10px] uppercase font-bold tracking-widest text-accent">
-                        ${user.role}
-                    </span>
+                <td class="p-4 text-gray-300 font-mono">${u.phone || 'N/A'}</td>
+                <td class="p-4">
+                    <span class="px-2 py-0.5 rounded bg-gray-800 text-[10px] font-black uppercase text-accent border border-accent/20">${u.role}</span>
                 </td>
-                <td class="p-6">
-                    <select onchange="handleRoleChange('${user.id}', this.value)" class="bg-gray-800 border-none rounded-lg text-xs px-2 py-1 outline-none">
-                        <option value="customer" ${user.role === 'customer' ? 'selected' : ''}>Customer</option>
-                        <option value="rider" ${user.role === 'rider' ? 'selected' : ''}>Rider</option>
-                        <option value="manager" ${user.role === 'manager' ? 'selected' : ''}>Manager</option>
-                        <option value="admin" ${user.role === 'admin' ? 'selected' : ''}>Admin</option>
+                <td class="p-4">
+                    <select onchange="changeRole('${u.id}', this.value)" class="bg-gray-800 rounded-lg text-xs px-2 py-1 outline-none border border-gray-700">
+                        <option value="customer" ${u.role === 'customer' ? 'selected' : ''}>Customer</option>
+                        <option value="rider" ${u.role === 'rider' ? 'selected' : ''}>Rider</option>
+                        <option value="manager" ${u.role === 'manager' ? 'selected' : ''}>Manager</option>
+                        <option value="admin" ${u.role === 'admin' ? 'selected' : ''}>Admin</option>
                     </select>
                 </td>
             </tr>
@@ -109,234 +403,123 @@ const loadUsersList = async () => {
     }
 };
 
-window.handleRoleChange = async (uid, newRole) => {
-    if (confirm(`Change user role to ${newRole.toUpperCase()}?`)) {
-        await updateUserRole(uid, newRole);
-        loadUsersList();
+window.changeRole = async (uid, role) => {
+    if (confirm(`Change this user to ${role.toUpperCase()}?`)) {
+        await updateUserRole(uid, role);
+        loadCustomers();
     }
 };
 
-const startOrderListener = () => {
-    const ordersRef = collection(db, 'orders');
-    const q = query(ordersRef, orderBy('createdAt', 'desc'));
-
-    onSnapshot(q, (snapshot) => {
-        const activeOrders = [];
-        const completedOrders = [];
-        let hasNewOrder = false;
-
-        snapshot.docChanges().forEach((change) => {
-            if (change.type === 'added' && !isInitialLoad) hasNewOrder = true;
-        });
-
-        if (hasNewOrder) triggerNotification();
-
-        snapshot.docs.forEach(doc => {
-            const order = { id: doc.id, ...doc.data() };
-            if (['DELIVERED', 'CANCELLED'].includes(order.status)) {
-                completedOrders.push(order);
-            } else {
-                activeOrders.push(order);
-            }
-        });
-
-        renderOrders(activeOrders, completedOrders);
-        updateStats(activeOrders.length, completedOrders.length);
-        isInitialLoad = false;
-    });
-};
-
-const renderOrders = (active, completed) => {
-    if (activeList) {
-        activeList.innerHTML = active.length > 0 
-            ? active.map(order => createOrderCard(order, true)).join('')
-            : '<p class="text-gray-600 text-center py-20">Monitoring for incoming orders...</p>';
-    }
-
-    if (completedList) {
-        completedList.innerHTML = completed.length > 0
-            ? completed.map(order => createOrderCard(order, false)).join('')
-            : '<p class="text-gray-600 text-center py-10">No recent completions.</p>';
-    }
-};
-
-const createOrderCard = (order, isActive) => {
-    const time = order.createdAt?.toDate ? new Date(order.createdAt.toDate()).toLocaleTimeString() : 'Just now';
-    const statusClass = `status-${order.status.toLowerCase()}`;
-    const isNew = isActive && (Date.now() - (order.createdAt?.toMillis() || Date.now()) < 60000);
-
-    return `
-        <div class="admin-card glass p-6 rounded-2xl border border-gray-800 ${isNew ? 'new-order' : ''}" data-id="${order.id}">
-            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4">
-                <div>
-                    <div class="flex items-center space-x-3 mb-1">
-                        <span class="text-xs font-black text-gray-500 uppercase tracking-widest">${order.orderId}</span>
-                        <span class="px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider ${statusClass}">
-                            ${order.status.replace(/_/g, ' ')}
-                        </span>
-                        ${order.paymentMethod === 'ONLINE' ? '<span class="text-[10px] font-bold text-green-500 italic">PAID</span>' : '<span class="text-[10px] font-bold text-orange-500 italic">COD</span>'}
-                    </div>
-                    <h3 class="text-lg font-bold">${order.customer.name}</h3>
-                </div>
-                <div class="text-right">
-                    <p class="text-xl font-black text-accent">₹${order.total}</p>
-                    <p class="text-[10px] text-gray-500">${time}</p>
-                </div>
+const renderRiders = (riders) => {
+    if (!ridersContainer) return;
+    ridersContainer.innerHTML = riders.map(r => `
+        <div class="admin-card bg-gray-900/50 p-6 rounded-3xl border border-gray-800 flex items-center gap-4">
+            <div class="h-14 w-14 bg-accent text-black rounded-2xl flex items-center justify-center text-2xl">🛵</div>
+            <div>
+                <h4 class="font-bold text-white">${r.name}</h4>
+                <p class="text-xs text-gray-500">${r.phone || 'No phone provided'}</p>
+                <span class="inline-block mt-2 px-2 py-0.5 bg-green-900/30 text-green-400 text-[9px] font-black uppercase rounded">Online</span>
             </div>
-
-            <!-- Details -->
-            <div class="bg-black/20 p-4 rounded-xl mb-4 text-xs space-y-1">
-                ${order.items.map(item => `<div>${item.name} (${item.variant} x ${item.quantity})</div>`).join('')}
-                <div class="pt-2 mt-2 border-t border-gray-800 text-gray-500">📍 ${order.customer.address}</div>
-            </div>
-
-            <!-- Rider Assignment -->
-            ${isActive ? `
-                <div class="mb-4 bg-gray-800/50 p-3 rounded-xl border border-gray-700">
-                    <p class="text-[10px] font-bold uppercase text-gray-500 mb-1">Assigned Rider</p>
-                    <select onchange="handleRiderAssign('${order.id}', this.value)" class="w-full bg-transparent text-xs outline-none cursor-pointer">
-                        <option value="">-- Assign Rider --</option>
-                        ${ridersList.map(r => `<option value="${r.uid}" ${order.riderId === r.uid ? 'selected' : ''}>${r.name}</option>`).join('')}
-                    </select>
-                </div>
-            ` : ''}
-
-            ${isActive ? `
-                <div class="flex flex-wrap gap-2">
-                    <button class="action-btn status-received" onclick="updateOrderStatus('${order.id}', 'RECEIVED')">Received</button>
-                    <button class="action-btn status-preparing" onclick="updateOrderStatus('${order.id}', 'PREPARING')">Preparing</button>
-                    <button class="action-btn status-out_for_delivery" onclick="updateOrderStatus('${order.id}', 'OUT_FOR_DELIVERY')">Delivery</button>
-                    <button class="action-btn status-delivered" onclick="updateOrderStatus('${order.id}', 'Complete')">Done</button>
-                </div>
-            ` : ''}
         </div>
-    `;
+    `).join('');
 };
 
-window.handleRiderAssign = async (orderId, riderId) => {
-    if (!riderId) return;
-    await assignRiderToOrder(orderId, riderId);
-    alert('Rider Assigned Successfully');
-};
-
-window.updateOrderStatus = async (docId, newStatus) => {
-    try {
-        const orderRef = doc(db, 'orders', docId);
-        await updateDoc(orderRef, {
-            status: newStatus.toUpperCase(),
-            updatedAt: serverTimestamp()
-        });
-    } catch (error) {
-        console.error('Update failed:', error);
-    }
-};
-
-const triggerNotification = () => {
-    if (alertBanner) {
-        alertBanner.classList.remove('hidden');
-        setTimeout(() => alertBanner.classList.add('hidden'), 5000);
-    }
-    if (notifSound) {
-        notifSound.currentTime = 0;
-        notifSound.play().catch(e => console.warn('Audio play blocked:', e));
-    }
-};
-
-const loadAnalytics = async () => {
+/**
+ * 📊 Insights & Charts
+ */
+const loadDashboardAnalytics = async () => {
     const data = await fetchAnalyticsData();
-    const isManager = currentUser.profile.role === 'manager';
-
-    // 1. Update KPI Cards
-    if (isManager) {
-        document.querySelector('#revenue-card')?.classList.add('hidden');
-        document.querySelector('#revenue-graph-card')?.classList.add('hidden');
-        document.querySelector('#customers-card')?.classList.add('hidden');
-    } else {
-        document.querySelector('#stat-revenue').textContent = `₹${data.totalRevenue}`;
+    
+    // Summary Cards In Analytics View
+    const insightList = document.querySelector('#top-items-list');
+    if (insightList) {
+        const sorted = Object.entries(data.topItems).sort((a,b) => b[1] - a[1]).slice(0, 5);
+        insightList.innerHTML = sorted.map(([name, qty]) => `
+            <div class="flex justify-between items-center bg-black/20 p-3 rounded-xl">
+                <span class="text-xs text-gray-300 font-medium">${name}</span>
+                <span class="text-xs font-black text-accent">${qty} SOLD</span>
+            </div>
+        `).join('');
     }
 
-    document.querySelector('#stat-orders').textContent = data.totalOrders;
-    document.querySelector('#stat-comparison').textContent = `${data.todayOrders} / ${data.yesterdayOrders}`;
+    const customerList = document.querySelector('#top-customers-list');
+    if (customerList) {
+        const sorted = Object.values(data.customers).sort((a,b) => b.revenue - a.revenue).slice(0, 5);
+        customerList.innerHTML = sorted.map(c => `
+            <div class="flex justify-between items-center bg-black/20 p-3 rounded-xl">
+                <span class="text-xs text-gray-300 font-medium">${c.name}</span>
+                <span class="text-xs font-black text-white">₹${c.revenue}</span>
+            </div>
+        `).join('');
+    }
 
-    // 2. Render Charts
+    // Charts
     const dates = Object.keys(data.dailyStats).sort();
-    const revenueTrend = dates.map(d => data.dailyStats[d].revenue);
-    const orderTrend = dates.map(d => data.dailyStats[d].orders);
-
-    if (!isManager) renderLineChart('revenue-chart', dates, revenueTrend, '#fbbf24');
-    renderBarChart('orders-chart', dates, orderTrend, '#3B82F6');
-
-    // 3. Render Top Items
-    const topItemsList = document.querySelector('#top-items-list');
-    if (topItemsList) {
-        const sortedItems = Object.entries(data.topItems).sort((a, b) => b[1] - a[1]).slice(0, 5);
-        topItemsList.innerHTML = sortedItems.map(([name, qty]) => `
-            <div class="flex justify-between items-center text-sm p-2 border-b border-gray-800/50">
-                <span class="text-gray-300">${name}</span>
-                <span class="font-bold text-accent">${qty} sold</span>
-            </div>
-        `).join('') || '<p class="text-xs text-gray-500 text-center">No sales data yet.</p>';
-    }
-
-    // 4. Render Repeat Customers
-    const customersList = document.querySelector('#customers-list');
-    if (customersList && !isManager) {
-        const repeats = Object.values(data.customers).filter(c => c.count >= 2).sort((a,b) => b.count - a.count);
-        customersList.innerHTML = repeats.map(c => `
-            <div class="flex justify-between items-center text-sm p-2 border-b border-gray-800/50">
-                <span class="text-gray-300">${c.name}</span>
-                <span class="font-bold bg-accent/20 px-2 py-0.5 rounded text-[10px]">${c.count} orders</span>
-            </div>
-        `).join('') || '<p class="text-xs text-gray-500 text-center">No repeats yet.</p>';
-    }
+    const revs = dates.map(d => data.dailyStats[d].revenue);
+    const ords = dates.map(d => data.dailyStats[d].orders);
+    
+    renderMinimalChart('revenue-chart', revs, '#F5A800');
+    renderMinimalChart('orders-chart', ords, '#3B82F6');
 };
 
-const renderLineChart = (containerId, labels, data, color) => {
-    const container = document.getElementById(containerId);
-    if (!container || data.length === 0) return;
+const renderMinimalChart = (id, data, color) => {
+    const el = document.getElementById(id);
+    if (!el) return;
 
+    // Empty state — no orders yet
+    const hasData = data.length > 0 && data.some(v => v > 0);
+    if (!hasData) {
+        el.innerHTML = `
+            <div style="height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;opacity:0.4;">
+                <span style="font-size:28px;">📊</span>
+                <p style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#7a8098;text-align:center;line-height:1.5;">
+                    No data yet —<br>place your first order<br>to see trends
+                </p>
+            </div>
+        `;
+        return;
+    }
+    
     const max = Math.max(...data, 1);
-    const width = container.clientWidth;
-    const height = container.clientHeight;
-    const padding = 40;
-
-    const points = data.map((val, i) => {
-        const x = padding + (i * (width - padding * 2) / (data.length - 1 || 1));
-        const y = height - padding - (val * (height - padding * 2) / max);
-        return `${x},${y}`;
-    }).join(' ');
-
-    container.innerHTML = `
-        <svg class="w-full h-full" viewBox="0 0 ${width} ${height}">
-            <polyline fill="none" stroke="${color}" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" points="${points}" class="opacity-80" />
-            ${data.map((val, i) => {
-                const [x, y] = points.split(' ')[i].split(',');
-                return `<circle cx="${x}" cy="${y}" r="4" fill="${color}" class="hover:r-6 cursor-pointer" />`;
-            }).join('')}
+    const step = 100 / (data.length - 1 || 1);
+    const points = data.map((v, i) => `${i * step},${100 - (v / max * 100)}`).join(' ');
+    
+    el.innerHTML = `
+        <svg viewBox="0 0 100 100" class="w-full h-full" preserveAspectRatio="none">
+            <defs>
+                <linearGradient id="grad-${id}" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stop-color="${color}" stop-opacity="0.3"/>
+                    <stop offset="100%" stop-color="${color}" stop-opacity="0"/>
+                </linearGradient>
+            </defs>
+            <path d="M 0,100 L ${points} L 100,100 Z" fill="url(#grad-${id})" stroke="none" />
+            <polyline points="${points}" fill="none" stroke="${color}" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" />
         </svg>
     `;
 };
 
-const renderBarChart = (containerId, labels, data, color) => {
-    const container = document.getElementById(containerId);
-    if (!container || data.length === 0) return;
-
-    const max = Math.max(...data, 1);
-    const width = container.clientWidth;
-    const height = container.clientHeight;
-    const padding = 20;
-    const barWidth = (width - padding * 2) / data.length;
-
-    container.innerHTML = `
-        <svg class="w-full h-full" viewBox="0 0 ${width} ${height}">
-            ${data.map((val, i) => {
-                const h = (val * (height - padding * 2) / max);
-                const x = padding + (i * barWidth);
-                const y = height - padding - h;
-                return `<rect x="${x + 2}" y="${y}" width="${barWidth - 4}" height="${h}" fill="${color}" rx="4" class="opacity-60" />`;
-            }).join('')}
-        </svg>
-    `;
+/**
+ * 🔔 Notifications
+ */
+const triggerNewOrderAlert = () => {
+    const audio = document.querySelector('#notif-sound');
+    if (audio) { audio.currentTime = 0; audio.play().catch(console.warn); }
+    
+    if (newOrderToast) {
+        newOrderToast.classList.remove('hidden');
+        setTimeout(() => newOrderToast.classList.add('hidden'), 5000);
+    }
 };
 
-initAdmin();
+const setupLogout = () => {
+    document.querySelector('#admin-logout-btn')?.addEventListener('click', async () => {
+        if (confirm('Logout from Admin Session?')) {
+            await logoutUser();
+            window.location.href = '/login.html';
+        }
+    });
+    // Note: header avatar dropdown logout is wired in setupProfileDropdown()
+};
+
+// Fire it up
+document.addEventListener('DOMContentLoaded', initAdmin);

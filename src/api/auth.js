@@ -10,6 +10,7 @@ import {
     doc, 
     getDoc, 
     setDoc, 
+    updateDoc,
     collection, 
     query, 
     where, 
@@ -160,28 +161,24 @@ export const logoutUser = async () => {
  */
 const syncUserProfile = async (user) => {
     const userRef = doc(db, 'users', user.uid);
-    const userSnap = await getDoc(userRef);
+    const docSnap = await getDoc(userRef);
 
-    if (!userSnap.exists()) {
-        // Double check by email if the document ID isn't set yet (prevents duplicates)
-        const usersCol = collection(db, 'users');
-        const q = query(usersCol, where('email', '==', user.email.toLowerCase()), limit(1));
-        const qSnap = await getDocs(q);
-
-        if (qSnap.empty) {
-            await setDoc(userRef, {
-                uid: user.uid,
-                name: user.displayName,
-                email: user.email.toLowerCase(),
-                role: 'customer',
-                createdAt: serverTimestamp()
-            });
-        }
+    if (!docSnap.exists()) {
+        // New user — create complete document
+        await setDoc(userRef, {
+            uid: user.uid,
+            email: user.email.toLowerCase(),
+            name: user.displayName || "User",
+            phone: "",
+            username: user.email.split('@')[0],
+            role: "customer",
+            createdAt: serverTimestamp()
+        });
     } else {
-        // Safe update for missing fields ONLY
-        const existingData = userSnap.data();
-        if (!existingData.name && user.displayName) {
-            await setDoc(userRef, { name: user.displayName }, { merge: true });
+        // Existing user — NEVER overwrite, just check role safety
+        const data = docSnap.data();
+        if (!data.role) {
+            await updateDoc(userRef, { role: "customer" });
         }
     }
 };
@@ -205,6 +202,7 @@ export const updateProfile = async (uid, data) => {
     }, { merge: true });
 
     await batch.commit();
+    return await getUserProfile(uid);
 };
 
 /**

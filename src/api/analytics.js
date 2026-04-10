@@ -1,5 +1,6 @@
 import { collection, query, where, getDocs, orderBy, Timestamp } from 'firebase/firestore';
 import { db } from '../firebase/config';
+import { ORDER_STATUS } from '../constants/orderStatus';
 
 /**
  * Fetches and processes analytics data for the last 30 days
@@ -18,8 +19,15 @@ export const fetchAnalyticsData = async () => {
     const snapshot = await getDocs(q);
     const orders = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
 
-    // Filter to included statuses
-    const validOrders = orders.filter(o => ['PLACED', 'DELIVERED', 'RECEIVED', 'PREPARING', 'OUT_FOR_DELIVERY'].includes(o.status));
+    // Filter to included statuses (All except Rejected/Cancelled/Payment issues)
+    const validOrders = orders.filter(o => [
+        ORDER_STATUS.PLACED, 
+        ORDER_STATUS.ACCEPTED, 
+        ORDER_STATUS.PREPARING, 
+        ORDER_STATUS.READY, 
+        ORDER_STATUS.ASSIGNED, 
+        ORDER_STATUS.DELIVERED
+    ].includes(o.status));
 
     const metrics = {
         totalRevenue: 0,

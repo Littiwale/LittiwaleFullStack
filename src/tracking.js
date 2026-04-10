@@ -2,6 +2,7 @@ import { collection, query, where, getDocs, limit } from 'firebase/firestore';
 import { db } from './firebase/config';
 import { requestNotificationPermission, saveFCMTokenToOrder } from './notifications';
 import { getUserProfile, onAuthChange, normalizePhone } from './api/auth';
+import { ORDER_STATUS } from './constants/orderStatus';
 
 const content = document.querySelector('#tracking-content');
 const loading = document.querySelector('#tracking-loading');
@@ -75,17 +76,19 @@ const renderOrder = async (order) => {
     
     // Status color
     const statusClasses = {
-        'PLACED': 'bg-blue-900 text-blue-300',
-        'RECEIVED': 'bg-indigo-900 text-indigo-300',
-        'PREPARING': 'bg-orange-900 text-orange-300',
-        'OUT_FOR_DELIVERY': 'bg-purple-900 text-purple-300',
-        'DELIVERED': 'bg-green-900 text-green-300',
-        'CANCELLED': 'bg-red-900 text-red-300'
+        [ORDER_STATUS.PLACED]:           'bg-blue-900 text-blue-300',
+        [ORDER_STATUS.ACCEPTED]:         'bg-indigo-900 text-indigo-300',
+        [ORDER_STATUS.PREPARING]:        'bg-orange-900 text-orange-300',
+        [ORDER_STATUS.READY]:            'bg-yellow-900 text-yellow-300',
+        [ORDER_STATUS.ASSIGNED]:         'bg-purple-900 text-purple-300',
+        [ORDER_STATUS.DELIVERED]:        'bg-green-900 text-green-300',
+        [ORDER_STATUS.CANCELLED]:        'bg-red-900 text-red-300',
+        [ORDER_STATUS.REJECTED]:         'bg-red-900 text-red-300'
     };
-    statusBadge.className = `px-4 py-1 rounded-full text-xs font-bold uppercase tracking-widest ${statusClasses[order.status] || 'bg-gray-800'}`;
+    statusBadge.className = `px-4 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${statusClasses[order.status] || 'bg-gray-800'}`;
 
     // Handle Rider Info
-    if (order.riderId && order.status === 'OUT_FOR_DELIVERY') {
+    if (order.riderId && order.status === ORDER_STATUS.ASSIGNED) {
         const profile = await getUserProfile(order.riderId);
         if (profile) {
             riderInfo.classList.remove('hidden');

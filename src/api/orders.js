@@ -1,5 +1,6 @@
 import { collection, addDoc, getDoc, doc, serverTimestamp, updateDoc } from 'firebase/firestore';
 import { db } from '../firebase/config';
+import { ORDER_STATUS } from '../constants/orderStatus';
 
 /**
  * Generates a unique Order ID in the format LW-YYYYMMDD-XXXX
@@ -64,7 +65,7 @@ export const validateOrder = async (cartItems) => {
 export const createOrderEntry = async (orderData) => {
     try {
         const orderId = generateOrderId();
-        const initialStatus = orderData.paymentMethod === 'COD' ? 'PLACED' : 'AWAITING_PAYMENT';
+        const initialStatus = orderData.paymentMethod === 'COD' ? ORDER_STATUS.PLACED : ORDER_STATUS.AWAITING_PAYMENT;
         
         const finalOrder = {
             ...orderData,
@@ -109,9 +110,10 @@ export const updateOrderDetails = async (docId, updates) => {
  * @param {string} docId 
  * @param {string} riderId 
  */
-export const assignRiderToOrder = async (docId, riderId) => {
+export const assignRiderToOrder = async (docId, riderId, riderName) => {
     return updateOrderDetails(docId, {
         riderId,
-        status: 'RECEIVED' // Auto-received once assigned if not already
+        riderName,
+        status: ORDER_STATUS.ASSIGNED
     });
 };

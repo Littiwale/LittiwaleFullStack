@@ -3,140 +3,217 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Littiwale Admin - Kitchen Manager</title>
-    <link rel="stylesheet" href="../src/style.css">
+    <title>Littiwale Admin - Kitchen & Business Manager</title>
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/src/style.css">
     <script>
         (function() {
             const role = localStorage.getItem('littiwale_role');
-            const isGuest = localStorage.getItem('littiwale_guest') === 'true';
-            if (isGuest || (role && role !== 'admin' && role !== 'manager')) {
-                const redirectRole = role || 'customer';
-                window.location.href = `/${redirectRole === 'admin' || redirectRole === 'manager' ? 'admin' : redirectRole}/index.html`;
-            }
+            // Not logged in at all — send to login
+            if (!role) { window.location.href = '/login.html'; return; }
+            // Admin — ALLOW
+            if (role === 'admin' || role === 'manager') return;
+            // Rider — redirect to rider panel
+            if (role === 'rider') { window.location.href = '/rider/index.html'; return; }
+            // Customer or unknown — redirect to storefront
+            window.location.href = '/customer/index.html';
         })();
     </script>
 </head>
-<body class="bg-gray-950 text-white font-sans overflow-x-hidden">
-    <div id="app">
-        <header class="p-6 flex justify-between items-center bg-gray-900 border-b border-gray-800 fixed w-full top-0 z-50">
-            <div class="flex items-center space-x-4">
-                <h1 class="text-2xl font-black text-accent tracking-tighter">ADMIN <span class="text-gray-500 font-light">PANEL</span></h1>
-                <div id="stats" class="hidden md:flex space-x-4 text-xs">
-                    <span class="bg-blue-900/40 text-blue-400 px-3 py-1 rounded-full border border-blue-500/30"><strong id="active-count">0</strong> Active</span>
-                    <span class="bg-green-900/40 text-green-400 px-3 py-1 rounded-full border border-green-500/30"><strong id="completed-count">0</strong> Completed</span>
+<body class="admin-body">
+    <div id="app" class="admin-wrapper">
+        <!-- 1. SIDEBAR -->
+        <aside class="admin-sidebar">
+            <div class="sidebar-top">
+                <div class="admin-logo">
+                    <img src="/images/logo.png" alt="Littiwale">
+                    <span>LITTIWALE</span>
                 </div>
+                <nav class="sidebar-nav">
+                    <button class="nav-item active" data-view="dashboard">
+                        <span class="nav-icon">🏠</span>
+                        <span class="nav-text">Dashboard</span>
+                    </button>
+                    <button class="nav-item" data-view="orders">
+                        <span class="nav-icon">📦</span>
+                        <span class="nav-text">Orders</span>
+                        <span id="order-badge" class="nav-badge hidden">0</span>
+                    </button>
+                    <button class="nav-item" data-view="customers">
+                        <span class="nav-icon">👥</span>
+                        <span class="nav-text">Customers</span>
+                    </button>
+                    <button class="nav-item" data-view="analytics">
+                        <span class="nav-icon">📊</span>
+                        <span class="nav-text">Analytics</span>
+                    </button>
+                    <button class="nav-item" data-view="riders">
+                        <span class="nav-icon">🛵</span>
+                        <span class="nav-text">Riders</span>
+                    </button>
+                </nav>
             </div>
-            <nav class="flex items-center space-x-6">
-                <div id="admin-tabs" class="hidden md:flex bg-black/40 p-1 rounded-xl border border-gray-800">
-                    <button id="view-orders" class="px-4 py-1.5 rounded-lg text-xs font-bold transition bg-accent text-black">📦 Orders</button>
-                    <button id="view-users" class="px-4 py-1.5 rounded-lg text-xs font-bold transition text-gray-500 hover:text-white">👥 Users</button>
-                    <button id="view-analytics" class="px-4 py-1.5 rounded-lg text-xs font-bold transition text-gray-500 hover:text-white">📊 Analytics</button>
-                </div>
-                <a href="../customer/index.html" class="text-sm hover:text-accent transition">Storefront</a>
-            </nav>
-        </header>
-
-        <main class="mt-24 p-6 max-w-7xl mx-auto">
-            <div id="new-order-alert" class="hidden fixed top-24 left-1/2 -translate-x-1/2 z-[60] bg-accent text-black px-8 py-3 rounded-full font-black shadow-2xl animate-bounce">
-                🚀 NEW ORDER RECEIVED!
-            </div>
-
-            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
-                <!-- Active Orders -->
-                <section class="lg:col-span-8 space-y-6">
-                    <div class="flex items-center justify-between">
-                        <h2 class="text-xl font-bold flex items-center">
-                            Active Orders
-                            <span class="ml-2 w-2 h-2 bg-red-500 rounded-full animate-ping"></span>
-                        </h2>
+            <div class="sidebar-bottom">
+                <button id="admin-logout-btn" class="nav-item text-red-400">
+                    <span class="nav-icon">⚙️</span>
+                    <span class="nav-text">Logout</span>
+                </button>
+                <div class="sidebar-profile">
+                    <div class="profile-avatar" id="admin-avatar-initial">A</div>
+                    <div class="profile-info">
+                        <span class="profile-name" id="admin-name-display">Admin</span>
+                        <span class="profile-role">ADMIN</span>
                     </div>
-                    <div id="active-orders-list" class="space-y-4 min-h-[400px]">
-                        <p class="text-gray-600 text-center py-20">Monitoring for incoming orders...</p>
+                </div>
+            </div>
+        </aside>
+
+        <!-- 2. MAIN CONTENT AREA -->
+        <div class="admin-content">
+            <!-- HEADER -->
+            <header class="admin-header">
+                <h2 id="page-title" class="text-xl font-black uppercase tracking-widest text-accent">Dashboard</h2>
+                <div class="header-right">
+                    <div id="new-order-toast" class="hidden absolute top-20 right-8 bg-accent text-black px-6 py-3 rounded-2xl font-black shadow-2xl flex items-center gap-3 animate-slide-in">
+                        <span>🚀</span> NEW ORDER RECEIVED!
+                    </div>
+                    <div class="notification-bell">
+                        <span class="bell-icon">🔔</span>
+                        <span id="notif-count" class="bell-badge hidden">0</span>
+                    </div>
+                    <!-- Profile Dropdown -->
+                    <div class="lw-profile-wrap" id="admin-profile-wrap">
+                        <button class="lw-avatar-btn" id="admin-avatar-trigger" aria-haspopup="true" aria-expanded="false">A</button>
+                        <div class="lw-dropdown" id="admin-profile-dropdown" role="menu">
+                            <div class="lw-dropdown-header">
+                                <p id="admin-dd-name">Admin</p>
+                                <span id="admin-dd-email">Loading…</span>
+                            </div>
+                            <button class="lw-dropdown-item" id="admin-dd-storefront">🛒 Go to Storefront</button>
+                            <button class="lw-dropdown-item" id="admin-dd-rider">🛵 Go to Rider Panel</button>
+                            <div class="lw-dropdown-divider"></div>
+                            <button class="lw-dropdown-item danger" id="admin-dd-logout">🚪 Logout</button>
+                        </div>
+                    </div>
+                </div>
+
+            </header>
+
+            <!-- VIEW containers (SPA style) -->
+            <div class="view-container-wrapper">
+                <!-- VIEW: DASHBOARD -->
+                <section id="view-dashboard" class="content-view active">
+                    <!-- KPI Cards -->
+                    <div class="kpi-grid">
+                        <div class="kpi-card">
+                            <p class="kpi-label">Today's Revenue</p>
+                            <h3 id="kpi-revenue" class="kpi-value text-accent">₹0</h3>
+                            <p class="kpi-trend">Live updates</p>
+                        </div>
+                        <div class="kpi-card">
+                            <p class="kpi-label">Active Orders</p>
+                            <h3 id="kpi-active" class="kpi-value">0</h3>
+                            <p class="kpi-trend text-blue-400">In kitchen</p>
+                        </div>
+                        <div class="kpi-card">
+                            <p class="kpi-label">Completed</p>
+                            <h3 id="kpi-completed" class="kpi-value">0</h3>
+                            <p class="kpi-trend text-green-400">Total today</p>
+                        </div>
+                        <div class="kpi-card">
+                            <p class="kpi-label">Cancelled</p>
+                            <h3 id="kpi-cancelled" class="kpi-value">0</h3>
+                            <p class="kpi-trend text-red-500">Failed/Rejected</p>
+                        </div>
+                    </div>
+
+                    <!-- Charts Row -->
+                    <div class="charts-row">
+                        <div class="chart-container">
+                            <div class="chart-header">
+                                <h4>Revenue Trend</h4>
+                                <span class="chart-period">Last 30 Days</span>
+                            </div>
+                            <div id="revenue-chart" class="chart-body"></div>
+                        </div>
+                        <div class="chart-container">
+                            <div class="chart-header">
+                                <h4>Order Volume</h4>
+                                <span class="chart-period">Last 30 Days</span>
+                            </div>
+                            <div id="orders-chart" class="chart-body"></div>
+                        </div>
+                    </div>
+
+                    <!-- Insights Tables -->
+                    <div class="insights-row">
+                        <div class="insight-card">
+                            <h4>🏆 Top Selling Items</h4>
+                            <div id="top-items-list" class="insight-list"></div>
+                        </div>
+                        <div class="insight-card">
+                            <h4>💎 Best Customers</h4>
+                            <div id="top-customers-list" class="insight-list"></div>
+                        </div>
                     </div>
                 </section>
 
-                <!-- Completed Orders Sidebar -->
-                <section id="completed-orders-section" class="lg:col-span-4 space-y-6">
-                    <h2 class="text-xl font-bold text-gray-400">Recent Completed</h2>
-                    <div id="completed-orders-list" class="space-y-4 opacity-70">
-                        <!-- Completed items -->
+                <!-- VIEW: ORDERS -->
+                <section id="view-orders" class="content-view">
+                    <div class="orders-filter-tabs">
+                        <button class="filter-tab active" data-filter="ALL">All Orders</button>
+                        <button class="filter-tab" data-filter="PLACED">Pending</button>
+                        <button class="filter-tab" data-filter="ACCEPTED">Kitchen</button>
+                        <button class="filter-tab" data-filter="READY">Ready</button>
+                        <button class="filter-tab" data-filter="ASSIGNED">On Way</button>
+                    </div>
+                    <div id="orders-list-container" class="orders-grid-admin">
+                        <!-- Cards injected by JS -->
+                        <p class="text-center py-20 text-gray-600">Loading orders...</p>
+                    </div>
+                </section>
+
+                <!-- VIEW: CUSTOMERS -->
+                <section id="view-customers" class="content-view">
+                    <div class="admin-card overflow-hidden">
+                        <div class="p-6 bg-black/20 flex justify-between items-center">
+                            <h3 class="font-bold">Customer Directory</h3>
+                            <input type="text" id="customer-search" placeholder="Search by name or phone..." class="bg-gray-800 border-none rounded-lg px-4 py-2 text-sm w-64 outline-none focus:ring-1 focus:ring-accent">
+                        </div>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left text-sm">
+                                <thead class="bg-black/40 text-gray-500 uppercase text-[10px] font-black">
+                                    <tr>
+                                        <th class="p-4">Customer</th>
+                                        <th class="p-4">Phone</th>
+                                        <th class="p-4">Role</th>
+                                        <th class="p-4">Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="customers-table-body" class="divide-y divide-gray-800/50">
+                                    <!-- Users injected here -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- VIEW: RIDERS -->
+                <section id="view-riders" class="content-view">
+                    <div id="riders-list-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <!-- Riders injected here -->
                     </div>
                 </section>
             </div>
-
-            <!-- Users Management (Admin Only) -->
-            <section id="users-section" class="hidden space-y-8 animate-fade-in">
-                <!-- ... Content ... -->
-            </section>
-
-            <!-- Analytics Dashboard -->
-            <section id="analytics-section" class="hidden space-y-8 animate-fade-in pb-20">
-                <div class="flex items-center justify-between">
-                    <h2 class="text-3xl font-black">Business <span class="text-accent">Insights</span></h2>
-                </div>
-
-                <!-- KPI Cards -->
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                    <div id="revenue-card" class="admin-card glass p-6 rounded-3xl border border-gray-800">
-                        <p class="text-[10px] font-black uppercase tracking-widest text-gray-500 mb-1">Total Revenue (30d)</p>
-                        <h3 id="stat-revenue" class="text-3xl font-black text-accent">₹0</h3>
-                    </div>
-                    <div class="admin-card glass p-6 rounded-3xl border border-gray-800">
-                        <p class="text-[10px] font-black uppercase tracking-widest text-gray-500 mb-1">Total Orders</p>
-                        <h3 id="stat-orders" class="text-3xl font-black">0</h3>
-                    </div>
-                    <div class="admin-card glass p-6 rounded-3xl border border-gray-800">
-                        <p class="text-[10px] font-black uppercase tracking-widest text-gray-500 mb-1">Today vs Yesterday</p>
-                        <h3 id="stat-comparison" class="text-xl font-black text-gray-300">0 / 0</h3>
-                    </div>
-                    <div class="admin-card glass p-6 rounded-3xl border border-gray-800">
-                        <p class="text-[10px] font-black uppercase tracking-widest text-gray-500 mb-1">Active Status</p>
-                        <div class="flex items-center text-green-500 font-bold">
-                            <span class="w-2 h-2 bg-green-500 rounded-full mr-2 animate-pulse"></span> SYSTEM LIVE
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Charts Row -->
-                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                    <!-- Revenue Line Chart -->
-                    <div id="revenue-graph-card" class="admin-card glass p-8 rounded-3xl border border-gray-800 h-[400px] flex flex-col">
-                        <p class="text-xs font-black uppercase tracking-widest text-gray-500 mb-6">Revenue Trend (₹)</p>
-                        <div id="revenue-chart" class="flex-1 w-full relative group">
-                            <!-- SVG Chart will be injected here -->
-                        </div>
-                    </div>
-                    <!-- Orders Bar Chart -->
-                    <div class="admin-card glass p-8 rounded-3xl border border-gray-800 h-[400px] flex flex-col">
-                        <p class="text-xs font-black uppercase tracking-widest text-gray-500 mb-6">Daily Orders Volume</p>
-                        <div id="orders-chart" class="flex-1 w-full relative">
-                            <!-- SVG Chart will be injected here -->
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Insights Tables -->
-                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                    <div class="bg-gray-900 rounded-3xl border border-gray-800 overflow-hidden">
-                        <p class="p-6 bg-black/30 text-[10px] font-black uppercase tracking-widest text-gray-500">🏆 Top Selling Items</p>
-                        <div id="top-items-list" class="p-4 space-y-2">
-                             <!-- items -->
-                        </div>
-                    </div>
-                    <div id="customers-card" class="bg-gray-900 rounded-3xl border border-gray-800 overflow-hidden">
-                        <p class="p-6 bg-black/30 text-[10px] font-black uppercase tracking-widest text-gray-500">💎 Repeat Customers (>= 2 Orders)</p>
-                        <div id="customers-list" class="p-4 space-y-2">
-                             <!-- customers -->
-                        </div>
-                    </div>
-                </div>
-            </section>
-        </main>
+        </div>
     </div>
 
     <!-- Notification Sound -->
     <audio id="notif-sound" src="https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3" preload="auto"></audio>
 
-    <script type="module" src="../src/admin.js"></script>
+    <script type="module" src="/src/admin.js"></script>
 </body>
 </html>

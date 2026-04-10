@@ -25,51 +25,78 @@ const init = async () => {
         if (profileArea) {
             if (user) {
                 const displayName = user.profile?.name || user.displayName || 'User';
+                const email = user.profile?.email || user.email || '';
+                const role = user.profile?.role || 'customer';
                 const initial = displayName.charAt(0).toUpperCase();
+
+                // Build role-specific menu items
+                let menuItems = '';
+                if (role === 'admin' || role === 'manager') {
+                    menuItems = `
+                        <button class="lw-dropdown-item" id="dd-nav-admin">🏠 Admin Panel</button>
+                        <button class="lw-dropdown-item" id="dd-nav-rider">🛵 Rider Panel</button>
+                    `;
+                } else if (role === 'rider') {
+                    menuItems = `
+                        <button class="lw-dropdown-item" id="dd-nav-rider">🏍️ Rider Panel</button>
+                    `;
+                } else {
+                    // customer
+                    menuItems = `
+                        <button class="lw-dropdown-item" id="dd-nav-orders">📦 My Orders</button>
+                    `;
+                }
+
                 profileArea.innerHTML = `
-                    <div style="display: flex; align-items: center; gap: 10px; position: relative;" id="profile-container">
-                        <span style="font-size: 12px; font-weight: 700; color: var(--text-secondary); cursor: pointer;">Hi, ${displayName.split(' ')[0]}</span>
-                        <div id="profile-bubble" style="width: 32px; height: 32px; border-radius: 50%; background: var(--primary); color: #000; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 14px; cursor: pointer;">${initial}</div>
-                        <div id="profile-dropdown" class="profile-dropdown-custom">
-                            <button onclick="window.location.href='/#reach'">Profile</button>
-                            <button onclick="window.location.href='/track.html'">Orders</button>
-                            <button id="logout-final-btn" style="color: var(--error);">Logout</button>
+                    <div class="lw-profile-wrap" id="customer-profile-wrap">
+                        <span style="font-size:12px;font-weight:700;color:var(--text-secondary);">Hi, ${displayName.split(' ')[0]}</span>
+                        <button class="lw-avatar-btn" id="customer-avatar-trigger" aria-haspopup="true" aria-expanded="false">${initial}</button>
+                        <div class="lw-dropdown" id="customer-profile-dropdown" role="menu">
+                            <div class="lw-dropdown-header">
+                                <p>${displayName}</p>
+                                <span style="text-transform:uppercase;letter-spacing:1px;">${role}</span>
+                            </div>
+                            ${menuItems}
+                            <div class="lw-dropdown-divider"></div>
+                            <button class="lw-dropdown-item danger" id="dd-nav-logout">🚪 Logout</button>
                         </div>
                     </div>
                 `;
 
-                // Internal Dropdown CSS (Since I can't edit style.css again easily for small tweaks)
-                const style = document.createElement('style');
-                style.textContent = `
-                    .profile-dropdown-custom {
-                        position: absolute; top: 100%; right: 0; background: #1a1a1a; border: 1px solid var(--glass-border); 
-                        border-radius: 12px; padding: 8px; width: 140px; display: none; z-index: 2000; margin-top: 10px;
+                // Toggle open/close
+                const trigger = document.getElementById('customer-avatar-trigger');
+                const dropdown = document.getElementById('customer-profile-dropdown');
+                trigger?.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    dropdown.classList.toggle('open');
+                    trigger.setAttribute('aria-expanded', dropdown.classList.contains('open'));
+                });
+                document.addEventListener('click', function(e) {
+                    if (!trigger?.contains(e.target) && !dropdown?.contains(e.target)) {
+                        dropdown?.classList.remove('open');
                     }
-                    .profile-dropdown-custom.show { display: block; }
-                    .profile-dropdown-custom button { 
-                        width: 100%; text-align: left; background: none; border: none; color: white; 
-                        padding: 10px; border-radius: 8px; cursor: pointer; font-family: inherit; font-size: 13px; font-weight: 600;
-                    }
-                    .profile-dropdown-custom button:hover { background: var(--glass); }
-                `;
-                document.head.appendChild(style);
+                });
 
-                // Interactions
-                const bubble = document.getElementById('profile-bubble');
-                const dropdown = document.getElementById('profile-dropdown');
-                bubble?.addEventListener('click', (e) => { e.stopPropagation(); dropdown.classList.toggle('show'); });
-                document.addEventListener('click', () => dropdown?.classList.remove('show'));
-
-                document.getElementById('logout-final-btn')?.addEventListener('click', async () => {
+                // Role-specific nav actions
+                document.getElementById('dd-nav-admin')?.addEventListener('click', function() {
+                    window.location.href = '/admin/index.html';
+                });
+                document.getElementById('dd-nav-rider')?.addEventListener('click', function() {
+                    window.location.href = '/rider/index.html';
+                });
+                document.getElementById('dd-nav-orders')?.addEventListener('click', function() {
+                    window.location.href = '/customer/track.html';
+                });
+                document.getElementById('dd-nav-logout')?.addEventListener('click', async function() {
                     await logoutUser();
                     localStorage.removeItem('littiwale_guest');
                     window.location.href = '/login.html';
                 });
 
             } else if (isGuest) {
-                profileArea.innerHTML = `<span style="font-size: 12px; font-weight: 700; color: var(--text-secondary); cursor: pointer;" onclick="window.location.href='/login.html'">Hi, Guest 👋</span>`;
+                profileArea.innerHTML = `<span style="font-size:12px;font-weight:700;color:var(--text-secondary);cursor:pointer;" onclick="window.location.href='/login.html'">Hi, Guest 👋</span>`;
             } else {
-                profileArea.innerHTML = `<a href="login.html" class="btn btn-primary" style="padding: 8px 16px; font-size: 12px;">Login</a>`;
+                profileArea.innerHTML = `<a href="/login.html" class="btn btn-primary" style="padding:8px 16px;font-size:12px;">Login</a>`;
             }
         }
     });

@@ -2,6 +2,7 @@ import { getCart, getCartTotal, clearCart } from '../store/cart';
 import { validateOrder, createOrderEntry, updateOrderDetails } from '../api/orders';
 import { functions, auth } from '../firebase/config';
 import { normalizePhone } from '../api/auth';
+import { ORDER_STATUS } from '../constants/orderStatus';
 import { httpsCallable } from 'firebase/functions';
 
 const checkoutModal = document.querySelector('#checkout-modal');
@@ -90,7 +91,10 @@ const handleCheckoutSubmit = async (e) => {
         if (paymentMethod === 'COD') {
             await handleCODSuccess(orderId);
         } else {
-            await handleOnlinePayment(orderId, docId, total, customerDetails);
+            // Online Payment Disabled - Show Notice
+            alert("Online payment coming soon! Please select Cash on Delivery.");
+            resetButton(originalBtnText);
+            // await handleOnlinePayment(orderId, docId, total, customerDetails);
         }
 
     } catch (error) {
@@ -105,6 +109,7 @@ const handleCODSuccess = async (orderId) => {
     window.location.href = `/track.html?id=${orderId}`;
 };
 
+/* 
 const handleOnlinePayment = async (orderId, docId, amount, customer) => {
     try {
         // A. Create Razorpay Order via Cloud Function
@@ -187,10 +192,11 @@ const verifyAndComplete = async (rzpResponse, orderId, docId) => {
         resetButton(`Retry Payment`);
     }
 };
+*/
 
 const handlePaymentCancel = async (docId) => {
     await updateOrderDetails(docId, {
-        status: 'PAYMENT_FAILED',
+        status: ORDER_STATUS.PAYMENT_FAILED,
         paymentStatus: 'failed'
     });
 };
