@@ -483,3 +483,34 @@ body {
   border-radius: 2px;
 }
 .divider.left { margin-left: 0; }
+
+/* --- CLEANED UTILITY CLASSES FROM INDEX --- */
+.nav-deals-btn { padding: 8px 16px !important; font-size: 12px !important; }
+.announcement-dots { display: flex; justify-content: center; gap: 8px; margin-top: 10px; }
+.hero-subtitle { color: var(--primary); font-weight: 800; text-transform: uppercase; letter-spacing: 4px; display: block; margin-bottom: 10px; }
+.hero-title { font-family: var(--font-display), serif; }
+.section-hall-of-fame { padding: 60px 20px; background: #0d0f14; }
+.hall-of-fame-header { text-align: center; margin-bottom: 40px; }
+.hall-of-fame-top-tag { color: #F5A800; letter-spacing: 3px; font-size: 12px; text-transform: uppercase; font-weight: 600; }
+.hall-of-fame-title { font-family: var(--font-display), serif; font-size: 42px; font-weight: 800; color: #fff; margin-top: 8px; }
+.hall-of-fame-subtitle { color: #7a8098; margin-top: 8px; font-size: 18px; }
+.hall-of-fame-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px; max-width: 1100px; margin: 0 auto; }
+.hall-of-fame-footer { text-align: center; margin-top: 40px; }
+.hall-of-fame-btn { background: #F5A800; color: #000; padding: 14px 36px; border-radius: 10px; font-weight: 700; font-size: 15px; text-decoration: none; letter-spacing: 1px; }
+.about-title { font-size: 32px; }
+.about-highlight { color: var(--primary); font-weight: 700; font-size: 18px; margin-bottom: 20px; }
+.about-text { max-width: 800px; margin: 0 auto; color: var(--text-secondary); }
+.reach-title { font-size: 36px; }
+.reach-right-iframe { border: 0; border-radius: 16px; filter: grayscale(1) invert(1) contrast(1.2); }
+.connect-footer { text-align: center; margin-top: 80px; }
+.connect-links { display: flex; justify-content: center; gap: 30px; font-weight: 700; color: var(--primary); }
+.connect-link { color: inherit; text-decoration: none; }
+.footer-copy { padding: 40px 0; text-align: center; color: var(--text-secondary); font-size: 14px; border-top: 1px solid var(--glass-border); }
+.modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
+.modal-title { font-size: 24px; font-weight: 900; }
+.modal-close-btn { background: none; border: none; font-size: 32px; color: #fff; cursor: pointer; }
+.cart-list { display: flex; flex-direction: column; gap: 20px; }
+.cart-footer { margin-top: 40px; padding-top: 20px; border-top: 2px dashed var(--glass-border); }
+.cart-summary-line { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+.cart-summary-label { font-weight: 700; color: var(--text-secondary); }
+.cart-summary-value { font-size: 28px; font-weight: 900; color: var(--primary); }

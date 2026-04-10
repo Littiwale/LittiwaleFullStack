@@ -11,7 +11,15 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&family=Playfair+Display:wght@700;900&display=swap" rel="stylesheet">
     
-    <link rel="stylesheet" href="./src/style.css">
+    <link rel="stylesheet" href="../src/style.css">
+    <script>
+        (function() {
+            const role = localStorage.getItem('littiwale_role');
+            if (role && role !== 'customer') {
+                window.location.href = `/${role === 'admin' || role === 'manager' ? 'admin' : role}/index.html`;
+            }
+        })();
+    </script>
     <link rel="icon" type="image/png" href="/images/logo.png">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
@@ -206,15 +214,15 @@
         <!-- NAVBAR (Same as index) -->
         <nav class="navbar">
             <div class="container nav-container">
-                <a href="index.html" class="logo-link">
+                <a href="./index.html" class="logo-link">
                     <img src="/images/logo.png" alt="Littiwale" class="nav-logo">
                 </a>
                 <ul class="nav-links">
-                    <li><a href="index.html#home">Home</a></li>
-                    <li><a href="menu.html" class="active">Menu</a></li>
-                    <li><a href="index.html#about">About</a></li>
-                    <li><a href="index.html#reach">Reach Us</a></li>
-                    <li><a href="index.html#connect">Social</a></li>
+                    <li><a href="./index.html#home">Home</a></li>
+                    <li><a href="./menu.html" class="active">Menu</a></li>
+                    <li><a href="./index.html#about">About</a></li>
+                    <li><a href="./index.html#reach">Reach Us</a></li>
+                    <li><a href="./index.html#connect">Social</a></li>
                     <li><a href="#" class="btn btn-primary nav-get-deals-btn" style="padding: 8px 16px; font-size: 12px;">🔥 Get Deals</a></li>
                 </ul>
                 <div class="nav-right">
@@ -287,7 +295,7 @@
 
         <!-- FLOATING BUTTONS -->
         <div class="float-buttons">
-            <a href="index.html" class="float-btn float-menu" title="Home">🏠</a>
+            <a href="./index.html" class="float-btn float-menu" title="Home">🏠</a>
             <a href="#" class="float-btn float-cart" id="float-cart-btn" title="Cart">
                 🛒 <span class="cart-counter-bubble" id="float-cart-count">0</span>
             </a>
@@ -317,6 +325,6 @@
 
     <!-- SCRIPTS -->
     <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
-    <script type="module" src="./src/menu.js"></script>
+    <script type="module" src="../src/menu.js"></script>
 </body>
 </html>

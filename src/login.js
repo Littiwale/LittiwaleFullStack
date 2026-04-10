@@ -97,8 +97,14 @@ onAuthChange(async (user) => {
             loader.classList.add('hidden');
             showForm('completion');
         } else {
-            const urlParams = new URLSearchParams(window.location.search);
-            window.location.href = urlParams.get('redirect') || '/';
+            const role = profile.role || 'customer';
+            if (role === 'admin' || role === 'manager') {
+                window.location.href = '/admin/index.html';
+            } else if (role === 'rider') {
+                window.location.href = '/rider/index.html';
+            } else {
+                window.location.href = '/customer/index.html';
+            }
         }
     } else {
         loader.classList.add('hidden');
@@ -231,8 +237,16 @@ completionForm?.addEventListener('submit', async (e) => {
         const user = auth.currentUser; 
         if (!user) throw new Error('Session expired');
 
-        await updateProfile(user.uid, { username, phone });
-        window.location.href = '/';
+        const userData = await updateProfile(user.uid, { username, phone });
+        const role = userData?.role || 'customer';
+        
+        if (role === 'admin' || role === 'manager') {
+            window.location.href = '/admin/index.html';
+        } else if (role === 'rider') {
+            window.location.href = '/rider/index.html';
+        } else {
+            window.location.href = '/customer/index.html';
+        }
     } catch (error) {
         console.error('Completion failed:', error);
         completionError.textContent = error.message;
@@ -261,7 +275,7 @@ googleSignupBtn?.addEventListener('click', handleGoogleLogin);
 
 guestBtn?.addEventListener('click', () => {
     localStorage.setItem('littiwale_guest', 'true');
-    window.location.href = '/';
+    window.location.href = '/customer/index.html';
 });
 
 // Initial Lockout Check

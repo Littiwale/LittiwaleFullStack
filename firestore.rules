@@ -24,7 +24,7 @@ service cloud.firestore {
 
     // Orders Tracking: Strictly restricted to the owner by userId
     match /orders/{orderId} {
-      allow create: if true;
+      allow create: if request.auth != null;
       
       // Only the authenticated buyer can read their specific order
       allow read: if request.auth != null && request.auth.uid == resource.data.userId;

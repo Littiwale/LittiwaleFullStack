@@ -223,8 +223,10 @@ export const onAuthChange = (callback) => {
     return onAuthStateChanged(auth, async (user) => {
         if (user) {
             const profile = await getUserProfile(user.uid);
+            if (profile?.role) localStorage.setItem('littiwale_role', profile.role);
             callback({ ...user, profile });
         } else {
+            localStorage.removeItem('littiwale_role');
             callback(null);
         }
     });

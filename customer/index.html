@@ -11,7 +11,15 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&family=Playfair+Display:wght@700;900&display=swap" rel="stylesheet">
     
-    <link rel="stylesheet" href="./src/style.css">
+    <link rel="stylesheet" href="../src/style.css">
+    <script>
+        (function() {
+            const role = localStorage.getItem('littiwale_role');
+            if (role && role !== 'customer') {
+                window.location.href = `/${role === 'admin' || role === 'manager' ? 'admin' : role}/index.html`;
+            }
+        })();
+    </script>
     <link rel="icon" type="image/png" href="/images/logo.png">
     
     <!-- PWA -->
@@ -25,17 +33,17 @@
         <!-- SECTION 1: NAVBAR -->
         <nav class="navbar">
             <div class="container nav-container">
-                <a href="index.html" class="logo-link">
+                <a href="./index.html" class="logo-link">
                     <img src="/images/logo.png" alt="Littiwale" class="nav-logo">
                 </a>
                 
                 <ul class="nav-links">
                     <li><a href="#home">Home</a></li>
-                    <li><a href="menu.html">Menu</a></li>
+                    <li><a href="./menu.html">Menu</a></li>
                     <li><a href="#about">About</a></li>
                     <li><a href="#reach">Reach Us</a></li>
                     <li><a href="#connect">Social</a></li>
-                    <li><a href="#" class="btn btn-primary nav-get-deals-btn" style="padding: 8px 16px; font-size: 12px;">🔥 Get Deals</a></li>
+                    <li><a href="#" class="btn btn-primary nav-get-deals-btn nav-deals-btn">🔥 Get Deals</a></li>
                 </ul>
 
                 <div class="nav-right">
@@ -56,7 +64,7 @@
                 <div id="announcement-carousel">
                     <!-- Slides injected by JS -->
                 </div>
-                <div id="announcement-dots" style="display: flex; justify-content: center; gap: 8px; margin-top: 10px;"></div>
+                <div id="announcement-dots" class="announcement-dots"></div>
             </div>
         </section>
 
@@ -64,11 +72,11 @@
         <header id="home" class="hero">
             <div class="hero-bg-text">DESI SWAG</div>
             <div class="hero-content container animate-up">
-                <span style="color: var(--primary); font-weight: 800; text-transform: uppercase; letter-spacing: 4px; display: block; margin-bottom: 10px;">PREMIUM COMFORT FOOD</span>
-                <h1 style="font-family: var(--font-display), serif;">Best Restaurant in Barbil for Litti Chokha, Meals, Pizza & Combos</h1>
+                <span class="hero-subtitle">PREMIUM COMFORT FOOD</span>
+                <h1 class="hero-title">Best Restaurant in Barbil for Litti Chokha, Meals, Pizza & Combos</h1>
                 <p>Authentic Indian flavors served fresh every day. Experience the soul of Bihar at your doorstep.</p>
                 <div class="hero-buttons">
-                    <a href="menu.html" class="btn btn-primary">Explore Menu</a>
+                    <a href="./menu.html" class="btn btn-primary">Explore Menu</a>
                     <a href="https://zomato.onelink.me/xqzv/pehoc5j0" target="_blank" class="btn btn-secondary">Order on Zomato</a>
                     <a href="https://wa.me/916370680744" target="_blank" class="btn btn-whatsapp">💬 WhatsApp Order</a>
                 </div>
@@ -77,25 +85,25 @@
         </header>
 
         <!-- BESTSELLER SECTION (HALL OF FAME) -->
-        <section id="bestseller-section" style="padding: 60px 20px; background: #0d0f14;">
-          <div style="text-align:center; margin-bottom: 40px;">
-            <p style="color: #F5A800; letter-spacing: 3px; font-size: 12px; text-transform: uppercase; font-weight: 600;">Trending Now</p>
-            <h2 style="font-family: var(--font-display), serif; font-size: 42px; font-weight: 800; color: #fff; margin-top: 8px;">🔥 Hall of Fame</h2>
-            <p style="color: #7a8098; margin-top: 8px; font-size: 18px;">Top Rated by Our Customers</p>
+        <section id="bestseller-section" class="section-hall-of-fame">
+          <div class="hall-of-fame-header">
+            <p class="hall-of-fame-top-tag">Trending Now</p>
+            <h2 class="hall-of-fame-title">🔥 Hall of Fame</h2>
+            <p class="hall-of-fame-subtitle">Top Rated by Our Customers</p>
           </div>
-          <div id="bestseller-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px; max-width: 1100px; margin: 0 auto;"></div>
-          <div style="text-align:center; margin-top: 40px;">
-            <a href="menu.html" style="background: #F5A800; color: #000; padding: 14px 36px; border-radius: 10px; font-weight: 700; font-size: 15px; text-decoration: none; letter-spacing: 1px;">VIEW FULL MENU →</a>
+          <div id="bestseller-grid" class="hall-of-fame-grid"></div>
+          <div class="hall-of-fame-footer">
+            <a href="./menu.html" class="hall-of-fame-btn">VIEW FULL MENU →</a>
           </div>
         </section>
 
         <!-- SECTION 4: ABOUT -->
         <section id="about" class="about-section section-padding">
             <div class="container text-center animate-up">
-                <h2 style="font-size: 32px;">A Local Favorite for Authentic Indian Comfort Food</h2>
+                <h2 class="about-title">A Local Favorite for Authentic Indian Comfort Food</h2>
                 <div class="divider"></div>
-                <p style="color: var(--primary); font-weight: 700; font-size: 18px; margin-bottom: 20px;">🍽️ Best food in Barbil | Pizza, Burgers, Meals, Thali & Combos</p>
-                <p style="max-width: 800px; margin: 0 auto; color: var(--text-secondary);">
+                <p class="about-highlight">🍽️ Best food in Barbil | Pizza, Burgers, Meals, Thali & Combos</p>
+                <p class="about-text">
                     Looking for food near me in Barbil? Littiwale offers the best pizza, burgers, thali, and combo meals with fast delivery and great taste. We pride ourselves on using traditional recipes and fresh local ingredients to bring you a taste that feels like home.
                 </p>
             </div>
@@ -168,7 +176,7 @@
             <div class="container">
                 <div class="reach-grid">
                     <div class="reach-left">
-                        <h2 style="font-size: 36px;">Reach Us</h2>
+                        <h2 class="reach-title">Reach Us</h2>
                         <div class="divider left"></div>
                         <div class="reach-info">
                             <p>📍 Ward no-7, Punjabi Para, Barbil, Odisha 758035</p>
@@ -184,31 +192,31 @@
                     <div class="reach-right">
                         <iframe
                             src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3691.564756550616!2d85.39578641495393!3d22.11568288542283!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3a1e39a3f9e9e9e9%3A0x9e9e9e9e9e9e9e9e!2sLittiwale!5e0!3m2!1sen!2sin!4v1620000000000!5m2!1sen!2sin"
-                            width="100%" height="350" style="border:0;border-radius:16px; filter: grayscale(1) invert(1) contrast(1.2);" allowfullscreen="" loading="lazy">
+                            width="100%" height="350" class="reach-right-iframe" allowfullscreen="" loading="lazy">
                         </iframe>
                     </div>
                 </div>
                 <!-- Connect With Us -->
-                <div id="connect" style="text-align:center; margin-top:80px;">
+                <div id="connect" class="connect-footer">
                     <h3>Connect With Us</h3>
                     <div class="divider"></div>
-                    <div style="display: flex; justify-content: center; gap: 30px; font-weight: 700; color: var(--primary);">
-                        <a href="https://instagram.com/littiwale" target="_blank" style="color: inherit; text-decoration: none;">Instagram</a>
-                        <a href="https://facebook.com/littiwale" target="_blank" style="color: inherit; text-decoration: none;">Facebook</a>
-                        <a href="#" target="_blank" style="color: inherit; text-decoration: none;">YouTube</a>
+                    <div class="connect-links">
+                        <a href="https://instagram.com/littiwale" target="_blank" class="connect-link">Instagram</a>
+                        <a href="https://facebook.com/littiwale" target="_blank" class="connect-link">Facebook</a>
+                        <a href="#" target="_blank" class="connect-link">YouTube</a>
                     </div>
                 </div>
             </div>
         </section>
 
         <!-- FOOTER -->
-        <footer style="padding: 40px 0; text-align: center; color: var(--text-secondary); font-size: 14px; border-top: 1px solid var(--glass-border);">
+        <footer class="footer-copy">
             <p>&copy; 2026 Littiwale. Best Food in Barbil. All Rights Reserved.</p>
         </footer>
 
         <!-- SECTION 11: FLOATING BUTTONS -->
         <div class="float-buttons">
-            <a href="menu.html" class="float-btn float-menu" title="Menu">🍴</a>
+            <a href="./menu.html" class="float-btn float-menu" title="Menu">🍴</a>
             <a href="#" class="float-btn float-cart" id="float-cart-btn" title="Cart">
                 🛒 <span class="cart-counter-bubble" id="float-cart-count">0</span>
             </a>
@@ -221,17 +229,17 @@
     <!-- MODALS -->
     <div id="cart-modal" class="modal-overlay">
         <div class="modal-content animate-up">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
-                <h3 style="font-size: 24px; font-weight: 900;">Your Cart</h3>
-                <button id="close-cart" style="background: none; border: none; font-size: 32px; color: #fff; cursor: pointer;">&times;</button>
+            <div class="modal-header">
+                <h3 class="modal-title">Your Cart</h3>
+                <button id="close-cart" class="modal-close-btn">&times;</button>
             </div>
-            <div id="cart-items" style="display: flex; flex-direction: column; gap: 20px;">
+            <div id="cart-items" class="cart-list">
                 <!-- Items injected by JS -->
             </div>
-            <div style="margin-top: 40px; padding-top: 20px; border-top: 2px dashed var(--glass-border);">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
-                    <span style="font-weight: 700; color: var(--text-secondary);">Subtotal</span>
-                    <span id="cart-total" style="font-size: 28px; font-weight: 900; color: var(--primary);">₹0</span>
+            <div class="cart-footer">
+                <div class="cart-summary-line">
+                    <span class="cart-summary-label">Subtotal</span>
+                    <span id="cart-total" class="cart-summary-value">₹0</span>
                 </div>
                 <button id="checkout-btn" class="btn btn-primary w-full py-4 text-xl">Checkout Now</button>
             </div>
@@ -240,6 +248,6 @@
 
     <!-- SCRIPTS -->
     <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
-    <script type="module" src="./src/main.js"></script>
+    <script type="module" src="../src/main.js"></script>
 </body>
 </html>
