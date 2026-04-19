@@ -8,6 +8,7 @@ import { ORDER_STATUS } from './constants/orderStatus';
 import { fetchAllCoupons, createCoupon, updateCoupon, deleteCoupon, getCouponAnalytics, getTopCoupons, getCouponTimeline } from './api/coupons';
 import { fetchAllAnnouncements, createAnnouncement, toggleAnnouncementActive, deleteAnnouncement } from './api/announcements';
 import { createMenuItem, updateMenuItem, deleteMenuItem } from './api/menu';
+import Chart from 'chart.js/auto';
 
 /**
  * 👑 LITTIWALE ADMIN PANEL CORE (PREMIUM REDESIGN)
@@ -2262,19 +2263,11 @@ window.adminDeleteAnn = async (id, storagePath) => {
  * 📊 COUPON ANALYTICS (Phase 4)
  */
 let currentAnalyticsPeriod = 30; // Default to 30 days
+let activeCharts = {}; // Store active Chart.js instances for cleanup
 
 const setupAnalyticsAdmin = () => {
-    // Period selector buttons
-    const period7Btn = document.querySelector('#analytics-period-7');
-    const period30Btn = document.querySelector('#analytics-period-30');
-    const period90Btn = document.querySelector('#analytics-period-90');
-
-    if (period7Btn) period7Btn.addEventListener('click', () => setAnalyticsPeriod(7));
-    if (period30Btn) period30Btn.addEventListener('click', () => setAnalyticsPeriod(30));
-    if (period90Btn) period90Btn.addEventListener('click', () => setAnalyticsPeriod(90));
-
-    // Load initial analytics
-    loadCouponAnalytics();
+    // Load menu analytics dashboard
+    loadMenuAnalytics();
 };
 
 const setAnalyticsPeriod = (days) => {
@@ -2418,5 +2411,262 @@ const showAnalyticsError = (message) => {
         // Remove after 5 seconds
         setTimeout(() => errorDiv.remove(), 5000);
     }
+};
+
+/**
+ * 📊 MENU ANALYTICS DASHBOARD (Phase 6 Task 6.3)
+ */
+const loadMenuAnalytics = async () => {
+    try {
+        // Calculate analytics from menu items
+        const analytics = calculateMenuAnalytics();
+
+        // Update KPI cards
+        updateMenuAnalyticsKPIs(analytics);
+
+        // Render charts
+        renderCategoryChart(analytics.categoryData);
+        renderPriceChart(analytics.priceData);
+
+        // Update overview table
+        renderMenuAnalyticsTable(analytics);
+
+    } catch (error) {
+        console.error('Error loading menu analytics:', error);
+        showAnalyticsError('Failed to load menu analytics. Please try again.');
+    }
+};
+
+const calculateMenuAnalytics = () => {
+    const totalItems = menuItems.length;
+    const availableItems = menuItems.filter(item => item.available).length;
+    const outOfStockItems = menuItems.filter(item => (item.stockQuantity ?? 0) === 0).length;
+    const hiddenItems = totalItems - availableItems;
+
+    // Category distribution
+    const categoryData = {};
+    menuItems.forEach(item => {
+        const category = item.category || 'Uncategorized';
+        categoryData[category] = (categoryData[category] || 0) + 1;
+    });
+
+    // Price distribution (buckets)
+    const priceData = {
+        '₹0-50': 0,
+        '₹51-100': 0,
+        '₹101-200': 0,
+        '₹201-500': 0,
+        '₹500+': 0
+    };
+
+    const prices = [];
+    menuItems.forEach(item => {
+        const price = item.price || 0;
+        prices.push(price);
+        if (price <= 50) priceData['₹0-50']++;
+        else if (price <= 100) priceData['₹51-100']++;
+        else if (price <= 200) priceData['₹101-200']++;
+        else if (price <= 500) priceData['₹201-500']++;
+        else priceData['₹500+']++;
+    });
+
+    // Calculate price statistics
+    const avgPrice = prices.length > 0 ? prices.reduce((a, b) => a + b, 0) / prices.length : 0;
+    const maxPrice = Math.max(...prices, 0);
+    const minPrice = Math.min(...prices, 0);
+
+    // Low stock items (stock < 10)
+    const lowStockItems = menuItems.filter(item => (item.stockQuantity ?? 0) > 0 && (item.stockQuantity ?? 0) < 10).length;
+
+    // Veg/Non-Veg split
+    const vegItems = menuItems.filter(item => item.veg === true).length;
+    const nonVegItems = menuItems.filter(item => item.veg === false).length;
+
+    return {
+        totalItems,
+        availableItems,
+        outOfStockItems,
+        hiddenItems,
+        categoryData,
+        priceData,
+        items: menuItems,
+        stats: {
+            avgPrice: Math.round(avgPrice),
+            maxPrice,
+            minPrice,
+            lowStockItems,
+            vegItems,
+            nonVegItems
+        }
+    };
+};
+
+const updateMenuAnalyticsKPIs = (analytics) => {
+    const totalEl = document.querySelector('#analytics-total-items');
+    const availableEl = document.querySelector('#analytics-available-items');
+    const outOfStockEl = document.querySelector('#analytics-out-of-stock');
+    const hiddenEl = document.querySelector('#analytics-hidden-items');
+    const avgPriceEl = document.querySelector('#analytics-avg-price');
+    const lowStockEl = document.querySelector('#analytics-low-stock');
+    const vegEl = document.querySelector('#analytics-veg-items');
+    const nonVegEl = document.querySelector('#analytics-nonveg-items');
+
+    if (totalEl) totalEl.textContent = analytics.totalItems;
+    if (availableEl) availableEl.textContent = analytics.availableItems;
+    if (outOfStockEl) outOfStockEl.textContent = analytics.outOfStockItems;
+    if (hiddenEl) hiddenEl.textContent = analytics.hiddenItems;
+    if (avgPriceEl) avgPriceEl.textContent = `₹${analytics.stats.avgPrice}`;
+    if (lowStockEl) lowStockEl.textContent = analytics.stats.lowStockItems;
+    if (vegEl) vegEl.textContent = analytics.stats.vegItems;
+    if (nonVegEl) nonVegEl.textContent = analytics.stats.nonVegItems;
+};
+
+const renderCategoryChart = (categoryData) => {
+    const chartEl = document.querySelector('#category-chart');
+    if (!chartEl) return;
+
+    const entries = Object.entries(categoryData);
+    if (entries.length === 0) {
+        chartEl.innerHTML = '<p class="text-gray-500">No category data available</p>';
+        return;
+    }
+
+    // Destroy existing chart if it exists
+    if (activeCharts['categoryChart']) {
+        activeCharts['categoryChart'].destroy();
+    }
+
+    // Create canvas if it doesn't exist
+    if (!chartEl.querySelector('canvas')) {
+        chartEl.innerHTML = '<canvas></canvas>';
+    }
+
+    const ctx = chartEl.querySelector('canvas').getContext('2d');
+    const labels = entries.map(([category]) => category);
+    const data = entries.map(([_, count]) => count);
+    const colors = ['#F5A800', '#3B82F6', '#10B981', '#EF4444', '#8B5CF6', '#EC4899', '#06B6D4', '#F59E0B'];
+
+    activeCharts['categoryChart'] = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels,
+            datasets: [{
+                data,
+                backgroundColor: colors.slice(0, labels.length),
+                borderColor: '#0d0d0d',
+                borderWidth: 2,
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: {
+                        color: '#9CA3AF',
+                        padding: 15,
+                        font: { size: 12, weight: 500 }
+                    }
+                }
+            }
+        }
+    });
+};
+
+const renderPriceChart = (priceData) => {
+    const chartEl = document.querySelector('#price-chart');
+    if (!chartEl) return;
+
+    const entries = Object.entries(priceData);
+    if (entries.length === 0) {
+        chartEl.innerHTML = '<p class="text-gray-500">No price data available</p>';
+        return;
+    }
+
+    // Destroy existing chart if it exists
+    if (activeCharts['priceChart']) {
+        activeCharts['priceChart'].destroy();
+    }
+
+    // Create canvas if it doesn't exist
+    if (!chartEl.querySelector('canvas')) {
+        chartEl.innerHTML = '<canvas></canvas>';
+    }
+
+    const ctx = chartEl.querySelector('canvas').getContext('2d');
+    const labels = entries.map(([range]) => range);
+    const data = entries.map(([_, count]) => count);
+
+    activeCharts['priceChart'] = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels,
+            datasets: [{
+                label: 'Number of Items',
+                data,
+                backgroundColor: '#3B82F6',
+                borderColor: '#1E40AF',
+                borderWidth: 1,
+                borderRadius: 4,
+            }]
+        },
+        options: {
+            indexAxis: 'y',
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: false
+                }
+            },
+            scales: {
+                x: {
+                    ticks: { color: '#9CA3AF' },
+                    grid: { color: '#374151' }
+                },
+                y: {
+                    ticks: { color: '#9CA3AF' },
+                    grid: { display: false }
+                }
+            }
+        }
+    });
+};
+
+const renderMenuAnalyticsTable = (analytics) => {
+    const tableBody = document.querySelector('#analytics-table-body');
+    if (!tableBody) return;
+
+    if (analytics.items.length === 0) {
+        tableBody.innerHTML = '<tr><td colspan="6" class="text-center py-8 text-gray-500">No menu items available</td></tr>';
+        return;
+    }
+
+    // Sort by category, then by name
+    const sortedItems = [...analytics.items].sort((a, b) => {
+        if (a.category !== b.category) {
+            return (a.category || '').localeCompare(b.category || '');
+        }
+        return (a.name || '').localeCompare(b.name || '');
+    });
+
+    tableBody.innerHTML = sortedItems.map(item => {
+        const stock = item.stockQuantity ?? 0;
+        const status = item.available ? 'Visible' : 'Hidden';
+        const statusClass = item.available ? 'success' : 'danger';
+        const type = item.veg ? 'Veg' : 'Non-Veg';
+
+        return `
+            <tr>
+                <td>${item.name || 'Untitled'}</td>
+                <td>${item.category || 'Uncategorized'}</td>
+                <td>₹${item.price ?? 0}</td>
+                <td>${stock}</td>
+                <td><span class="table-badge ${statusClass}">${status}</span></td>
+                <td><span class="table-badge ${item.veg ? 'success' : 'warning'}">${type}</span></td>
+            </tr>
+        `;
+    }).join('');
 };
 
