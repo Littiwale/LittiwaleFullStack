@@ -4,7 +4,7 @@ import { initCheckout } from './menu/checkout';
 import { onAuthChange, logoutUser } from './api/auth';
 import { renderMenu, refreshAllCardCTAs } from './menu/render';
 import { createTicket } from './api/tickets';
-import { addItem } from './store/cart';
+import { addItem, getCartTotal, getCartCount } from './store/cart';
 import { fetchOrdersByUser } from './api/orders';
 import { updateDeliveryEstimate, loadMyOrders, showToast } from './utils';
 
@@ -101,11 +101,23 @@ const initMenu = async () => {
 
     // Global Cart Badge Sync
     const syncCartBadges = () => {
-        const counts = JSON.parse(localStorage.getItem('littiwale_cart') || '[]');
-        const totalItems = counts.reduce((acc, item) => acc + item.quantity, 0);
+        const totalItems = getCartCount();
+        const totalAmount = getCartTotal();
+        
+        // Update floating badges
         document.querySelectorAll('#cart-count, #float-cart-count').forEach(el => {
             el.textContent = totalItems;
         });
+        
+        // Update mobile cart bar
+        const mobileCountEl = document.getElementById('mobile-cart-count');
+        const mobileTotalEl = document.getElementById('mobile-cart-total');
+        if (mobileCountEl) {
+            mobileCountEl.textContent = totalItems === 1 ? '1 item' : `${totalItems} items`;
+        }
+        if (mobileTotalEl) {
+            mobileTotalEl.textContent = `₹${totalAmount}`;
+        }
     };
 
     window.addEventListener('cartUpdated', syncCartBadges);
@@ -135,6 +147,7 @@ const initMenu = async () => {
     // Cart Modal Interactions
     const cartBtn = document.querySelector('#nav-cart-btn');
     const floatCartBtn = document.querySelector('#float-cart-btn');
+    const mobileCartBtn = document.querySelector('#mobile-cart-btn');
     const modal = document.querySelector('#cart-modal');
     const closeModal = document.querySelector('#close-cart');
 
@@ -151,7 +164,7 @@ const initMenu = async () => {
     const closeComplaintModal = document.querySelector('#close-complaint-modal');
     const complaintCancelBtn = document.querySelector('#complaint-cancel-btn');
 
-    [cartBtn, floatCartBtn].forEach(btn => btn?.addEventListener('click', (e) => {
+    [cartBtn, floatCartBtn, mobileCartBtn].forEach(btn => btn?.addEventListener('click', (e) => {
         e.preventDefault();
         showModal(modal);
     }));

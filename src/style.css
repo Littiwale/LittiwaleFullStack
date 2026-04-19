@@ -1401,3 +1401,93 @@ html[data-theme='light'] .lw-dropdown-divider {
   color: #000;
 }
 
+/* 📱 MOBILE CART BAR */
+.mobile-cart-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: var(--card-bg);
+  border-top: 1px solid var(--glass-border);
+  padding: 12px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  z-index: 1000;
+  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.3);
+  display: none; /* Hidden by default, shown on mobile via JS */
+}
+
+.mobile-cart-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+#mobile-cart-count {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+#mobile-cart-total {
+  font-size: 16px;
+  font-weight: 900;
+  color: var(--primary);
+}
+
+.mobile-cart-btn {
+  background: var(--primary);
+  color: var(--text-on-primary);
+  border: none;
+  padding: 12px 20px;
+  border-radius: 12px;
+  font-weight: 900;
+  font-size: 14px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.mobile-cart-btn:hover {
+  background: var(--primary-hover);
+  transform: translateY(-1px);
+}
+
+.mobile-cart-btn:active {
+  transform: translateY(0);
+}
+
+/* Show mobile cart bar only on screens <= 768px */
+@media (max-width: 768px) {
+  .mobile-cart-bar {
+    display: flex !important;
+  }
+  
+  /* Hide floating cart button on mobile since we have the bar */
+  .float-buttons #float-cart-btn {
+    display: none;
+  }
+}
+
+/* 🌙 LIGHT MODE: Mobile cart bar */
+html[data-theme='light'] .mobile-cart-bar {
+  background: var(--surface);
+  border-top: 1px solid rgba(0, 0, 0, 0.1);
+  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.1);
+}
+
+html[data-theme='light'] #mobile-cart-count {
+  color: #666;
+}
+
+html[data-theme='light'] #mobile-cart-total {
+  color: var(--primary);
+}
+
