@@ -98,6 +98,12 @@ let currentMenuStock = 'all';
 let editingMenuItemId = null;
 let editingCouponCode = null;
 
+// Performance optimizations (Task 6.4)
+const ITEMS_PER_PAGE = 20;
+let currentMenuPage = 1;
+let menuListCache = new Map();
+let chartsLoadedFlags = {};
+
 /**
  * 🚀 Initialization
  */
@@ -311,6 +317,7 @@ const setupMenuAdmin = () => {
 
     menuCategoryFilter?.addEventListener('change', (e) => {
         currentMenuCategory = e.target.value || 'all';
+        menuListCache.clear(); // Clear cache on filter change (Performance optimization)
         renderMenuList();
     });
 
@@ -321,21 +328,25 @@ const setupMenuAdmin = () => {
 
     menuStatusFilter?.addEventListener('change', (e) => {
         currentMenuStatus = e.target.value || 'all';
+        menuListCache.clear(); // Clear cache on filter change
         renderMenuList();
     });
 
     menuTypeFilter?.addEventListener('change', (e) => {
         currentMenuType = e.target.value || 'all';
+        menuListCache.clear(); // Clear cache on filter change
         renderMenuList();
     });
 
     menuStockFilter?.addEventListener('change', (e) => {
         currentMenuStock = e.target.value || 'all';
+        menuListCache.clear(); // Clear cache on filter change
         renderMenuList();
     });
 
     menuSearchInput?.addEventListener('input', (e) => {
         menuSearchQuery = e.target.value.trim().toLowerCase();
+        menuListCache.clear(); // Clear cache on search
         renderMenuList();
     });
 
@@ -664,25 +675,33 @@ const renderMenuList = () => {
     if (!menuListContainer) return;
 
     const searchTerm = menuSearchQuery.trim().toLowerCase();
-    const filteredItems = menuItems
-        .filter(item => currentMenuCategory === 'all' || item.category === currentMenuCategory)
-        .filter(item => currentMenuStatus === 'all' || 
-            (currentMenuStatus === 'visible' && item.available) || 
-            (currentMenuStatus === 'hidden' && !item.available))
-        .filter(item => currentMenuType === 'all' || 
-            (currentMenuType === 'veg' && item.veg) || 
-            (currentMenuType === 'nonveg' && !item.veg))
-        .filter(item => currentMenuStock === 'all' || 
-            (currentMenuStock === 'in-stock' && (item.stockQuantity ?? 0) > 0) || 
-            (currentMenuStock === 'out-of-stock' && (item.stockQuantity ?? 0) === 0))
-        .filter(item => {
-            if (!searchTerm) return true;
-            return [item.name, item.category, item.description]
-                .filter(Boolean)
-                .join(' ')
-                .toLowerCase()
-                .includes(searchTerm);
-        });
+    const cacheKey = `${currentMenuCategory}|${currentMenuStatus}|${currentMenuType}|${currentMenuStock}|${searchTerm}`;
+    
+    // Use cached filtered results if available
+    let filteredItems = menuListCache.get(cacheKey);
+    if (!filteredItems) {
+        filteredItems = menuItems
+            .filter(item => currentMenuCategory === 'all' || item.category === currentMenuCategory)
+            .filter(item => currentMenuStatus === 'all' || 
+                (currentMenuStatus === 'visible' && item.available) || 
+                (currentMenuStatus === 'hidden' && !item.available))
+            .filter(item => currentMenuType === 'all' || 
+                (currentMenuType === 'veg' && item.veg) || 
+                (currentMenuType === 'nonveg' && !item.veg))
+            .filter(item => currentMenuStock === 'all' || 
+                (currentMenuStock === 'in-stock' && (item.stockQuantity ?? 0) > 0) || 
+                (currentMenuStock === 'out-of-stock' && (item.stockQuantity ?? 0) === 0))
+            .filter(item => {
+                if (!searchTerm) return true;
+                return [item.name, item.category, item.description]
+                    .filter(Boolean)
+                    .join(' ')
+                    .toLowerCase()
+                    .includes(searchTerm);
+            });
+        menuListCache.set(cacheKey, filteredItems);
+        currentMenuPage = 1; // Reset pagination when filters change
+    }
 
     if (menuItemsCount) {
         menuItemsCount.textContent = filteredItems.length;
@@ -697,7 +716,13 @@ const renderMenuList = () => {
         return;
     }
 
-    menuListContainer.innerHTML = `
+    // Pagination
+    const totalPages = Math.ceil(filteredItems.length / ITEMS_PER_PAGE);
+    const startIdx = (currentMenuPage - 1) * ITEMS_PER_PAGE;
+    const endIdx = startIdx + ITEMS_PER_PAGE;
+    const paginatedItems = filteredItems.slice(startIdx, endIdx);
+
+    let tableHtml = `
         <table class="admin-table w-full">
             <thead>
                 <tr>
@@ -712,7 +737,7 @@ const renderMenuList = () => {
                 </tr>
             </thead>
             <tbody>
-                ${filteredItems.map(item => `
+                ${paginatedItems.map(item => `
                     <tr>
                         <td>
                             <input type="checkbox" class="menu-item-checkbox" data-id="${item.id}" />
@@ -739,6 +764,40 @@ const renderMenuList = () => {
             </tbody>
         </table>
     `;
+
+    // Add pagination controls if needed
+    if (totalPages > 1) {
+        tableHtml += `
+            <div class="flex items-center justify-between gap-4 mt-6 px-6 pb-6">
+                <div class="text-sm text-gray-400">
+                    Page <strong>${currentMenuPage}</strong> of <strong>${totalPages}</strong> 
+                    (${filteredItems.length} total items)
+                </div>
+                <div class="flex gap-2">
+                    <button type="button" id="menu-prev-page" class="btn btn-outline btn-sm" ${currentMenuPage === 1 ? 'disabled' : ''}>← Previous</button>
+                    <button type="button" id="menu-next-page" class="btn btn-outline btn-sm" ${currentMenuPage === totalPages ? 'disabled' : ''}>Next →</button>
+                </div>
+            </div>
+        `;
+    }
+
+    menuListContainer.innerHTML = tableHtml;
+
+    // Attach pagination listeners
+    if (totalPages > 1) {
+        document.getElementById('menu-prev-page')?.addEventListener('click', () => {
+            if (currentMenuPage > 1) {
+                currentMenuPage--;
+                renderMenuList();
+            }
+        });
+        document.getElementById('menu-next-page')?.addEventListener('click', () => {
+            if (currentMenuPage < totalPages) {
+                currentMenuPage++;
+                renderMenuList();
+            }
+        });
+    }
 };
 
 const initMenuForm = () => {
@@ -2421,15 +2480,43 @@ const loadMenuAnalytics = async () => {
         // Calculate analytics from menu items
         const analytics = calculateMenuAnalytics();
 
-        // Update KPI cards
+        // Update KPI cards immediately (fast)
         updateMenuAnalyticsKPIs(analytics);
 
-        // Render charts
-        renderCategoryChart(analytics.categoryData);
-        renderPriceChart(analytics.priceData);
+        // Lazy load charts with IntersectionObserver for better performance
+        const categoryChartEl = document.querySelector('#category-chart');
+        const priceChartEl = document.querySelector('#price-chart');
 
-        // Update overview table
-        renderMenuAnalyticsTable(analytics);
+        if (categoryChartEl && !chartsLoadedFlags['categoryChart']) {
+            const observer = new IntersectionObserver((entries) => {
+                if (entries[0].isIntersecting && !chartsLoadedFlags['categoryChart']) {
+                    chartsLoadedFlags['categoryChart'] = true;
+                    renderCategoryChart(analytics.categoryData);
+                    observer.unobserve(categoryChartEl);
+                }
+            });
+            observer.observe(categoryChartEl);
+        } else if (categoryChartEl) {
+            renderCategoryChart(analytics.categoryData);
+        }
+
+        if (priceChartEl && !chartsLoadedFlags['priceChart']) {
+            const observer = new IntersectionObserver((entries) => {
+                if (entries[0].isIntersecting && !chartsLoadedFlags['priceChart']) {
+                    chartsLoadedFlags['priceChart'] = true;
+                    renderPriceChart(analytics.priceData);
+                    observer.unobserve(priceChartEl);
+                }
+            });
+            observer.observe(priceChartEl);
+        } else if (priceChartEl) {
+            renderPriceChart(analytics.priceData);
+        }
+
+        // Update overview table asynchronously
+        setTimeout(() => {
+            renderMenuAnalyticsTable(analytics);
+        }, 100);
 
     } catch (error) {
         console.error('Error loading menu analytics:', error);
