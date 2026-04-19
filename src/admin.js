@@ -330,6 +330,181 @@ const setupMenuAdmin = () => {
         hideMenuFormPanel();
         setMenuMode('list');
     });
+
+    // Bulk operations
+    initMenuBulkOperations();
+};
+
+const initMenuBulkOperations = () => {
+    const selectAllCheckbox = document.getElementById('menu-select-all');
+    const bulkSelectAllBtn = document.getElementById('menu-bulk-select-all');
+    const bulkEditBtn = document.getElementById('menu-bulk-edit');
+    const bulkDeleteBtn = document.getElementById('menu-bulk-delete');
+    const selectedCountEl = document.getElementById('menu-selected-count');
+
+    const updateBulkButtons = () => {
+        const selectedCheckboxes = document.querySelectorAll('.menu-item-checkbox:checked');
+        const selectedCount = selectedCheckboxes.length;
+        
+        selectedCountEl.textContent = selectedCount;
+        bulkEditBtn.disabled = selectedCount === 0;
+        bulkDeleteBtn.disabled = selectedCount === 0;
+        
+        bulkEditBtn.classList.toggle('opacity-50', selectedCount === 0);
+        bulkDeleteBtn.classList.toggle('opacity-50', selectedCount === 0);
+    };
+
+    // Select all checkbox
+    selectAllCheckbox?.addEventListener('change', (e) => {
+        const checkboxes = document.querySelectorAll('.menu-item-checkbox');
+        checkboxes.forEach(cb => cb.checked = e.target.checked);
+        updateBulkButtons();
+    });
+
+    // Select all button
+    bulkSelectAllBtn?.addEventListener('click', () => {
+        const checkboxes = document.querySelectorAll('.menu-item-checkbox');
+        const allChecked = Array.from(checkboxes).every(cb => cb.checked);
+        
+        checkboxes.forEach(cb => cb.checked = !allChecked);
+        selectAllCheckbox.checked = !allChecked;
+        updateBulkButtons();
+    });
+
+    // Bulk edit
+    bulkEditBtn?.addEventListener('click', () => {
+        const selectedIds = Array.from(document.querySelectorAll('.menu-item-checkbox:checked')).map(cb => cb.dataset.id);
+        if (selectedIds.length === 0) return;
+        
+        handleBulkEdit(selectedIds);
+    });
+
+    // Bulk delete
+    bulkDeleteBtn?.addEventListener('click', () => {
+        const selectedIds = Array.from(document.querySelectorAll('.menu-item-checkbox:checked')).map(cb => cb.dataset.id);
+        if (selectedIds.length === 0) return;
+        
+        handleBulkDelete(selectedIds);
+    });
+
+    // Update buttons when individual checkboxes change
+    document.addEventListener('change', (e) => {
+        if (e.target.classList.contains('menu-item-checkbox')) {
+            updateBulkButtons();
+            
+            // Update select all checkbox state
+            const allCheckboxes = document.querySelectorAll('.menu-item-checkbox');
+            const checkedCheckboxes = document.querySelectorAll('.menu-item-checkbox:checked');
+            selectAllCheckbox.checked = allCheckboxes.length > 0 && allCheckboxes.length === checkedCheckboxes.length;
+            selectAllCheckbox.indeterminate = checkedCheckboxes.length > 0 && checkedCheckboxes.length < allCheckboxes.length;
+        }
+    });
+};
+
+const handleBulkEdit = (selectedIds) => {
+    if (selectedIds.length === 0) return;
+    
+    // For now, show a simple bulk edit modal
+    // In a full implementation, this would allow editing multiple fields at once
+    const confirmed = confirm(`Bulk edit ${selectedIds.length} items?\n\nThis feature allows you to:\n• Change category for all selected items\n• Toggle availability (show/hide)\n• Apply price adjustments\n\nContinue to bulk edit form?`);
+    
+    if (confirmed) {
+        showBulkEditModal(selectedIds);
+    }
+};
+
+const handleBulkDelete = (selectedIds) => {
+    if (selectedIds.length === 0) return;
+    
+    const confirmed = confirm(`Are you sure you want to delete ${selectedIds.length} menu item(s)?\n\nThis action cannot be undone.`);
+    
+    if (confirmed) {
+        bulkDeleteMenuItems(selectedIds);
+    }
+};
+
+const bulkDeleteMenuItems = async (itemIds) => {
+    try {
+        const deletePromises = itemIds.map(id => deleteMenuItem(id));
+        await Promise.all(deletePromises);
+        
+        showToast(`Successfully deleted ${itemIds.length} menu item(s)`, 'success');
+        
+        // Clear selections
+        document.querySelectorAll('.menu-item-checkbox:checked').forEach(cb => cb.checked = false);
+        document.getElementById('menu-select-all').checked = false;
+        document.getElementById('menu-selected-count').textContent = '0';
+        
+    } catch (error) {
+        console.error('Bulk delete error:', error);
+        showToast('Error deleting menu items', 'error');
+    }
+};
+
+const showBulkEditModal = (selectedIds) => {
+    // Simple implementation - could be expanded to a full modal
+    const newCategory = prompt('Enter new category for all selected items (leave empty to skip):');
+    const priceAdjustment = prompt('Price adjustment (e.g., +10, -5, *1.1, leave empty to skip):');
+    const toggleAvailability = confirm('Toggle availability (show/hide) for all selected items?');
+    
+    if (!newCategory && !priceAdjustment && !toggleAvailability) {
+        return;
+    }
+    
+    bulkEditMenuItems(selectedIds, { newCategory, priceAdjustment, toggleAvailability });
+};
+
+const bulkEditMenuItems = async (itemIds, changes) => {
+    try {
+        const updatePromises = itemIds.map(async (id) => {
+            const item = menuItems.find(item => item.id === id);
+            if (!item) return;
+            
+            const updates = {};
+            
+            if (changes.newCategory) {
+                updates.category = changes.newCategory;
+            }
+            
+            if (changes.priceAdjustment) {
+                let newPrice = item.price;
+                const adjustment = changes.priceAdjustment.trim();
+                
+                if (adjustment.startsWith('+')) {
+                    newPrice += parseFloat(adjustment.substring(1));
+                } else if (adjustment.startsWith('-')) {
+                    newPrice -= parseFloat(adjustment.substring(1));
+                } else if (adjustment.startsWith('*')) {
+                    newPrice *= parseFloat(adjustment.substring(1));
+                } else {
+                    newPrice = parseFloat(adjustment);
+                }
+                
+                updates.price = Math.max(0, Math.round(newPrice));
+            }
+            
+            if (changes.toggleAvailability) {
+                updates.available = !item.available;
+            }
+            
+            if (Object.keys(updates).length > 0) {
+                return updateMenuItem(id, updates);
+            }
+        });
+        
+        await Promise.all(updatePromises);
+        
+        showToast(`Successfully updated ${itemIds.length} menu item(s)`, 'success');
+        
+        // Clear selections
+        document.querySelectorAll('.menu-item-checkbox:checked').forEach(cb => cb.checked = false);
+        document.getElementById('menu-select-all').checked = false;
+        document.getElementById('menu-selected-count').textContent = '0';
+        
+    } catch (error) {
+        console.error('Bulk edit error:', error);
+        showToast('Error updating menu items', 'error');
+    }
 };
 
 const startMenuListener = () => {
@@ -493,6 +668,9 @@ const renderMenuList = () => {
         <table class="admin-table w-full">
             <thead>
                 <tr>
+                    <th style="width: 40px;">
+                        <input type="checkbox" id="menu-select-all" class="menu-bulk-checkbox" />
+                    </th>
                     <th>Item</th>
                     <th>Price</th>
                     <th>Stock</th>
@@ -503,6 +681,9 @@ const renderMenuList = () => {
             <tbody>
                 ${filteredItems.map(item => `
                     <tr>
+                        <td>
+                            <input type="checkbox" class="menu-item-checkbox" data-id="${item.id}" />
+                        </td>
                         <td>
                             <div class="flex items-center gap-3">
                                 <img src="${item.image || '/images/logo.png'}" alt="${item.name}" loading="lazy" decoding="async" />

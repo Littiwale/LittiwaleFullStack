@@ -206,9 +206,14 @@
                                     <option value="all">All Categories</option>
                                 </select>
                             </div>
-                            <div class="toolbar-meta text-sm text-gray-400">
-                                Showing <strong id="menu-items-count">0</strong> items
-                            </div>
+                        <div class="toolbar-actions">
+                            <button id="menu-bulk-select-all" type="button" class="btn btn-outline btn-sm">Select All</button>
+                            <button id="menu-bulk-edit" type="button" class="btn btn-secondary btn-sm" disabled>Bulk Edit</button>
+                            <button id="menu-bulk-delete" type="button" class="btn btn-outline btn-sm" disabled>Bulk Delete</button>
+                        </div>
+                        <div class="toolbar-meta text-sm text-gray-400">
+                            <span id="menu-selected-count" class="text-accent font-bold">0</span> selected
+                        </div>
                         </div>
                     </div>
 
