@@ -4,7 +4,7 @@ import { initCheckout } from './menu/checkout';
 import { onAuthChange, logoutUser } from './api/auth';
 import { fetchAnnouncements } from './api/announcements';
 import { createTicket } from './api/tickets';
-import { addItem } from './store/cart';
+import { addItem, getCart } from './store/cart';
 import { fetchOrdersByUser } from './api/orders';
 import { updateDeliveryEstimate, loadMyOrders, showToast } from './utils';
 import './pwa.js';
@@ -514,3 +514,59 @@ window.addEventListener('appinstalled', () => {
 });
 
 init();
+
+// ── ABANDONED CART RECOVERY BANNER (Task 9.3) ──
+/**
+ * Shows a banner if user has items in cart but hasn't checked out.
+ * Banner appears after 1.5s, auto-dismisses after 6s, or on manual close.
+ */
+const setupAbandonedCartRecovery = () => {
+    const banner = document.querySelector('#abandoned-cart-banner');
+    if (!banner) return;
+
+    const cart = getCart();
+    if (cart.length === 0) {
+        banner.style.display = 'none';
+        return;
+    }
+
+    // Show banner after 1.5 seconds
+    setTimeout(() => {
+        banner.style.display = 'block';
+
+        // Auto-dismiss after 6 seconds
+        const dismissTimer = setTimeout(() => {
+            banner.style.animation = 'slideDown 0.4s ease-out reverse';
+            setTimeout(() => {
+                banner.style.display = 'none';
+            }, 400);
+        }, 6000);
+
+        // Close button handler
+        const closeBtn = document.querySelector('#cart-banner-close-btn');
+        if (closeBtn) {
+            closeBtn.addEventListener('click', () => {
+                clearTimeout(dismissTimer);
+                banner.style.animation = 'slideDown 0.4s ease-out reverse';
+                setTimeout(() => {
+                    banner.style.display = 'none';
+                }, 400);
+            }, { once: true });
+        }
+
+        // Go to Cart button handler
+        const checkoutBtn = document.querySelector('#cart-banner-checkout-btn');
+        if (checkoutBtn) {
+            checkoutBtn.addEventListener('click', () => {
+                clearTimeout(dismissTimer);
+                banner.style.display = 'none';
+                window.location.href = './menu.html';
+            }, { once: true });
+        }
+    }, 1500);
+
+    // Re-run banner logic if cart is updated
+    window.addEventListener('cartUpdated', setupAbandonedCartRecovery);
+};
+
+setupAbandonedCartRecovery();
