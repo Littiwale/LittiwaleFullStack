@@ -1046,6 +1046,14 @@ window.addEventListener('beforeunload', () => {
  * 📦 Order Lifecycle & Real-time Listeners
  */
 const startOrderListener = () => {
+    // Guard: Clean up any existing listener before creating a new one
+    if (typeof orderListenerUnsubscribe === 'function') {
+        orderListenerUnsubscribe();
+    }
+    if (typeof menuListenerUnsubscribe === 'function') {
+        menuListenerUnsubscribe();
+    }
+
     const ordersRef = collection(db, 'orders');
     const q = query(ordersRef, orderBy('createdAt', 'desc'), limit(100));
 

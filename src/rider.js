@@ -152,8 +152,14 @@ const initRiderToggle = async (riderId) => {
  * Real-time order listener
  * FIX: No orderBy() in Firestore query → avoids composite index requirement.
  * Sorting is done client-side after fetching.
+ * Guard: Prevents duplicate listeners if called multiple times
  */
 const startRiderListener = (riderId) => {
+    // Clean up any existing listener before creating a new one
+    if (typeof riderListenerUnsubscribe === 'function') {
+        riderListenerUnsubscribe();
+    }
+
     const ordersRef = collection(db, 'orders');
     // Simple single-field query — no composite index needed
     const q = query(ordersRef, where('riderId', '==', riderId));

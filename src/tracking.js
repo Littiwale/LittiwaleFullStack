@@ -45,6 +45,11 @@ const initTracking = async () => {
             limit(1)
         );
         
+        // Guard: Clean up any existing listener before creating a new one
+        if (typeof trackingUnsubscribe === 'function') {
+            trackingUnsubscribe();
+        }
+        
         let previousStatus = null;
         let isFirstLoad = true;
 
