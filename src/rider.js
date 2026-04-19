@@ -199,8 +199,11 @@ const startRiderListener = (riderId) => {
 
         const earnEl = document.getElementById('rider-earnings');
         const countEl = document.getElementById('rider-deliveries');
+        const todayCountEl = document.getElementById('rider-today-count');
+        
         if (earnEl) earnEl.textContent = `₹${todaysEarnings}`;
         if (countEl) countEl.textContent = `${deliveriesCount} deliveries`;
+        if (todayCountEl) todayCountEl.textContent = `${deliveriesCount} deliveries today`;
 
         // Split into pending (READY) and current (ASSIGNED)
         const pendingOrders = activeOrders.filter(o => o.status === ORDER_STATUS.READY);
