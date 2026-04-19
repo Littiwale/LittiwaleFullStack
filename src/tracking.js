@@ -24,6 +24,8 @@ let trackingUnsubscribe = null;
 const riderInfo = document.querySelector('#rider-info');
 const riderName = document.querySelector('#rider-name-display');
 const riderCall = document.querySelector('#rider-call-btn');
+const whatsappShareBtn = document.querySelector('#whatsapp-share-btn');
+const copyLinkBtn = document.querySelector('#copy-tracking-btn');
 
 const initTracking = async () => {
 
@@ -209,6 +211,36 @@ const renderOrder = async (order, docId) => {
         } else {
             etaDiv.style.display = 'none';
         }
+    }
+
+    // ── WHATSAPP SHARE & COPY LINK (Task 9.2) ──
+    const trackingUrl = `${window.location.origin}/customer/track.html?id=${order.orderId}&token=${order.trackingToken}`;
+    const whatsappMessage = `Hey! 🍽️ I just ordered from Littiwale! Order #${order.orderId} - Track it here: ${trackingUrl}`;
+    
+    if (whatsappShareBtn) {
+        whatsappShareBtn.href = `https://wa.me/?text=${encodeURIComponent(whatsappMessage)}`;
+    }
+    
+    // Only set up the copy link button listener once to avoid duplicate handlers
+    if (copyLinkBtn && !copyLinkBtn.dataset.listenerAttached) {
+        copyLinkBtn.dataset.listenerAttached = 'true';
+        copyLinkBtn.addEventListener('click', () => {
+            navigator.clipboard.writeText(trackingUrl).then(() => {
+                copyLinkBtn.textContent = '✓ Copied!';
+                copyLinkBtn.style.backgroundColor = '#10B981';
+                copyLinkBtn.style.color = '#fff';
+                setTimeout(() => {
+                    copyLinkBtn.textContent = '🔗 Copy Link';
+                    copyLinkBtn.style.backgroundColor = '';
+                    copyLinkBtn.style.color = '';
+                }, 2000);
+            }).catch(() => {
+                copyLinkBtn.textContent = '✗ Failed';
+                setTimeout(() => {
+                    copyLinkBtn.textContent = '🔗 Copy Link';
+                }, 2000);
+            });
+        });
     }
 };
 
