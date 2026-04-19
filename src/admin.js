@@ -158,7 +158,6 @@ const initAdmin = () => {
 
         startOrderListener();
         setupLogout();
-        setupCouponAdmin();
         setupAnnouncementAdmin();
     });
 };
@@ -279,7 +278,10 @@ const switchView = (viewName) => {
     if (viewName === 'customers') loadCustomers();
     if (viewName === 'menu') setupMenuAdmin();
     if (viewName === 'tickets') loadTickets();
-    if (viewName === 'coupons') loadCoupons();
+    if (viewName === 'coupons') {
+        loadCoupons();
+        setupCouponAdmin();
+    }
     if (viewName === 'announcements') loadAnnouncements();
 };
 
@@ -1550,16 +1552,14 @@ const updateCouponTypeFields = () => {
 
     typeFields.innerHTML = fieldsHTML;
 
-    // Auto-generate description when type changes
-    autoGenerateCouponDescription();
-
-    // Add event listeners for auto-description updates
+    // Move both operations into the same setTimeout so inputs exist when description runs
     setTimeout(() => {
         const inputs = typeFields.querySelectorAll('input');
         inputs.forEach(input => {
             input.addEventListener('input', autoGenerateCouponDescription);
         });
-    }, 100);
+        autoGenerateCouponDescription();
+    }, 50);
 };
 
 // Generate coupon description based on form values
@@ -1679,6 +1679,8 @@ const setupCouponAdmin = () => {
     const cancelBtn = document.querySelector('#cancel-coupon-edit-btn');
     const typeSelect = document.querySelector('#new-coupon-type');
     if (!createBtn) return;
+    if (createBtn.dataset.initialized === 'true') return;
+    createBtn.dataset.initialized = 'true';
 
     // Initialize type fields on load
     updateCouponTypeFields();
