@@ -3,7 +3,7 @@ import { validateOrder, createOrderEntry, updateOrderDetails } from '../api/orde
 import { validateCoupon, fetchActiveCoupons, recordCouponUsage, recordCouponAttempt } from '../api/coupons';
 import { auth, db } from '../firebase/config';
 import { ORDER_STATUS } from '../constants/orderStatus';
-import { collection, getDocs, addDoc, query, orderBy, serverTimestamp, updateDoc } from 'firebase/firestore';
+import { collection, getDocs, addDoc, doc, query, orderBy, serverTimestamp, updateDoc } from 'firebase/firestore';
 
 const checkoutModal = document.querySelector('#checkout-modal');
 const checkoutForm = document.querySelector('#checkout-form');
@@ -546,6 +546,26 @@ const showEnhancedCouponSuggestions = (topCoupons, cartTotal) => {
         </div>
     `;
     suggestionEl.style.display = 'block';
+};
+
+const getEligibilityReason = (coupon, result, cartItems, cartTotal) => {
+    if (result.valid && result.discount > 0) {
+        return `✓ Eligible — saves ₹${result.discount}`;
+    }
+    const minOrder = coupon.minOrderValue || 0;
+    if (minOrder > cartTotal) {
+        return `Add ₹${minOrder - cartTotal} more to unlock`;
+    }
+    if (coupon.expiresAt) {
+        const exp = coupon.expiresAt.toDate
+            ? coupon.expiresAt.toDate()
+            : new Date(coupon.expiresAt);
+        if (new Date() > exp) return 'This coupon has expired';
+    }
+    if (coupon.maxUses > 0 && (coupon.usedCount || 0) >= coupon.maxUses) {
+        return 'Usage limit reached';
+    }
+    return result.message || 'Not eligible for current cart';
 };
 
 const loadActiveCoupons = async () => {
