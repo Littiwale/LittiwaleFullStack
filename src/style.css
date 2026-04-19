@@ -27,8 +27,10 @@
   --focus-ring: rgba(244, 180, 0, 0.18);
   --card-hover-shadow: 0 20px 40px rgba(0,0,0,0.5);
   --border-radius: 16px;
-  --font-main: 'Poppins', sans-serif;
-  --font-display: 'Playfair Display', serif;
+  --font-heading: 'Playfair Display', Georgia, serif;
+  --font-body: 'Inter', system-ui, sans-serif;
+  --font-main: 'Inter', system-ui, sans-serif;
+  --font-display: 'Playfair Display', Georgia, serif;
   --success: #10B981;
   --error: #EF4444;
   --warning: #f59e0b;
@@ -599,6 +601,7 @@ html[data-theme='light'] .admin-select {
   overflow: hidden;
   padding-top: 80px;
   background: #0d0f14;
+  background-attachment: fixed;
 }
 
 .hero-glow {
@@ -629,6 +632,12 @@ html[data-theme='light'] .admin-select {
   z-index: 2;
   text-align: center;
   max-width: 900px;
+  animation: heroFadeUp 0.9s ease forwards;
+}
+
+@keyframes heroFadeUp {
+  from { opacity: 0; transform: translateY(24px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
 .hero h1 {
@@ -651,6 +660,18 @@ html[data-theme='light'] .admin-select {
   gap: 16px;
   flex-wrap: wrap;
   justify-content: center;
+}
+
+@media (max-width: 600px) {
+  .hero-buttons {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
+  .hero-buttons .btn {
+    text-align: center;
+    width: 100%;
+  }
 }
 
 /* 📢 ANNOUNCEMENTS */
@@ -868,6 +889,106 @@ html[data-theme='light'] .admin-select {
 .hall-of-fame-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px; max-width: 1100px; margin: 0 auto; }
 .hall-of-fame-footer { text-align: center; margin-top: 40px; }
 .hall-of-fame-btn { background: var(--primary); color: var(--button-on-primary); padding: 14px 36px; border-radius: 10px; font-weight: 700; font-size: 15px; text-decoration: none; letter-spacing: 1px; }
+
+.hof-card {
+  background: var(--surface);
+  border: 1px solid var(--glass-border);
+  border-radius: 16px;
+  overflow: hidden;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.hof-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 32px rgba(0,0,0,0.15);
+}
+
+.hof-card img {
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+}
+
+.hof-card-body {
+  padding: 16px;
+}
+
+.hof-card-name {
+  color: var(--text-primary);
+  font-size: 16px;
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+
+.hof-card-price {
+  color: var(--primary);
+  font-size: 18px;
+  font-weight: 800;
+}
+
+.hof-card-btn {
+  width: 100%;
+  margin-top: 12px;
+  padding: 10px;
+  background: var(--primary);
+  color: var(--button-on-primary);
+  border: none;
+  border-radius: 8px;
+  font-weight: 700;
+  cursor: pointer;
+  font-size: 13px;
+  letter-spacing: 1px;
+  transition: opacity 0.2s;
+}
+
+.hof-card-btn:hover { opacity: 0.88; }
+
+.trust-bar {
+  background: var(--surface);
+  border-top: 1px solid var(--glass-border);
+  border-bottom: 1px solid var(--glass-border);
+  padding: 20px 0;
+}
+
+.trust-bar-inner {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.trust-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.trust-icon {
+  font-size: 24px;
+}
+
+.trust-item strong {
+  display: block;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.trust-item span {
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+@media (max-width: 480px) {
+  .trust-bar-inner {
+    justify-content: flex-start;
+  }
+  .trust-item {
+    width: calc(50% - 8px);
+  }
+}
+
 .about-title { font-size: 32px; }
 .about-highlight { color: var(--primary); font-weight: 700; font-size: 18px; margin-bottom: 20px; }
 .about-text { max-width: 800px; margin: 0 auto; color: var(--text-secondary); }

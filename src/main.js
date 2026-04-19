@@ -444,13 +444,13 @@ const renderHallOfFame = (menu) => {
     const picks = shuffled.slice(0, 6);
 
     grid.innerHTML = picks.map(item => `
-        <div style="background:var(--surface); border:1px solid var(--card-border); border-radius:16px; overflow:hidden; transition: transform 0.2s;" class="food-card">
-          <img src="${item.image || '/images/logo.png'}" alt="${item.name}" style="width:100%; height:200px; object-fit:cover;" onerror="this.src='/images/logo.png'">
-          <div style="padding: 16px;">
-            <h3 style="color:var(--text-primary); font-size:16px; font-weight:700; margin-bottom:6px;">${item.name}</h3>
-            <p style="color:var(--primary); font-size:18px; font-weight:800;">₹${item.price}</p>
-            <button onclick="addToCart('${item.id}')" style="width:100%; margin-top:12px; padding:10px; background:var(--primary); color:var(--button-on-primary); border:none; border-radius:8px; font-weight:700; cursor:pointer; font-size:13px; letter-spacing:1px;">ADD TO CART</button>
-          </div>
+        <div class="food-card hof-card">
+            <img src="${item.image || '/images/logo.png'}" alt="${item.name}" loading="lazy" decoding="async" onerror="this.src='/images/logo.png'">
+            <div class="hof-card-body">
+                <h3 class="hof-card-name">${item.name}</h3>
+                <p class="hof-card-price">₹${item.price}</p>
+                <button onclick="addToCart('${item.id}')" class="hof-card-btn">ADD TO CART</button>
+            </div>
         </div>
     `).join('');
 };
