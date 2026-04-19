@@ -160,7 +160,13 @@ const startRiderListener = (riderId) => {
 
     riderListenerUnsubscribe = onSnapshot(q, (snapshot) => {
         snapshot.docChanges().forEach(change => {
-            if (change.type === 'added' && !isInitialLoad) playNotificationSound();
+            if (change.type === 'added' && !isInitialLoad) {
+                playNotificationSound();
+                // Haptic feedback for new order (mobile only)
+                if ('vibrate' in navigator) {
+                    navigator.vibrate([200, 100, 200]);
+                }
+            }
         });
 
         // Collect all orders and separate today's delivered for earnings
