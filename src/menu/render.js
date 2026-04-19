@@ -173,7 +173,7 @@ const createItemCard = (item) => {
     const hasVariants = item.hasVariants && item.variants && item.variants.length > 0;
     const defaultVariant = hasVariants ? item.variants[0] : null;
     const displayPrice = defaultVariant ? defaultVariant.price : item.price;
-    const imageSrc = item.image || '/images/logo.png';
+    const imageSrc = item.image || 'https://firebasestorage.googleapis.com/v0/b/littiwale-ordering-system.appspot.com/o/images%2Flogo.png?alt=media';
     const rawDescription = item.description ? item.description : '';
     const description = escapeHtml(rawDescription);
     const initialDetail = description || (hasVariants ? `Selected: ${escapeHtml(defaultVariant.type)}` : '\u00A0');

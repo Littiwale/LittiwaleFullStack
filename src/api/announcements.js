@@ -58,7 +58,7 @@ export const createAnnouncement = async (imageFile, meta) => {
         // Generate static path from filename instead of uploading to Firebase Storage
         if (imageFile) {
             const filename = imageFile.name.toLowerCase().replace(/\s+/g, '-');
-            image = `/images/announcements/${filename}`;
+            image = `https://firebasestorage.googleapis.com/v0/b/littiwale-ordering-system.appspot.com/o/images%2Fannouncements%2F${encodeURIComponent(filename)}?alt=media`;
         }
 
         const docRef = await addDoc(collection(db, 'announcements'), {

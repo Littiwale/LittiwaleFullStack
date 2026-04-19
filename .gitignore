@@ -8,3 +8,4 @@ test-*.js
 legacy/
 __DO_NOT_TOUCH_LEGACY_ARCHIVE__/
 cleanup-before-git-push/
+public/images/
