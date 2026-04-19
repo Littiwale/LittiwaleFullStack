@@ -5,6 +5,19 @@ import { auth, db } from '../firebase/config';
 import { ORDER_STATUS } from '../constants/orderStatus';
 import { collection, getDocs, addDoc, doc, query, orderBy, serverTimestamp, updateDoc } from 'firebase/firestore';
 
+// Simple debounce utility
+const debounce = (func, wait) => {
+    let timeout;
+    return function executedFunction(...args) {
+        const later = () => {
+            clearTimeout(timeout);
+            func(...args);
+        };
+        clearTimeout(timeout);
+        timeout = setTimeout(later, wait);
+    };
+};
+
 const checkoutModal = document.querySelector('#checkout-modal');
 const checkoutForm = document.querySelector('#checkout-form');
 const checkoutAmount = document.querySelector('#checkout-amount');
@@ -216,12 +229,14 @@ export const initCheckout = () => {
 
     checkoutForm.addEventListener('submit', handleCheckoutSubmit);
 
-    // Add cart change listener for coupon revalidation
-    window.addEventListener('cartUpdated', () => {
+    // Add cart change listener for coupon revalidation (debounced to prevent excessive Firestore reads)
+    const debouncedCouponUpdate = debounce(() => {
         revalidateAppliedCoupon();
         loadActiveCoupons();
         suggestBestCoupon();
-    });
+    }, 500); // 500ms debounce
+
+    window.addEventListener('cartUpdated', debouncedCouponUpdate);
 };
 
 const populateCheckoutItems = (cart) => {
