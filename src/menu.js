@@ -3,7 +3,7 @@ import { updateCartUI } from './menu/cart-ui';
 import { initCheckout } from './menu/checkout';
 import { onAuthChange, logoutUser } from './api/auth';
 import { renderMenu, refreshAllCardCTAs } from './menu/render';
-
+import { createTicket } from './api/tickets';
 import { addItem } from './store/cart';
 import { fetchOrdersByUser } from './api/orders';
 import { updateDeliveryEstimate, loadMyOrders, showToast } from './utils';
@@ -199,9 +199,7 @@ const initMenu = async () => {
         complaintFeedback.style.color = '#C47F17';
 
         try {
-            // TODO: Add Firestore submission logic here
-            // For now, show success message
-            await new Promise(resolve => setTimeout(resolve, 500)); // Simulate API delay
+            await createTicket({ name, phone, issue });
 
             complaintFeedback.textContent = '✓ Thank you! Your complaint has been submitted. We will follow up soon.';
             complaintFeedback.style.color = '#10B981';
