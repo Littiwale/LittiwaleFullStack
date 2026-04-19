@@ -201,10 +201,38 @@
                                 <input id="menu-search" type="search" placeholder="Search menu items..." class="admin-search-input" />
                             </div>
                             <div class="toolbar-filters">
-                                <label class="text-xs uppercase tracking-widest text-gray-500 mb-2 block">Category</label>
-                                <select id="menu-category-filter" class="admin-select">
-                                    <option value="all">All Categories</option>
-                                </select>
+                                <div class="filter-row">
+                                    <div class="filter-group">
+                                        <label class="text-xs uppercase tracking-widest text-gray-500 mb-2 block">Category</label>
+                                        <select id="menu-category-filter" class="admin-select">
+                                            <option value="all">All Categories</option>
+                                        </select>
+                                    </div>
+                                    <div class="filter-group">
+                                        <label class="text-xs uppercase tracking-widest text-gray-500 mb-2 block">Status</label>
+                                        <select id="menu-status-filter" class="admin-select">
+                                            <option value="all">All Status</option>
+                                            <option value="visible">Visible</option>
+                                            <option value="hidden">Hidden</option>
+                                        </select>
+                                    </div>
+                                    <div class="filter-group">
+                                        <label class="text-xs uppercase tracking-widest text-gray-500 mb-2 block">Type</label>
+                                        <select id="menu-type-filter" class="admin-select">
+                                            <option value="all">All Types</option>
+                                            <option value="veg">Vegetarian</option>
+                                            <option value="nonveg">Non-Vegetarian</option>
+                                        </select>
+                                    </div>
+                                    <div class="filter-group">
+                                        <label class="text-xs uppercase tracking-widest text-gray-500 mb-2 block">Stock</label>
+                                        <select id="menu-stock-filter" class="admin-select">
+                                            <option value="all">All Stock</option>
+                                            <option value="in-stock">In Stock</option>
+                                            <option value="out-of-stock">Out of Stock</option>
+                                        </select>
+                                    </div>
+                                </div>
                             </div>
                         <div class="toolbar-actions">
                             <button id="menu-bulk-select-all" type="button" class="btn btn-outline btn-sm">Select All</button>

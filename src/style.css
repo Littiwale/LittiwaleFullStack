@@ -317,6 +317,19 @@ html[data-theme='light'] .theme-toggle-btn:hover {
   min-width: 220px;
 }
 
+.filter-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  align-items: end;
+}
+
+.filter-group {
+  display: flex;
+  flex-direction: column;
+  min-width: 140px;
+}
+
 .toolbar-meta {
   color: #94a3b8;
 }

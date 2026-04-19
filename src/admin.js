@@ -91,6 +91,9 @@ let menuItems = [];
 let menuListenerUnsubscribe = null;
 let menuViewInitialized = false;
 let currentMenuCategory = 'all';
+let currentMenuStatus = 'all';
+let currentMenuType = 'all';
+let currentMenuStock = 'all';
 let editingMenuItemId = null;
 let editingCouponCode = null;
 
@@ -307,6 +310,26 @@ const setupMenuAdmin = () => {
 
     menuCategoryFilter?.addEventListener('change', (e) => {
         currentMenuCategory = e.target.value || 'all';
+        renderMenuList();
+    });
+
+    // Advanced filters
+    const menuStatusFilter = document.getElementById('menu-status-filter');
+    const menuTypeFilter = document.getElementById('menu-type-filter');
+    const menuStockFilter = document.getElementById('menu-stock-filter');
+
+    menuStatusFilter?.addEventListener('change', (e) => {
+        currentMenuStatus = e.target.value || 'all';
+        renderMenuList();
+    });
+
+    menuTypeFilter?.addEventListener('change', (e) => {
+        currentMenuType = e.target.value || 'all';
+        renderMenuList();
+    });
+
+    menuStockFilter?.addEventListener('change', (e) => {
+        currentMenuStock = e.target.value || 'all';
         renderMenuList();
     });
 
@@ -642,6 +665,15 @@ const renderMenuList = () => {
     const searchTerm = menuSearchQuery.trim().toLowerCase();
     const filteredItems = menuItems
         .filter(item => currentMenuCategory === 'all' || item.category === currentMenuCategory)
+        .filter(item => currentMenuStatus === 'all' || 
+            (currentMenuStatus === 'visible' && item.available) || 
+            (currentMenuStatus === 'hidden' && !item.available))
+        .filter(item => currentMenuType === 'all' || 
+            (currentMenuType === 'veg' && item.veg) || 
+            (currentMenuType === 'nonveg' && !item.veg))
+        .filter(item => currentMenuStock === 'all' || 
+            (currentMenuStock === 'in-stock' && (item.stockQuantity ?? 0) > 0) || 
+            (currentMenuStock === 'out-of-stock' && (item.stockQuantity ?? 0) === 0))
         .filter(item => {
             if (!searchTerm) return true;
             return [item.name, item.category, item.description]
