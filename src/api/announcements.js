@@ -1,6 +1,5 @@
-import { db, storage } from '../firebase/config';
+import { db } from '../firebase/config';
 import { collection, query, where, orderBy, getDocs, addDoc, doc, updateDoc, deleteDoc, serverTimestamp } from 'firebase/firestore';
-import { ref, uploadBytes, getDownloadURL, deleteObject } from 'firebase/storage';
 
 /**
  * Fetches active, non-expired announcements for the homepage carousel.
@@ -47,26 +46,24 @@ export const fetchAllAnnouncements = async () => {
 };
 
 /**
- * Admin: Upload image to Firebase Storage and create announcement doc.
- * @param {File} imageFile
+ * Admin: Create announcement with static image path (no Firebase Storage).
+ * Images should be placed manually in public/images/announcements/ folder.
+ * @param {File} imageFile - Image file selected by admin (used to generate filename)
  * @param {Object} meta - { expiresAt: Date|null, active: boolean, title?: string }
  */
 export const createAnnouncement = async (imageFile, meta) => {
     try {
-        let imageUrl = null;
-        let storagePath = null;
+        let image = null;
 
+        // Generate static path from filename instead of uploading to Firebase Storage
         if (imageFile) {
-            const timestamp = Date.now();
-            storagePath = `announcements/${timestamp}_${imageFile.name}`;
-            const storageRef = ref(storage, storagePath);
-            await uploadBytes(storageRef, imageFile);
-            imageUrl = await getDownloadURL(storageRef);
+            const filename = imageFile.name.toLowerCase().replace(/\s+/g, '-');
+            image = `/images/announcements/${filename}`;
         }
 
         const docRef = await addDoc(collection(db, 'announcements'), {
-            imageUrl: imageUrl || null,
-            storagePath: storagePath || null,
+            image: image || null,
+            imageUrl: null, // Legacy field for backward compatibility
             title: meta.title || '',
             expiresAt: meta.expiresAt || null,
             active: meta.active !== false,
@@ -76,6 +73,19 @@ export const createAnnouncement = async (imageFile, meta) => {
         return { success: true, id: docRef.id };
     } catch (error) {
         console.error('Error creating announcement:', error);
+        throw error;
+    }
+};
+
+/**
+ * Admin: Update announcement title
+ */
+export const updateAnnouncementTitle = async (id, title) => {
+    try {
+        await updateDoc(doc(db, 'announcements', id), { title });
+        return { success: true };
+    } catch (error) {
+        console.error('Error updating announcement title:', error);
         throw error;
     }
 };
@@ -94,14 +104,12 @@ export const toggleAnnouncementActive = async (id, active) => {
 };
 
 /**
- * Admin: Delete announcement (and its storage image if any)
+ * Admin: Delete announcement (no Firebase Storage cleanup needed with static files)
  */
 export const deleteAnnouncement = async (id, storagePath) => {
     try {
         await deleteDoc(doc(db, 'announcements', id));
-        if (storagePath) {
-            try { await deleteObject(ref(storage, storagePath)); } catch {}
-        }
+        // No Firebase Storage file to delete since we're using static files
         return { success: true };
     } catch (error) {
         console.error('Error deleting announcement:', error);

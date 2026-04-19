@@ -1,7 +1,9 @@
 import { collection, query, where, onSnapshot, doc, updateDoc, serverTimestamp, getDoc } from 'firebase/firestore';
 import { db } from './firebase/config';
 import { ORDER_STATUS } from './constants/orderStatus';
-import { onAuthChange, logoutUser } from './api/auth';
+import { onAuthChange, logoutUser, getUserRole, isRider, isAdminOrManager } from './api/auth';
+import { updateOrderDetails } from './api/orders';
+import { RIDER_EARNING_PER_ORDER } from './constants/config';
 
 /**
  * 🛵 LITTIWALE RIDER PANEL
@@ -10,16 +12,37 @@ import { onAuthChange, logoutUser } from './api/auth';
  */
 
 let isInitialLoad = true;
+let riderListenerUnsubscribe = null;
 
 const initRider = () => {
-    onAuthChange((user) => {
+    // Show a loading overlay immediately to prevent flashing the rider UI
+    const loadingOverlay = document.createElement('div');
+    loadingOverlay.id = 'rider-auth-loader';
+    loadingOverlay.style.cssText = [
+        'position:fixed;inset:0;background:#0d0f14;z-index:99999',
+        'display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px'
+    ].join(';');
+    loadingOverlay.innerHTML = `
+        <div style="width:40px;height:40px;border:3px solid #252830;border-top-color:#F5A800;border-radius:50%;animation:spin 0.8s linear infinite;"></div>
+        <p style="color:#F5A800;font-size:11px;font-weight:900;letter-spacing:2px;text-transform:uppercase;">Verifying Session…</p>
+        <style>@keyframes spin{to{transform:rotate(360deg)}}</style>
+    `;
+    document.body.appendChild(loadingOverlay);
+
+    onAuthChange((user, isLoading) => {
+        // Auth SDK still initializing — do nothing
+        if (isLoading) return;
+
+        // Remove overlay once auth state is confirmed
+        loadingOverlay.remove();
+
         // JS-level secondary auth guard
         if (!user) {
             window.location.href = '/login.html';
             return;
         }
-        const role = user.profile?.role;
-        if (role !== 'rider' && role !== 'admin' && role !== 'manager') {
+        const role = getUserRole(user);
+        if (!['rider', 'admin', 'manager'].includes(role)) {
             window.location.href = '/customer/index.html';
             return;
         }
@@ -74,7 +97,6 @@ const initRider = () => {
 
         // Bottom nav profile button
         document.getElementById('bnav-profile')?.addEventListener('click', function() {
-            // Show a simple alert with profile info for now
             alert(`👤 ${name}\nRole: ${role.toUpperCase()}\n\nTo update your profile, contact the admin.`);
         });
 
@@ -105,7 +127,16 @@ const initRiderToggle = async (riderId) => {
     toggle.addEventListener('change', async (e) => {
         const isOnline = e.target.checked;
         try {
-            await updateDoc(doc(db, 'users', riderId), { isOnline });
+            const updateData = { 
+                isOnline,
+                lastOnlineStatusChangeAt: new Date()
+            };
+            if (isOnline) {
+                updateData.lastOnlineAt = new Date();
+            } else {
+                updateData.lastOfflineAt = new Date();
+            }
+            await updateDoc(doc(db, 'users', riderId), updateData);
             text.textContent = isOnline ? 'Online' : 'Offline';
             text.style.color = isOnline ? '#10B981' : '#7a8098';
             slider.style.backgroundColor = isOnline ? '#10B981' : '#ef4444';
@@ -127,7 +158,7 @@ const startRiderListener = (riderId) => {
     // Simple single-field query — no composite index needed
     const q = query(ordersRef, where('riderId', '==', riderId));
 
-    onSnapshot(q, (snapshot) => {
+    riderListenerUnsubscribe = onSnapshot(q, (snapshot) => {
         snapshot.docChanges().forEach(change => {
             if (change.type === 'added' && !isInitialLoad) playNotificationSound();
         });
@@ -154,8 +185,7 @@ const startRiderListener = (riderId) => {
             if (o.status === ORDER_STATUS.DELIVERED && o.updatedAt) {
                 const updatedDate = o.updatedAt.toDate ? o.updatedAt.toDate() : new Date(o.updatedAt);
                 if (updatedDate >= today) {
-                    // Assuming rider gets ₹20 per delivery locally (or it could be hardcoded for now)
-                    todaysEarnings += 20; 
+                    todaysEarnings += RIDER_EARNING_PER_ORDER;
                     deliveriesCount++;
                 }
             }
@@ -176,6 +206,12 @@ const startRiderListener = (riderId) => {
         isInitialLoad = false;
     });
 };
+
+window.addEventListener('beforeunload', () => {
+    if (typeof riderListenerUnsubscribe === 'function') {
+        riderListenerUnsubscribe();
+    }
+});
 
 /**
  * Render pending pickups section
@@ -319,11 +355,7 @@ const renderCurrentDelivery = (orders) => {
  */
 window.pickupOrder = async (docId) => {
     try {
-        const orderRef = doc(db, 'orders', docId);
-        await updateDoc(orderRef, {
-            status: ORDER_STATUS.ASSIGNED,
-            updatedAt: serverTimestamp()
-        });
+        await updateOrderDetails(docId, { status: ORDER_STATUS.ASSIGNED });
     } catch (e) {
         console.error('Pickup failed:', e);
         alert('Could not update order. Try again.');
@@ -332,10 +364,9 @@ window.pickupOrder = async (docId) => {
 
 window.markDelivered = async (docId) => {
     try {
-        const orderRef = doc(db, 'orders', docId);
-        await updateDoc(orderRef, {
+        await updateOrderDetails(docId, {
             status: ORDER_STATUS.DELIVERED,
-            updatedAt: serverTimestamp()
+            paymentStatus: 'paid'
         });
     } catch (e) {
         console.error('Delivery update failed:', e);

@@ -6,21 +6,35 @@ import { getAuth } from "firebase/auth";
 import { getStorage } from "firebase/storage";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyDEgXj63A1Ut0ldXLJmM9QRmtGeh66KAmw",
-  authDomain: "littiwale-90990.firebaseapp.com",
-  projectId: "littiwale-90990",
-  storageBucket: "littiwale-90990.firebasestorage.app",
-  messagingSenderId: "937555170322",
-  appId: "1:937555170322:web:c31008dac8833c308eb4cb",
-  measurementId: "G-CRSQF7SR49"
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+  appId: import.meta.env.VITE_FIREBASE_APP_ID,
+  measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID
 };
 
-const app = initializeApp(firebaseConfig);
+const requiredKeys = [
+  'VITE_FIREBASE_API_KEY',
+  'VITE_FIREBASE_AUTH_DOMAIN',
+  'VITE_FIREBASE_PROJECT_ID',
+  'VITE_FIREBASE_APP_ID'
+];
 
-export const db = getFirestore(app);
-export const functions = getFunctions(app);
-export const messaging = getMessaging(app);
-export const auth = getAuth(app);
-export const storage = getStorage(app);  // For image uploads (announcements, etc.)
+const missingKeys = requiredKeys.filter((key) => !import.meta.env[key]);
+export const isFirebaseConfigured = missingKeys.length === 0;
 
-console.log("🔥 Firebase Connected");
+if (!isFirebaseConfigured) {
+  console.error(
+    `Firebase configuration is missing: ${missingKeys.join(', ')}. Copy .env.example to .env and add your VITE_FIREBASE_* values.`
+  );
+}
+
+const app = isFirebaseConfigured ? initializeApp(firebaseConfig) : null;
+
+export const db = app ? getFirestore(app) : null;
+export const functions = app ? getFunctions(app) : null;
+export const messaging = app ? getMessaging(app) : null;
+export const auth = app ? getAuth(app) : null;
+export const storage = app ? getStorage(app) : null;  // For image uploads (announcements, etc.)

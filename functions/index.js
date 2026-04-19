@@ -1,97 +1,34 @@
 const { onDocumentUpdated } = require('firebase-functions/v2/firestore');
 const { onCall, onRequest } = require('firebase-functions/v2/https');
 const admin = require('firebase-admin');
-const Razorpay = require('razorpay');
-const crypto = require('crypto');
 
 admin.initializeApp();
 const db = admin.firestore();
 
-// PLACEHOLDERS - To be configured via Firebase Functions Secrets or Config
-const RAZORPAY_KEY_ID = 'rzp_test_placeholder';
-const RAZORPAY_KEY_SECRET = 'placeholder_secret';
-const RAZORPAY_WEBHOOK_SECRET = 'webhook_secret_placeholder';
-
-const razorpay = new Razorpay({
-    key_id: RAZORPAY_KEY_ID,
-    key_secret: RAZORPAY_KEY_SECRET
+const razorpayUnavailableResponse = () => ({
+    success: false,
+    error: 'Online payment is currently unavailable. Please choose Cash on Delivery.'
 });
 
 /**
  * Cloud Function to create a Razorpay Order
  */
-exports.createRazorpayOrder = onCall(async (request) => {
-    const { amount, receipt } = request.data;
-    try {
-        const options = {
-            amount: amount * 100,
-            currency: 'INR',
-            receipt: receipt,
-        };
-        const order = await razorpay.orders.create(options);
-        return { success: true, orderId: order.id };
-    } catch (error) {
-        console.error('Razorpay Order Error:', error);
-        return { success: false, error: 'Failed to create payment order.' };
-    }
+exports.createRazorpayOrder = onCall(async () => {
+    return razorpayUnavailableResponse();
 });
 
 /**
  * Cloud Function to verify Razorpay Payment Signature
  */
-exports.verifyRazorpayPayment = onCall(async (request) => {
-    const { razorpay_order_id, razorpay_payment_id, razorpay_signature, internal_order_id } = request.data;
-    const body = razorpay_order_id + "|" + razorpay_payment_id;
-    const expectedSignature = crypto
-        .createHmac('sha256', RAZORPAY_KEY_SECRET)
-        .update(body.toString())
-        .digest('hex');
-
-    if (expectedSignature === razorpay_signature) {
-        const orderRef = db.collection('orders').doc(internal_order_id);
-        const orderSnap = await orderRef.get();
-        if (orderSnap.exists && orderSnap.data().paymentStatus !== 'captured') {
-            await orderRef.update({
-                status: 'PLACED',
-                paymentStatus: 'captured',
-                razorpayPaymentId: razorpay_payment_id,
-                updatedAt: admin.firestore.FieldValue.serverTimestamp()
-            });
-        }
-        return { success: true };
-    } else {
-        return { success: false, error: 'Invalid payment signature.' };
-    }
+exports.verifyRazorpayPayment = onCall(async () => {
+    return razorpayUnavailableResponse();
 });
 
 /**
  * Webhook Handler for Razorpay
  */
 exports.razorpayWebhook = onRequest(async (req, res) => {
-    const signature = req.headers['x-razorpay-signature'];
-    const expectedSignature = crypto
-        .createHmac('sha256', RAZORPAY_WEBHOOK_SECRET)
-        .update(JSON.stringify(req.body))
-        .digest('hex');
-
-    if (signature !== expectedSignature) return res.status(400).send('Invalid signature');
-
-    const event = req.body;
-    if (event.event === 'payment.captured') {
-        const internalOrderId = event.payload.payment.entity.notes.internal_order_id;
-        if (internalOrderId) {
-            const orderRef = db.collection('orders').doc(internalOrderId);
-            const orderSnap = await orderRef.get();
-            if (orderSnap.exists && orderSnap.data().paymentStatus !== 'captured') {
-                await orderRef.update({
-                    status: 'PLACED',
-                    paymentStatus: 'captured',
-                    updatedAt: admin.firestore.FieldValue.serverTimestamp()
-                });
-            }
-        }
-    }
-    res.status(200).send('ok');
+    res.status(503).send('Online payment processing is currently disabled.');
 });
 
 /**

@@ -2,21 +2,24 @@ export const renderAnnouncements = (rootElement, announcements) => {
     if (!announcements || announcements.length === 0) return;
 
     // Check if any announcement has an image to activate banner mode
-    const hasImage = announcements.some(a => a.image);
+    // Support both new 'image' field (static path) and old 'imageUrl' field (Firebase Storage URL)
+    const hasImage = announcements.some(a => a.image || a.imageUrl);
 
     if (hasImage) {
         // Carousel Slider Mode
         rootElement.innerHTML = `
             <div class="announcement-carousel-wrapper">
                 <div class="carousel-track" id="announcement-track">
-                    ${announcements.map(a => `
-                        <div class="announcement-slide" style="background-image: url('${a.image || ''}')">
+                    ${announcements.map(a => {
+                        const imageSrc = a.image || a.imageUrl || '';
+                        return `
+                        <div class="announcement-slide" style="background-image: url('${imageSrc}')">
                             <div class="announcement-content">
                                 <h4 class="text-xs md:text-sm font-black text-white uppercase tracking-widest">${a.title}</h4>
                                 <p class="text-[10px] md:text-xs text-gray-300">${a.description}</p>
                             </div>
                         </div>
-                    `).join('')}
+                    `}).join('')}
                 </div>
             </div>
         `;

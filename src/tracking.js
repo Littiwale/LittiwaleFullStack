@@ -1,8 +1,10 @@
-import { collection, query, where, onSnapshot, limit, addDoc, serverTimestamp, doc } from 'firebase/firestore';
+import { collection, query, where, onSnapshot, limit, addDoc, serverTimestamp, doc, getDocs } from 'firebase/firestore';
 import { db } from './firebase/config';
 import { requestNotificationPermission, saveFCMTokenToOrder } from './notifications';
-import { getUserProfile, onAuthChange, normalizePhone } from './api/auth';
+import { getUserProfile, onAuthChange } from './api/auth';
 import { ORDER_STATUS } from './constants/orderStatus';
+import { updateDeliveryEstimate } from './utils';
+import { initCheckout } from './menu/checkout';
 
 const content = document.querySelector('#tracking-content');
 const loading = document.querySelector('#tracking-loading');
@@ -16,34 +18,36 @@ const totalDisplay = document.querySelector('#order-total-display');
 const custName = document.querySelector('#cust-name-display');
 const custPhone = document.querySelector('#cust-phone-display');
 const custAddress = document.querySelector('#cust-address-display');
+let trackingUnsubscribe = null;
 
 const riderInfo = document.querySelector('#rider-info');
 const riderName = document.querySelector('#rider-name-display');
 const riderCall = document.querySelector('#rider-call-btn');
 
 const initTracking = async () => {
-    const isGuest = localStorage.getItem('littiwale_guest') === 'true';
-    if (isGuest) {
-        window.location.href = '/login.html?redirect=' + window.location.pathname + window.location.search;
-        return;
-    }
 
     const urlParams = new URLSearchParams(window.location.search);
     const orderId = urlParams.get('id');
+    const trackingToken = urlParams.get('token');
 
-    if (!orderId) {
+    if (!orderId || !trackingToken) {
         showError();
         return;
     }
 
     try {
         const ordersRef = collection(db, 'orders');
-        const q = query(ordersRef, where('orderId', '==', orderId), limit(1));
+        const q = query(
+            ordersRef,
+            where('orderId', '==', orderId),
+            where('trackingToken', '==', trackingToken),
+            limit(1)
+        );
         
         let previousStatus = null;
         let isFirstLoad = true;
 
-        onSnapshot(q, async (querySnapshot) => {
+        trackingUnsubscribe = onSnapshot(q, async (querySnapshot) => {
             if (querySnapshot.empty) {
                 showError();
                 return;
@@ -158,6 +162,21 @@ const renderOrder = async (order, docId) => {
     } else if (ratingContainer) {
         ratingContainer.style.display = 'none';
     }
+
+    // Call ETA logic for active orders
+    const activeStatuses = [
+        ORDER_STATUS.PLACED, ORDER_STATUS.ACCEPTED, ORDER_STATUS.PREPARING, 
+        ORDER_STATUS.READY, ORDER_STATUS.ASSIGNED
+    ];
+    const etaDiv = document.querySelector('#delivery-estimate');
+    if (etaDiv) {
+        if (activeStatuses.includes(order.status)) {
+            updateDeliveryEstimate();
+            etaDiv.style.display = 'block';
+        } else {
+            etaDiv.style.display = 'none';
+        }
+    }
 };
 
 const setupRatingInput = (orderDocId) => {
@@ -202,6 +221,14 @@ const setupRatingInput = (orderDocId) => {
         });
     });
 };
+
+window.addEventListener('beforeunload', () => {
+    if (typeof trackingUnsubscribe === 'function') {
+        trackingUnsubscribe();
+    }
+});
+
+initCheckout();
 
 const showError = () => {
     loading.classList.add('hidden');

@@ -1,22 +1,18 @@
 importScripts('https://www.gstatic.com/firebasejs/10.0.0/firebase-app-compat.js');
 importScripts('https://www.gstatic.com/firebasejs/10.0.0/firebase-messaging-compat.js');
 
-firebase.initializeApp({
-  apiKey: "AIzaSyDEgXj63A1Ut0ldXLJmM9QRmtGeh66KAmw",
-  projectId: "littiwale-90990",
-  messagingSenderId: "937555170322",
-  appId: "1:937555170322:web:c31008dac8833c308eb4cb"
+// This service worker intentionally avoids embedding hardcoded Firebase credentials.
+// Firebase Cloud Messaging background handling is disabled until env-safe config is available.
+self.addEventListener('install', (event) => {
+  self.skipWaiting();
 });
 
-const messaging = firebase.messaging();
-
-messaging.onBackgroundMessage((payload) => {
-  console.log('[firebase-messaging-sw.js] Received background message ', payload);
-  const notificationTitle = payload.notification.title;
-  const notificationOptions = {
-    body: payload.notification.body,
-    icon: '/images/logo.png'
-  };
-
-  self.registration.showNotification(notificationTitle, notificationOptions);
+self.addEventListener('activate', (event) => {
+  self.clients.claim();
 });
+
+self.addEventListener('message', (event) => {
+  console.log('[firebase-messaging-sw.js] message received:', event.data);
+});
+
+// Background message handling is currently disabled in this build.

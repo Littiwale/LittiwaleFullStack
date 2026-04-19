@@ -6,8 +6,14 @@ import {
     isUsernameAvailable,
     updateProfile,
     normalizePhone,
-    normalizeUsername
+    normalizeUsername,
+    createAnonymousGuest
 } from './api/auth';
+import { auth, isFirebaseConfigured } from './firebase/config';
+import { signInAnonymously, signOut } from 'firebase/auth';
+import { clearCart } from './store/cart';
+
+const CONFIG_ERROR_MESSAGE = 'Firebase configuration is missing. Copy .env.example to .env and restart the dev server.';
 
 // Selectors
 const toggleLogin = document.querySelector('#toggle-to-login');
@@ -33,6 +39,29 @@ const signupError = document.querySelector('#signup-error');
 const completionError = document.querySelector('#completion-error');
 const lockoutTimer = document.querySelector('#lockout-timer');
 const loginSubmitBtn = document.querySelector('#login-submit-btn');
+
+const displayLoginMode = () => {
+    loginSide.classList.add('form-show');
+    loginSide.classList.remove('form-hide');
+    signupSide.classList.add('form-hide');
+    signupSide.classList.remove('form-show');
+    completionSide.classList.add('form-hide');
+    completionSide.classList.remove('form-show');
+    toggleLogin?.classList.add('mode-toggle-active');
+    toggleSignup?.classList.remove('mode-toggle-active');
+    tabLogin?.classList.add('active');
+    tabLogin?.classList.remove('tab-inactive');
+    tabSignup?.classList.add('tab-inactive');
+    tabSignup?.classList.remove('active');
+};
+
+const showConfigError = () => {
+    loader.classList.add('hidden');
+    loginError.textContent = CONFIG_ERROR_MESSAGE;
+    signupError.textContent = CONFIG_ERROR_MESSAGE;
+    completionError.textContent = CONFIG_ERROR_MESSAGE;
+    displayLoginMode();
+};
 
 const PHONE_REGEX = /^[6-9]\d{9}$/;
 
@@ -87,26 +116,52 @@ const incrementFailedAttempts = () => {
 
 /**
  * Handle Auth State
+ *
+ * CRITICAL FIX: Firebase Auth always fires onAuthStateChanged once with null
+ * during SDK initialization before resolving the persisted session.
+ * We must NOT redirect on that initial null — we wait until isLoading=false.
+ *
+ * Strategy:
+ *   - Show the full-screen loader on page load (hidden in HTML by default via class)
+ *   - onAuthChange callback receives (user, isLoading)
+ *   - Only act when isLoading === false (auth state is resolved)
  */
-onAuthChange(async (user) => {
+
+// Show loader immediately so there's no flash of the login form
+loader.classList.remove('hidden');
+
+onAuthChange(async (user, isLoading) => {
+    // Still initializing — keep loader visible, do nothing else
+    if (isLoading) return;
+
+    if (!isFirebaseConfigured) {
+        showConfigError();
+        return;
+    }
+
     if (user) {
-        // Only show loader if we have a user and need to check profile / redirect
+        // Keep loader visible while we check profile and redirect
         loader.classList.remove('hidden');
         const profile = user.profile;
+
+        if (user.isAnonymous || profile?.isAnonymous) {
+            // Anonymous guest users are valid customers and go directly to the storefront.
+            window.location.href = '/';
+            return;
+        }
+
         if (!profile || !profile.username || !profile.phone) {
+            // Incomplete profile → completion form
             loader.classList.add('hidden');
             showForm('completion');
         } else {
-            const role = profile.role || 'customer';
-            if (role === 'admin' || role === 'manager') {
-                window.location.href = '/admin/index.html';
-            } else if (role === 'rider') {
-                window.location.href = '/rider/index.html';
-            } else {
-                window.location.href = '/customer/index.html';
-            }
+            // All roles land on the storefront after login.
+            // Admin/Rider can navigate to their panels via the navbar dropdown.
+            // Access control is enforced on the panel pages themselves, not here.
+            window.location.href = '/';
         }
     } else {
+        // Auth resolved — no user, show login form
         loader.classList.add('hidden');
         showForm('login');
     }
@@ -162,6 +217,12 @@ loginForm?.addEventListener('submit', async (e) => {
     e.preventDefault();
     if (checkLockout()) return;
 
+    if (!isFirebaseConfigured) {
+        loginError.textContent = CONFIG_ERROR_MESSAGE;
+        loader.classList.add('hidden');
+        return;
+    }
+
     const identifier = document.querySelector('#login-identifier').value;
     const password = document.querySelector('#login-password').value;
 
@@ -169,7 +230,10 @@ loginForm?.addEventListener('submit', async (e) => {
     loginError.textContent = '';
 
     try {
+        const wasAnonymous = auth.currentUser?.isAnonymous;
+        await signOutGuestIfNeeded();
         await loginWithMultiIdentifier(identifier, password);
+        if (wasAnonymous) clearCart();
         localStorage.setItem('littiwale_failed_attempts', '0');
     } catch (error) {
         console.error('Login failed:', error);
@@ -184,6 +248,13 @@ loginForm?.addEventListener('submit', async (e) => {
  */
 signupForm?.addEventListener('submit', async (e) => {
     e.preventDefault();
+
+    if (!isFirebaseConfigured) {
+        signupError.textContent = CONFIG_ERROR_MESSAGE;
+        loader.classList.add('hidden');
+        return;
+    }
+
     const name = document.querySelector('#signup-name').value;
     const username = document.querySelector('#signup-username').value;
     const phone = document.querySelector('#signup-phone').value;
@@ -200,7 +271,10 @@ signupForm?.addEventListener('submit', async (e) => {
     signupError.textContent = '';
 
     try {
+        const wasAnonymous = auth.currentUser?.isAnonymous;
+        await signOutGuestIfNeeded();
         await signupWithEmail({ email, password, name, username, phone });
+        if (wasAnonymous) clearCart();
     } catch (error) {
         console.error('Signup failed:', error);
         signupError.textContent = error.message.includes('auth/email-already') 
@@ -215,6 +289,13 @@ signupForm?.addEventListener('submit', async (e) => {
  */
 completionForm?.addEventListener('submit', async (e) => {
     e.preventDefault();
+
+    if (!isFirebaseConfigured) {
+        completionError.textContent = CONFIG_ERROR_MESSAGE;
+        loader.classList.add('hidden');
+        return;
+    }
+
     const username = document.querySelector('#complete-username').value;
     const phone = document.querySelector('#complete-phone').value;
 
@@ -232,21 +313,13 @@ completionForm?.addEventListener('submit', async (e) => {
         const available = await isUsernameAvailable(username);
         if (!available) throw new Error('Username already taken');
 
-        const currentUser = onAuthChange(u => u); // This is not ideal but showing intent
-        // We'll get current user from Auth directly or wait for onAuthChange state
-        const user = auth.currentUser; 
+        // auth.currentUser is safe here because onAuthChange has already resolved
+        const user = auth.currentUser;
         if (!user) throw new Error('Session expired');
 
-        const userData = await updateProfile(user.uid, { username, phone });
-        const role = userData?.role || 'customer';
-        
-        if (role === 'admin' || role === 'manager') {
-            window.location.href = '/admin/index.html';
-        } else if (role === 'rider') {
-            window.location.href = '/rider/index.html';
-        } else {
-            window.location.href = '/customer/index.html';
-        }
+        await updateProfile(user.uid, { username, phone });
+        // After profile completion, all roles go to the storefront.
+        window.location.href = '/';
     } catch (error) {
         console.error('Completion failed:', error);
         completionError.textContent = error.message;
@@ -260,12 +333,41 @@ completionForm?.addEventListener('submit', async (e) => {
 /**
  * GOOGLE & GUEST
  */
+const showAuthError = (message) => {
+    if (!loginSide.classList.contains('form-hide')) {
+        loginError.textContent = message;
+    } else {
+        signupError.textContent = message;
+    }
+};
+
+const signOutGuestIfNeeded = async () => {
+    if (!isFirebaseConfigured || !auth) return;
+    if (auth.currentUser?.isAnonymous) {
+        try {
+            await signOut(auth);
+        } catch (err) {
+            console.warn('Failed to clear anonymous guest session:', err);
+        }
+    }
+};
+
 const handleGoogleLogin = async () => {
+    if (!isFirebaseConfigured) {
+        showAuthError(CONFIG_ERROR_MESSAGE);
+        return;
+    }
+
+    const wasAnonymous = auth.currentUser?.isAnonymous;
+    await signOutGuestIfNeeded();
     try {
         loader.classList.remove('hidden');
         await loginWithGoogle();
+        if (wasAnonymous) clearCart();
     } catch (error) {
         console.error('Google login failed:', error);
+        const message = error?.message || 'Google sign-in failed. Please try again or use email login.';
+        showAuthError(message);
         loader.classList.add('hidden');
     }
 };
@@ -273,12 +375,26 @@ const handleGoogleLogin = async () => {
 googleBtn?.addEventListener('click', handleGoogleLogin);
 googleSignupBtn?.addEventListener('click', handleGoogleLogin);
 
-guestBtn?.addEventListener('click', () => {
-    localStorage.setItem('littiwale_guest', 'true');
-    window.location.href = '/customer/index.html';
+guestBtn?.addEventListener('click', async () => {
+    if (!isFirebaseConfigured) {
+        loginError.textContent = CONFIG_ERROR_MESSAGE;
+        loader.classList.add('hidden');
+        return;
+    }
+
+    await signOutGuestIfNeeded();
+    loader.classList.remove('hidden');
+    loginError.textContent = '';
+    try {
+        const result = await signInAnonymously(auth);
+        await createAnonymousGuest(result.user);
+        window.location.href = '/';
+    } catch (error) {
+        console.error('Guest sign-in failed:', error);
+        loginError.textContent = 'Unable to sign in as guest. Please try again.';
+        loader.classList.add('hidden');
+    }
 });
 
 // Initial Lockout Check
 checkLockout();
-
-import { auth } from './firebase/config';

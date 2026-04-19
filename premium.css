@@ -1,0 +1,235 @@
+/* ✅ PHASE 2 — SCROLL HIDE FIX */
+.cats-hidden {
+  transform: translateY(-120%);
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* ✅ PHASE 3 — CART ANIMATION */
+@keyframes bounceAdd {
+  0%   { transform: scale(1); }
+  30%  { transform: scale(0.88); }
+  65%  { transform: scale(1.08); }
+  85%  { transform: scale(0.97); }
+  100% { transform: scale(1); }
+}
+
+@keyframes cartPulse {
+  0%   { transform: scale(1); box-shadow: 0 0 0 0 rgba(234,179,8,0.7); }
+  50%  { transform: scale(1.22); box-shadow: 0 0 0 12px rgba(234,179,8,0); }
+  100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(234,179,8,0); }
+}
+
+.adding {
+  animation: bounceAdd 0.4s ease forwards;
+}
+
+.cart-animate {
+  animation: cartPulse 0.5s ease forwards;
+}
+
+.cart-count-animate {
+  animation: cartPulse 0.5s ease forwards;
+}
+
+/* ✅ PHASE 4 — SKELETON LOADERS */
+@keyframes shimmer {
+  0%   { background-position: -200% 0; }
+  100% { background-position:  200% 0; }
+}
+
+.skeleton-card {
+  background: linear-gradient(90deg, #1a1a1a 25%, #2a2a2a 50%, #1a1a1a 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: 12px;
+  height: 320px;
+  overflow: hidden;
+  position: relative;
+  transition: opacity 0.35s ease, transform 0.35s ease;
+}
+
+.skeleton-card.fade-out {
+  opacity: 0;
+  transform: translateY(12px);
+}
+
+.skeleton-img {
+  height: 180px;
+  border-radius: 10px;
+  background: #222;
+  margin: 16px;
+}
+
+.skeleton-line {
+  height: 14px;
+  border-radius: 6px;
+  background: #2a2a2a;
+  margin: 8px 16px;
+}
+
+.skeleton-line.short {
+  width: 50%;
+}
+
+.skeleton-btn {
+  height: 36px;
+  border-radius: 8px;
+  background: #2a2a2a;
+  margin: 12px 16px 20px;
+}
+
+/* ✅ PHASE 5 — RECOMMENDATIONS */
+#recommendations-section {
+  margin-bottom: 2.5rem;
+}
+
+#recommendations-section .section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.5rem;
+}
+
+#recommendations-section .section-header h2 {
+  color: #f4c94d;
+  font-weight: 800;
+  font-size: 1.95rem;
+}
+
+#recommendations-section .recommendation-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 1.5rem;
+}
+
+.recommendation-card {
+  box-shadow: 0 0 14px rgba(234,179,8,0.45);
+  border-radius: 2rem;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.recommendation-card .card-badge {
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  background: rgba(234,179,8,0.12);
+  color: #2d1f05;
+  font-weight: 700;
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  backdrop-filter: blur(8px);
+}
+
+.recommendation-card .recommendation-media {
+  position: relative;
+  min-height: 170px;
+  overflow: hidden;
+}
+
+.recommendation-card img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.recommendation-card .recommendation-body {
+  padding: 1.25rem;
+  background: var(--card-bg, #ffffff);
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  flex: 1;
+}
+
+.recommendation-card .recommendation-title {
+  font-weight: 800;
+  line-height: 1.2;
+}
+
+.recommendation-card .recommendation-footer {
+  margin-top: auto;
+}
+
+/* ✅ PHASE 6 — MICRO INTERACTIONS */
+button,
+input,
+select,
+textarea,
+.menu-card,
+.recommendation-card,
+.service-card,
+.lw-avatar-btn,
+.nav-links a {
+  transition: all 0.2s ease;
+}
+
+button:hover,
+.service-card:hover,
+.lw-avatar-btn:hover {
+  transform: scale(1.03);
+}
+
+.menu-card,
+.recommendation-card {
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.menu-card:hover,
+.recommendation-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 28px rgba(0,0,0,0.4);
+}
+
+.float-action-btn:hover {
+  box-shadow: 0 0 18px rgba(234,179,8,0.6);
+}
+
+.nav-links a {
+  position: relative;
+  color: inherit;
+}
+
+.nav-links a::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: -2px;
+  width: 0;
+  height: 2px;
+  background: #f4c94d;
+  transition: width 0.2s ease;
+}
+
+.nav-links a:hover::after {
+  width: 100%;
+}
+
+/* ✅ PHASE 7 — PAGE TRANSITIONS */
+.page-section {
+  opacity: 0;
+  transform: translateY(12px);
+  transition: opacity 0.4s ease, transform 0.4s ease;
+}
+
+.page-section.active {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+@media (max-width: 992px) {
+  #recommendations-section .recommendation-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 640px) {
+  #recommendations-section .recommendation-grid {
+    grid-template-columns: 1fr;
+  }
+}

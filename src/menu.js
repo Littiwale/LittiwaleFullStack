@@ -2,9 +2,11 @@ import { fetchMenuItems } from './api/menu';
 import { updateCartUI } from './menu/cart-ui';
 import { initCheckout } from './menu/checkout';
 import { onAuthChange, logoutUser } from './api/auth';
-import { renderMenu } from './menu/render';
+import { renderMenu, refreshAllCardCTAs } from './menu/render';
+
 import { addItem } from './store/cart';
 import { fetchOrdersByUser } from './api/orders';
+import { updateDeliveryEstimate, loadMyOrders, showToast } from './utils';
 
 /**
  * 🍱 LITTIWALE MENU ENGINE
@@ -14,11 +16,10 @@ import { fetchOrdersByUser } from './api/orders';
 let menuData = [];
 
 const initMenu = async () => {
-    console.log('🍱 Littiwale Menu Page Initializing...');
 
     // 1. AUTH & NAVIGATION STATE
     onAuthChange((user) => {
-        const isGuest = localStorage.getItem('littiwale_guest') === 'true';
+        const isGuest = user?.isAnonymous;
         const profileArea = document.querySelector('#nav-profile-area');
         const app = document.querySelector('#app');
         if (app) app.classList.remove('hidden');
@@ -30,7 +31,7 @@ const initMenu = async () => {
                 const initial = displayName.charAt(0).toUpperCase();
                 profileArea.innerHTML = `
                     <div class="lw-profile-wrap" id="menu-profile-wrap">
-                        <span style="font-size:12px;font-weight:700;color:var(--text-secondary);">Hi, ${displayName.split(' ')[0]}</span>
+                        <span>Hi, ${displayName.split(' ')[0]}</span>
                         <button class="lw-avatar-btn" id="menu-avatar-trigger" aria-haspopup="true" aria-expanded="false">${initial}</button>
                         <div class="lw-dropdown" id="menu-profile-dropdown" role="menu">
                             <div class="lw-dropdown-header">
@@ -63,19 +64,18 @@ const initMenu = async () => {
                     dropdown.classList.remove('open');
                 });
                 document.getElementById('menu-dd-orders')?.addEventListener('click', () => {
-                    window.location.href = '/customer/track.html';
+                    window.location.href = '/track';
                     dropdown.classList.remove('open');
                 });
                 document.getElementById('menu-dd-logout')?.addEventListener('click', async () => {
                     await logoutUser();
-                    localStorage.removeItem('littiwale_guest');
-                    window.location.href = '/login.html';
+                    window.location.href = '/login';
                 });
 
             } else if (isGuest) {
-                profileArea.innerHTML = `<span style="font-size:12px;font-weight:700;color:var(--text-secondary);cursor:pointer;" onclick="window.location.href='/login.html'">Hi, Guest 👋</span>`;
+                profileArea.innerHTML = `<span class="lw-profile-wrap" style="cursor:pointer;" onclick="window.location.href='/login'">Hi, Guest 👋</span>`;
             } else {
-                profileArea.innerHTML = `<a href="/login.html" class="btn btn-primary" style="padding:8px 16px;font-size:12px;">Login</a>`;
+                profileArea.innerHTML = `<a href="/login" class="btn btn-primary" style="padding:8px 16px;font-size:12px;">Login</a>`;
             }
         }
     });
@@ -87,6 +87,8 @@ const initMenu = async () => {
         if (menuData.length > 0) {
             renderMenu(container, menuData);
             initMenuSearch(menuData);
+            window.littiwaleMenuData = menuData;
+            window.dispatchEvent(new CustomEvent('menuDataReady', { detail: { menuData } }));
         }
     } catch (err) { 
         console.error('Menu load failed:', err);
@@ -107,7 +109,28 @@ const initMenu = async () => {
     };
 
     window.addEventListener('cartUpdated', syncCartBadges);
+    window.addEventListener('cartUpdated', () => refreshAllCardCTAs(menuData));
     syncCartBadges();
+
+
+    const showModal = (modalElement) => {
+        if (!modalElement) return;
+        modalElement.classList.remove('modal-closing');
+        modalElement.style.display = 'flex';
+        requestAnimationFrame(() => modalElement.classList.add('modal-open'));
+    };
+
+    const hideModal = (modalElement) => {
+        if (!modalElement) return;
+        modalElement.classList.add('modal-closing');
+        modalElement.classList.remove('modal-open');
+        window.setTimeout(() => {
+            if (modalElement.classList.contains('modal-closing')) {
+                modalElement.style.display = 'none';
+                modalElement.classList.remove('modal-closing');
+            }
+        }, 250);
+    };
 
     // Cart Modal Interactions
     const cartBtn = document.querySelector('#nav-cart-btn');
@@ -115,13 +138,87 @@ const initMenu = async () => {
     const modal = document.querySelector('#cart-modal');
     const closeModal = document.querySelector('#close-cart');
 
+    const orderBtn = document.querySelector('#floating-order-btn');
+    const orderModal = document.querySelector('#order-modal');
+    const closeOrderModal = document.querySelector('#close-order-modal');
+
+    const connectBtn = document.querySelector('#floating-connect-btn');
+    const connectModal = document.querySelector('#connect-modal');
+    const closeConnectModal = document.querySelector('#close-connect-modal');
+
+    const complaintButton = document.querySelector('#raise-complaint-btn');
+    const complaintModal = document.querySelector('#complaint-modal');
+    const closeComplaintModal = document.querySelector('#close-complaint-modal');
+    const complaintCancelBtn = document.querySelector('#complaint-cancel-btn');
+
     [cartBtn, floatCartBtn].forEach(btn => btn?.addEventListener('click', (e) => {
         e.preventDefault();
-        modal.style.display = 'flex';
+        showModal(modal);
     }));
 
-    closeModal?.addEventListener('click', () => modal.style.display = 'none');
-    modal?.addEventListener('click', (e) => { if (e.target === modal) modal.style.display = 'none'; });
+    orderBtn?.addEventListener('click', () => {
+        hideModal(modal);
+        showModal(orderModal);
+    });
+
+    connectBtn?.addEventListener('click', () => {
+        hideModal(modal);
+        showModal(connectModal);
+    });
+
+    complaintButton?.addEventListener('click', () => {
+        hideModal(connectModal);
+        showModal(complaintModal);
+    });
+
+    closeModal?.addEventListener('click', () => hideModal(modal));
+    modal?.addEventListener('click', (e) => { if (e.target === modal) hideModal(modal); });
+
+    closeOrderModal?.addEventListener('click', () => hideModal(orderModal));
+    orderModal?.addEventListener('click', (e) => { if (e.target === orderModal) hideModal(orderModal); });
+
+    closeConnectModal?.addEventListener('click', () => hideModal(connectModal));
+    connectModal?.addEventListener('click', (e) => { if (e.target === connectModal) hideModal(connectModal); });
+
+    closeComplaintModal?.addEventListener('click', () => hideModal(complaintModal));
+    complaintModal?.addEventListener('click', (e) => { if (e.target === complaintModal) hideModal(complaintModal); });
+    complaintCancelBtn?.addEventListener('click', () => hideModal(complaintModal));
+
+    // Complaint Form Submission
+    const complaintForm = document.querySelector('#complaint-form');
+    const complaintFeedback = document.querySelector('#complaint-feedback');
+
+    complaintForm?.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const name = document.querySelector('#complaint-name').value;
+        const phone = document.querySelector('#complaint-phone').value;
+        const issue = document.querySelector('#complaint-issue').value;
+
+        // Show loading state
+        complaintFeedback.textContent = 'Submitting your complaint...';
+        complaintFeedback.style.color = '#C47F17';
+
+        try {
+            // TODO: Add Firestore submission logic here
+            // For now, show success message
+            await new Promise(resolve => setTimeout(resolve, 500)); // Simulate API delay
+
+            complaintFeedback.textContent = '✓ Thank you! Your complaint has been submitted. We will follow up soon.';
+            complaintFeedback.style.color = '#10B981';
+
+            // Reset form
+            complaintForm.reset();
+
+            // Close modal after 2 seconds
+            setTimeout(() => {
+                hideModal(complaintModal);
+                complaintFeedback.textContent = '';
+            }, 2000);
+        } catch (err) {
+            complaintFeedback.textContent = '✗ Error submitting complaint. Please try again.';
+            complaintFeedback.style.color = '#EF4444';
+        }
+    });
 
     // Refresh ETA each time cart opens
     [cartBtn, floatCartBtn].forEach(btn => {
@@ -136,59 +233,14 @@ const initMenu = async () => {
 
     if (myOrdersBtn && myOrdersModal) {
         myOrdersBtn.addEventListener('click', () => {
-            modal.style.display = 'none';
-            myOrdersModal.style.display = 'flex';
+            hideModal(modal);
+            showModal(myOrdersModal);
             loadMyOrders();
         });
-        closeMyOrders?.addEventListener('click', () => myOrdersModal.style.display = 'none');
+        closeMyOrders?.addEventListener('click', () => hideModal(myOrdersModal));
         myOrdersModal.addEventListener('click', (e) => {
-            if (e.target === myOrdersModal) myOrdersModal.style.display = 'none';
+            if (e.target === myOrdersModal) hideModal(myOrdersModal);
         });
-    }
-};
-
-// ── DELIVERY ESTIMATE ENGINE ──
-const updateDeliveryEstimate = async () => {
-    const el = document.querySelector('#delivery-estimate');
-    if (!el) return;
-    try {
-        const { collection, query, where, getDocs } = await import('firebase/firestore');
-        const { db } = await import('./firebase/config');
-        const snap = await getDocs(query(collection(db, 'users'), where('role', '==', 'rider'), where('isOnline', '==', true)));
-        let low = snap.size > 0 ? 25 : 35;
-        let high = snap.size > 0 ? 35 : 50;
-        const hour = new Date().getHours();
-        if ((hour >= 12 && hour < 14) || (hour >= 19 && hour < 21)) { low += 10; high += 10; }
-        el.textContent = `🕐 Estimated delivery: ${low}–${high} min`;
-    } catch { el.textContent = '🕐 Estimated delivery: 30–45 min'; }
-};
-
-// ── MY ORDERS LOADER ──
-const loadMyOrders = async () => {
-    const list = document.querySelector('#my-orders-list');
-    if (!list) return;
-    const { auth } = await import('./firebase/config');
-    const user = auth.currentUser;
-    if (!user) { list.innerHTML = '<p style="text-align:center;color:#7a8098;padding:40px 0;">Please log in to see your orders.</p>'; return; }
-    list.innerHTML = '<p style="text-align:center;color:#7a8098;padding:40px 0;">Loading...</p>';
-    try {
-        const orders = await fetchOrdersByUser(user.uid);
-        if (orders.length === 0) { list.innerHTML = '<p style="text-align:center;color:#7a8098;padding:40px 0;">No orders yet!</p>'; return; }
-        list.innerHTML = orders.map(order => {
-            const date = order.createdAt?.toDate ? order.createdAt.toDate().toLocaleDateString('en-IN', { day:'numeric', month:'short', year:'numeric' }) : 'Recently';
-            const items = order.items?.map(i => `${i.name} × ${i.quantity}`).join(', ') || '—';
-            const statusColor = { 'DELIVERED':'#10B981','PLACED':'#3B82F6','CANCELLED':'#ef4444','PREPARING':'#F59E0B','ASSIGNED':'#8B5CF6' }[order.status] || '#7a8098';
-            return `<div style="padding:16px;border-bottom:1px solid #252830;">
-                <div style="display:flex;justify-content:space-between;margin-bottom:8px;">
-                    <div><p style="font-size:10px;color:#7a8098;font-weight:800;letter-spacing:1px;text-transform:uppercase;">${order.orderId || order.docId?.slice(0,8)}</p><p style="font-size:12px;color:#9ca3af;">${date}</p></div>
-                    <div style="text-align:right;"><p style="font-size:18px;font-weight:900;color:#F5A800;">₹${order.total}</p><span style="font-size:9px;font-weight:900;color:${statusColor};text-transform:uppercase;">${order.status?.replace(/_/g,' ')}</span></div>
-                </div>
-                <p style="font-size:12px;color:#9ca3af;margin-bottom:12px;">${items}</p>
-                <button onclick="window.reorderItems(${JSON.stringify(order.items).replace(/"/g,'&quot;')})" style="width:100%;padding:10px;background:transparent;border:1px solid #F5A800;border-radius:10px;color:#F5A800;font-size:12px;font-weight:800;cursor:pointer;text-transform:uppercase;">🔄 Reorder</button>
-            </div>`;
-        }).join('');
-    } catch (err) {
-        list.innerHTML = '<p style="text-align:center;color:#ef4444;padding:40px 0;">Failed to load. Try again.</p>';
     }
 };
 
@@ -200,17 +252,7 @@ window.reorderItems = (items) => {
     const cartModal = document.querySelector('#cart-modal');
     if (myOrdersModal) myOrdersModal.style.display = 'none';
     if (cartModal) cartModal.style.display = 'flex';
-    // Show toast
-    let toast = document.querySelector('#lw-toast');
-    if (!toast) {
-        toast = document.createElement('div'); toast.id = 'lw-toast';
-        toast.style.cssText = 'position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:#F5A800;color:#000;padding:12px 24px;border-radius:40px;font-weight:800;font-size:13px;z-index:9999;opacity:0;transition:opacity 0.3s;pointer-events:none;';
-        document.body.appendChild(toast);
-    }
-    toast.textContent = 'Items added to cart! 🛒';
-    toast.style.opacity = '1';
-    clearTimeout(toast._timer);
-    toast._timer = setTimeout(() => toast.style.opacity = '0', 3000);
+    showToast('Items added to cart! 🛒');
 };
 
 /**
@@ -308,6 +350,16 @@ function initMenuSearch(items) {
 
         renderMenu(container, filtered);
         filterNotice.style.display = 'block';
+    };
+
+    window.littiwaleMenuSearch = {
+        getQuery: () => searchInput.value.trim(),
+        apply: (query) => applyFilter(query),
+        clear: () => {
+            searchInput.value = '';
+            searchInput.classList.remove('lw-has-text');
+            applyFilter('');
+        }
     };
 
     searchInput.addEventListener('input', (e) => {

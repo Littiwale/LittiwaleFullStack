@@ -9,24 +9,12 @@
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&family=Playfair+Display:wght@700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/src/style.css">
-    <script>
-        (function() {
-            const role = localStorage.getItem('littiwale_role');
-            // Not logged in at all — send to login
-            if (!role) { window.location.href = '/login.html'; return; }
-            // Admin — ALLOW
-            if (role === 'admin' || role === 'manager') return;
-            // Rider — redirect to rider panel
-            if (role === 'rider') { window.location.href = '/rider/index.html'; return; }
-            // Customer or unknown — redirect to storefront
-            window.location.href = '/customer/index.html';
-        })();
-    </script>
+    <link rel="stylesheet" href="/src/panel-tokens.css">
 </head>
 <body class="admin-body">
-    <div id="app" class="admin-wrapper">
+    <div id="app" class="admin-wrapper admin-app">
         <!-- 1. SIDEBAR -->
         <aside class="admin-sidebar">
             <div class="sidebar-top">
@@ -35,32 +23,40 @@
                     <span>LITTIWALE</span>
                 </div>
                 <nav class="sidebar-nav">
-                    <button class="nav-item active" data-view="dashboard">
+                    <button type="button" class="nav-item active" data-view="dashboard">
                         <span class="nav-icon">🏠</span>
                         <span class="nav-text">Dashboard</span>
                     </button>
-                    <button class="nav-item" data-view="orders">
+                    <button type="button" class="nav-item" data-view="orders">
                         <span class="nav-icon">📦</span>
                         <span class="nav-text">Orders</span>
                         <span id="order-badge" class="nav-badge hidden">0</span>
                     </button>
-                    <button class="nav-item" data-view="customers">
+                    <button type="button" class="nav-item" data-view="tickets">
+                        <span class="nav-icon">🎫</span>
+                        <span class="nav-text">Tickets</span>
+                    </button>
+                    <button type="button" class="nav-item" data-view="customers">
                         <span class="nav-icon">👥</span>
                         <span class="nav-text">Customers</span>
                     </button>
-                    <button class="nav-item" data-view="analytics">
+                    <button type="button" class="nav-item" data-view="menu">
+                        <span class="nav-icon">🍽️</span>
+                        <span class="nav-text">Menu</span>
+                    </button>
+                    <button type="button" class="nav-item" data-view="analytics">
                         <span class="nav-icon">📊</span>
                         <span class="nav-text">Analytics</span>
                     </button>
-                    <button class="nav-item" data-view="riders">
+                    <button type="button" class="nav-item" data-view="riders">
                         <span class="nav-icon">🛵</span>
                         <span class="nav-text">Riders</span>
                     </button>
-                    <button class="nav-item" data-view="coupons">
+                    <button type="button" class="nav-item" data-view="coupons">
                         <span class="nav-icon">🎟️</span>
                         <span class="nav-text">Coupons</span>
                     </button>
-                    <button class="nav-item" data-view="announcements">
+                    <button type="button" class="nav-item" data-view="announcements">
                         <span class="nav-icon">📢</span>
                         <span class="nav-text">Announcements</span>
                     </button>
@@ -87,6 +83,7 @@
             <header class="admin-header">
                 <h2 id="page-title" class="text-xl font-black uppercase tracking-widest text-accent">Dashboard</h2>
                 <div class="header-right">
+                    <button id="theme-toggle" type="button" data-theme-toggle class="theme-toggle-btn" aria-label="Toggle dark mode">🌙</button>
                     <div id="new-order-toast" class="hidden absolute top-20 right-8 bg-accent text-black px-6 py-3 rounded-2xl font-black shadow-2xl flex items-center gap-3 animate-slide-in">
                         <span>🚀</span> NEW ORDER RECEIVED!
                     </div>
@@ -102,10 +99,10 @@
                                 <p id="admin-dd-name">Admin</p>
                                 <span id="admin-dd-email">Loading…</span>
                             </div>
-                            <button class="lw-dropdown-item" id="admin-dd-storefront">🛒 Go to Storefront</button>
-                            <button class="lw-dropdown-item" id="admin-dd-rider">🛵 Go to Rider Panel</button>
+                            <button type="button" class="lw-dropdown-item" id="admin-dd-storefront">🛒 Go to Storefront</button>
+                            <button type="button" class="lw-dropdown-item" id="admin-dd-rider">🛵 Go to Rider Panel</button>
                             <div class="lw-dropdown-divider"></div>
-                            <button class="lw-dropdown-item danger" id="admin-dd-logout">🚪 Logout</button>
+                            <button type="button" class="lw-dropdown-item danger" id="admin-dd-logout">🚪 Logout</button>
                         </div>
                     </div>
                 </div>
@@ -171,6 +168,236 @@
                     </div>
                 </section>
 
+                <!-- VIEW: TICKETS -->
+                <section id="view-tickets" class="content-view">
+                    <div class="admin-card p-8 mb-6">
+                        <div class="admin-toolbar">
+                            <div>
+                                <h3 class="font-bold text-3xl mb-2">Tickets</h3>
+                                <p class="text-gray-400">Review customer complaints and mark issues as resolved.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="tickets-list-container" class="admin-card overflow-hidden mb-8 p-6">
+                        <p class="text-gray-500">Loading tickets...</p>
+                    </div>
+                </section>
+
+                <!-- VIEW: MENU MANAGEMENT -->
+                <section id="view-menu" class="content-view">
+                    <div class="admin-card p-8 mb-6">
+                        <div class="admin-toolbar">
+                            <div>
+                                <h3 class="font-bold text-3xl mb-2">Menu</h3>
+                                <p class="text-gray-400">Manage all menu items in a structured table. Add or edit items using the separate item form.</p>
+                            </div>
+                            <div class="toolbar-actions">
+                                <button id="show-menu-list-btn" type="button" class="btn btn-outline active">Menu</button>
+                                <button id="show-menu-add-btn" type="button" class="btn btn-primary">Add New Item</button>
+                            </div>
+                        </div>
+                        <div class="admin-toolbar admin-toolbar--secondary">
+                            <div class="input-group">
+                                <input id="menu-search" type="search" placeholder="Search menu items..." class="admin-search-input" />
+                            </div>
+                            <div class="toolbar-filters">
+                                <label class="text-xs uppercase tracking-widest text-gray-500 mb-2 block">Category</label>
+                                <select id="menu-category-filter" class="admin-select">
+                                    <option value="all">All Categories</option>
+                                </select>
+                            </div>
+                            <div class="toolbar-meta text-sm text-gray-400">
+                                Showing <strong id="menu-items-count">0</strong> items
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="menu-list-card" class="admin-card overflow-hidden mb-8">
+                        <div id="menu-list-container" class="overflow-x-auto p-6">
+                            <p class="text-gray-500">Loading menu items...</p>
+                        </div>
+                    </div>
+
+                    <div id="menu-form-panel" class="admin-card overflow-hidden p-6 hidden">
+                        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+                            <div>
+                                <h3 id="menu-form-title" class="font-bold text-2xl">Create New Item</h3>
+                                <p class="text-gray-400 text-sm">Use this form to add or update menu items in the catalog.</p>
+                            </div>
+                            <button id="close-menu-form-btn" type="button" class="btn btn-outline">Back to Menu</button>
+                        </div>
+                        <form id="menu-form" class="space-y-4">
+                            <input type="hidden" id="menu-item-id">
+                            <input type="hidden" id="menu-item-storage-path">
+                            <div>
+                                <label class="block text-xs uppercase tracking-widest text-gray-500 mb-2">Name</label>
+                                <input id="menu-name" type="text" placeholder="Item name" class="w-full rounded-xl border border-gray-700 bg-black/50 px-4 py-3 text-sm outline-none">
+                            </div>
+                            <div>
+                                <label class="block text-xs uppercase tracking-widest text-gray-500 mb-2">Description</label>
+                                <textarea id="menu-description" rows="3" placeholder="Short description" class="w-full rounded-xl border border-gray-700 bg-black/50 px-4 py-3 text-sm outline-none"></textarea>
+                            </div>
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-xs uppercase tracking-widest text-gray-500 mb-2">Category</label>
+                                    <input id="menu-category" type="text" placeholder="e.g. Starters" class="w-full rounded-xl border border-gray-700 bg-black/50 px-4 py-3 text-sm outline-none">
+                                </div>
+                                <div>
+                                    <label class="block text-xs uppercase tracking-widest text-gray-500 mb-2">Price</label>
+                                    <input id="menu-price" type="number" min="0" placeholder="₹" class="w-full rounded-xl border border-gray-700 bg-black/50 px-4 py-3 text-sm outline-none">
+                                </div>
+                            </div>
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-xs uppercase tracking-widest text-gray-500 mb-2">Veg / Non-Veg</label>
+                                    <select id="menu-veg" class="w-full rounded-xl border border-gray-700 bg-black/50 px-4 py-3 text-sm outline-none">
+                                        <option value="true">Veg</option>
+                                        <option value="false">Non-Veg</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-xs uppercase tracking-widest text-gray-500 mb-2">Stock Quantity</label>
+                                    <input id="menu-stock" type="number" min="0" placeholder="0" class="w-full rounded-xl border border-gray-700 bg-black/50 px-4 py-3 text-sm outline-none">
+                                </div>
+                            </div>
+                            <div class="grid grid-cols-2 gap-4 items-end">
+                                <div>
+                                    <label class="block text-xs uppercase tracking-widest text-gray-500 mb-2">Availability</label>
+                                    <select id="menu-available" class="w-full rounded-xl border border-gray-700 bg-black/50 px-4 py-3 text-sm outline-none">
+                                        <option value="true">Visible to customers</option>
+                                        <option value="false">Hidden</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-xs uppercase tracking-widest text-gray-500 mb-2">Item Image</label>
+                                    <input id="menu-image" type="file" accept="image/*" class="w-full rounded-xl border border-gray-700 bg-black/50 px-4 py-3 text-sm text-gray-300 outline-none">
+                                </div>
+                            </div>
+                            <div id="menu-image-preview" class="rounded-3xl overflow-hidden bg-black/30 border border-gray-700 h-44 hidden">
+                                <img src="" alt="Preview" class="w-full h-full object-cover">
+                            </div>
+                            <div>
+                                <div class="flex items-center justify-between mb-3">
+                                    <div>
+                                        <label class="block text-xs uppercase tracking-widest text-gray-500">Variants</label>
+                                        <p class="text-[11px] text-gray-500">Add half/full prices or multiple options.</p>
+                                    </div>
+                                    <button id="add-variant-btn" type="button" class="px-4 py-2 rounded-xl bg-accent text-black text-xs font-black uppercase tracking-widest">Add Variant</button>
+                                </div>
+                                <div id="menu-variants-list" class="space-y-3"></div>
+                            </div>
+                            <div class="flex flex-col sm:flex-row gap-3">
+                                <button id="save-menu-item-btn" type="submit" class="btn btn-primary w-full py-4 rounded-2xl font-black uppercase tracking-widest">Create Item</button>
+                                <button id="reset-menu-form-btn" type="button" class="btn btn-secondary w-full py-4 rounded-2xl font-black uppercase tracking-widest">Reset</button>
+                            </div>
+                            <p id="menu-form-message" class="text-sm font-semibold"></p>
+                        </form>
+                    </div>
+                </section>
+
+                <!-- VIEW: ANALYTICS -->
+                <section id="view-analytics" class="content-view">
+                    <div class="analytics-header">
+                        <h3 class="font-bold text-3xl mb-4">Analytics</h3>
+                        <p class="text-gray-400">Detailed revenue and order trends for the last 30 days.</p>
+                    </div>
+
+                    <!-- Analytics Period Selector -->
+                    <div class="admin-toolbar mb-6">
+                        <div class="flex gap-2">
+                            <button id="analytics-period-7" class="btn btn-outline">7 Days</button>
+                            <button id="analytics-period-30" class="btn btn-primary active">30 Days</button>
+                            <button id="analytics-period-90" class="btn btn-outline">90 Days</button>
+                        </div>
+                    </div>
+
+                    <!-- KPI Cards -->
+                    <div class="kpi-grid mb-8">
+                        <div class="kpi-card">
+                            <p class="kpi-label">Revenue Saved by Coupons</p>
+                            <h3 id="coupon-revenue-saved" class="kpi-value text-red-400">₹0</h3>
+                            <p class="kpi-trend">Last 30 days</p>
+                        </div>
+                        <div class="kpi-card">
+                            <p class="kpi-label">Coupon Usage</p>
+                            <h3 id="coupon-usage-count" class="kpi-value text-blue-400">0</h3>
+                            <p class="kpi-trend">Total redemptions</p>
+                        </div>
+                        <div class="kpi-card">
+                            <p class="kpi-label">Conversion Rate</p>
+                            <h3 id="coupon-conversion-rate" class="kpi-value text-green-400">0%</h3>
+                            <p class="kpi-trend">Valid attempts</p>
+                        </div>
+                        <div class="kpi-card">
+                            <p class="kpi-label">Fake Attempts</p>
+                            <h3 id="coupon-fake-attempts" class="kpi-value text-orange-400">0</h3>
+                            <p class="kpi-trend">Suspicious activity</p>
+                        </div>
+                    </div>
+
+                    <div class="charts-row">
+                        <div class="chart-container">
+                            <div class="chart-header">
+                                <h4>Revenue Trend</h4>
+                                <span class="chart-period">Last 30 Days</span>
+                            </div>
+                            <div id="analytics-revenue-chart" class="chart-body"></div>
+                        </div>
+                        <div class="chart-container">
+                            <div class="chart-header">
+                                <h4>Coupon Usage Trend</h4>
+                                <span class="chart-period">Last 30 Days</span>
+                            </div>
+                            <div id="coupon-usage-chart" class="chart-body"></div>
+                        </div>
+                    </div>
+
+                    <div class="insights-row mt-8">
+                        <div class="insight-card">
+                            <h4>🏆 Top Selling Items</h4>
+                            <div id="analytics-top-items-list" class="insight-list"></div>
+                        </div>
+                        <div class="insight-card">
+                            <h4>🎟️ Most Used Coupons</h4>
+                            <div id="analytics-top-coupons-list" class="insight-list"></div>
+                        </div>
+                    </div>
+
+                    <!-- Coupon Analytics Details -->
+                    <div class="admin-card mt-8 p-6">
+                        <h4 class="font-bold text-xl mb-4">🎟️ Coupon Performance Details</h4>
+
+                        <!-- Coupon Performance Table -->
+                        <div class="overflow-x-auto">
+                            <table class="admin-table w-full text-left text-sm">
+                                <thead>
+                                    <tr>
+                                        <th>Coupon Code</th>
+                                        <th>Type</th>
+                                        <th>Usage Count</th>
+                                        <th>Revenue Saved</th>
+                                        <th>Avg Discount</th>
+                                        <th>Conversion Rate</th>
+                                        <th>Fake Attempts</th>
+                                        <th>Last Used</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="coupon-analytics-table-body" class="divide-y divide-gray-800/50">
+                                    <tr>
+                                        <td colspan="8" class="text-center py-8 text-gray-500">Loading coupon analytics...</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <!-- Fraud Detection Alert -->
+                        <div id="fraud-alert" class="mt-6 p-4 bg-red-900/20 border border-red-500/30 rounded-lg hidden">
+                            <h5 class="font-bold text-red-400 mb-2">🚨 Fraud Detection Alert</h5>
+                            <div id="fraud-alert-content" class="text-sm text-red-300"></div>
+                        </div>
+                    </div>
+                </section>
+
                 <!-- VIEW: ORDERS -->
                 <section id="view-orders" class="content-view">
                     <div class="orders-filter-tabs">
@@ -189,18 +416,23 @@
                 <!-- VIEW: CUSTOMERS -->
                 <section id="view-customers" class="content-view">
                     <div class="admin-card overflow-hidden">
-                        <div class="p-6 bg-black/20 flex justify-between items-center">
-                            <h3 class="font-bold">Customer Directory</h3>
-                            <input type="text" id="customer-search" placeholder="Search by name or phone..." class="bg-gray-800 border-none rounded-lg px-4 py-2 text-sm w-64 outline-none focus:ring-1 focus:ring-accent">
+                        <div class="admin-toolbar admin-toolbar--secondary p-6">
+                            <div>
+                                <h3 class="font-bold">Customer Directory</h3>
+                                <p class="text-gray-400 text-sm">Search and manage customer accounts from one central table.</p>
+                            </div>
+                            <div class="input-group w-full max-w-sm">
+                                <input type="text" id="customer-search" placeholder="Search by name or phone..." class="admin-search-input w-full" />
+                            </div>
                         </div>
-                        <div class="overflow-x-auto">
-                            <table class="w-full text-left text-sm">
-                                <thead class="bg-black/40 text-gray-500 uppercase text-[10px] font-black">
+                        <div class="overflow-x-auto p-6">
+                            <table class="admin-table w-full text-left text-sm">
+                                <thead>
                                     <tr>
-                                        <th class="p-4">Customer</th>
-                                        <th class="p-4">Phone</th>
-                                        <th class="p-4">Role</th>
-                                        <th class="p-4">Action</th>
+                                        <th>Customer</th>
+                                        <th>Phone</th>
+                                        <th>Role</th>
+                                        <th>Action</th>
                                     </tr>
                                 </thead>
                                 <tbody id="customers-table-body" class="divide-y divide-gray-800/50">
@@ -218,29 +450,120 @@
                     </div>
                 </section>
 
+                <!-- RIDER CONTACT MODAL -->
+                <div id="rider-contact-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.8);z-index:1000;align-items:center;justify-content:center;padding:16px;">
+                    <div style="background:#0d0f14;border:1px solid #252830;border-radius:16px;width:100%;max-width:500px;max-height:80vh;display:flex;flex-direction:column;color:#fff;">
+                        <div style="padding:20px;border-bottom:1px solid #252830;display:flex;justify-content:space-between;align-items:center;">
+                            <h3 style="font-size:18px;font-weight:800;margin:0;">Contact Rider</h3>
+                            <button onclick="document.getElementById('rider-contact-modal').style.display='none'" style="background:none;border:none;color:#fff;font-size:24px;cursor:pointer;">&times;</button>
+                        </div>
+                        <div style="padding:20px;flex:1;overflow-y:auto;">
+                            <div id="rider-contact-header" style="margin-bottom:16px;padding:12px;background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.3);border-radius:8px;">
+                                <div style="font-weight:700;color:#F5A800;margin-bottom:4px;" id="rider-contact-name">Rider Name</div>
+                                <div style="font-size:12px;color:#9ca3af;" id="rider-contact-phone">Phone</div>
+                            </div>
+                            <div id="rider-contact-messages" style="display:flex;flex-direction:column;gap:8px;margin-bottom:16px;max-height:300px;overflow-y:auto;">
+                                <!-- Messages will be injected here -->
+                            </div>
+                        </div>
+                        <div style="padding:16px;border-top:1px solid #252830;display:flex;gap:8px;">
+                            <input id="rider-contact-input" type="text" placeholder="Type message..." style="flex:1;padding:10px 12px;background:#1a1c23;border:1px solid #252830;border-radius:8px;color:#fff;font-size:13px;outline:none;" />
+                            <button onclick="sendRiderContactMessage()" style="padding:10px 16px;background:#F5A800;color:#000;border:none;border-radius:8px;font-weight:700;font-size:13px;cursor:pointer;">💮 Send</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- RIDER ANALYTICS MODAL -->
+                <div id="rider-analytics-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.8);z-index:1000;align-items:center;justify-content:center;padding:16px;overflow-y:auto;">
+                    <div style="background:#0d0f14;border:1px solid #252830;border-radius:16px;width:100%;max-width:600px;color:#fff;margin:auto;">
+                        <div style="padding:20px;border-bottom:1px solid #252830;display:flex;justify-content:space-between;align-items:center;">
+                            <h3 style="font-size:18px;font-weight:800;margin:0;">Rider Analytics</h3>
+                            <button onclick="document.getElementById('rider-analytics-modal').style.display='none'" style="background:none;border:none;color:#fff;font-size:24px;cursor:pointer;">&times;</button>
+                        </div>
+                        <div style="padding:20px;display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;">
+                            <div style="background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.3);padding:12px;border-radius:8px;text-align:center;">
+                                <div style="font-size:24px;font-weight:900;color:#F5A800;" id="analytics-total-deliveries">0</div>
+                                <div style="font-size:11px;color:#F5A800;font-weight:600;margin-top:4px;text-transform:uppercase;">Total Deliveries</div>
+                            </div>
+                            <div style="background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.3);padding:12px;border-radius:8px;text-align:center;">
+                                <div style="font-size:24px;font-weight:900;color:#10B981;" id="analytics-avg-time">-</div>
+                                <div style="font-size:11px;color:#10B981;font-weight:600;margin-top:4px;text-transform:uppercase;">Avg Delivery Time</div>
+                            </div>
+                            <div style="background:rgba(59,130,246,0.1);border:1px solid rgba(59,130,246,0.3);padding:12px;border-radius:8px;text-align:center;">
+                                <div style="font-size:24px;font-weight:900;color:#3b82f6;" id="analytics-ontime-rate">-</div>
+                                <div style="font-size:11px;color:#3b82f6;font-weight:600;margin-top:4px;text-transform:uppercase;">On-Time Rate</div>
+                            </div>
+                            <div style="background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);padding:12px;border-radius:8px;text-align:center;">
+                                <div style="font-size:24px;font-weight:900;color:#ef4444;" id="analytics-active-orders">0</div>
+                                <div style="font-size:11px;color:#ef4444;font-weight:600;margin-top:4px;text-transform:uppercase;">Active Orders</div>
+                            </div>
+                        </div>
+                        <div style="padding:20px;border-top:1px solid #252830;">
+                            <h4 style="font-size:13px;font-weight:800;color:#fff;margin:0 0 12px 0;text-transform:uppercase;">Recent Deliveries</h4>
+                            <div id="analytics-recent-deliveries" style="display:flex;flex-direction:column;gap:8px;max-height:300px;overflow-y:auto;">
+                                <!-- Recent deliveries will be injected here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- VIEW: COUPONS (Item 6) -->
                 <section id="view-coupons" class="content-view">
                     <div class="admin-card p-8 mb-8">
                         <h3 class="font-bold text-lg mb-6">🎟️ Create New Coupon</h3>
+
+                        <!-- Coupon Type Selector -->
+                        <div style="margin-bottom:16px;">
+                            <label style="font-size:11px;font-weight:800;color:#7a8098;text-transform:uppercase;display:block;margin-bottom:6px;">Coupon Type</label>
+                            <select id="new-coupon-type" style="width:100%;padding:10px 14px;background:#1a1c23;border:1px solid #252830;border-radius:10px;color:#fff;font-size:14px;outline:none;">
+                                <option value="flat">Flat Discount (₹50 OFF)</option>
+                                <option value="percentage">Percentage Discount (15% OFF)</option>
+                                <option value="freebie">Free Item (Free Coke)</option>
+                                <option value="special_price">Special Price (Pizza @ ₹99)</option>
+                                <option value="combo_upgrade">Combo Upgrade (Upgrade drink for ₹29)</option>
+                            </select>
+                        </div>
+
+                        <!-- Common Fields -->
                         <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin-bottom:16px;">
                             <div>
                                 <label style="font-size:11px;font-weight:800;color:#7a8098;text-transform:uppercase;display:block;margin-bottom:6px;">Coupon Code</label>
                                 <input id="new-coupon-code" type="text" placeholder="e.g. SAVE50" style="width:100%;padding:10px 14px;background:#1a1c23;border:1px solid #252830;border-radius:10px;color:#fff;font-size:14px;outline:none;">
                             </div>
-                            <div>
-                                <label style="font-size:11px;font-weight:800;color:#7a8098;text-transform:uppercase;display:block;margin-bottom:6px;">Discount Amount (₹)</label>
-                                <input id="new-coupon-discount" type="number" placeholder="e.g. 50" min="1" style="width:100%;padding:10px 14px;background:#1a1c23;border:1px solid #252830;border-radius:10px;color:#fff;font-size:14px;outline:none;">
-                            </div>
+
                             <div>
                                 <label style="font-size:11px;font-weight:800;color:#7a8098;text-transform:uppercase;display:block;margin-bottom:6px;">Min Order Value (₹)</label>
                                 <input id="new-coupon-min" type="number" placeholder="e.g. 200" min="0" style="width:100%;padding:10px 14px;background:#1a1c23;border:1px solid #252830;border-radius:10px;color:#fff;font-size:14px;outline:none;">
                             </div>
                             <div>
+                                <label style="font-size:11px;font-weight:800;color:#7a8098;text-transform:uppercase;display:block;margin-bottom:6px;">Max Uses (0 = unlimited)</label>
+                                <input id="new-coupon-max-uses" type="number" placeholder="e.g. 1000" min="0" style="width:100%;padding:10px 14px;background:#1a1c23;border:1px solid #252830;border-radius:10px;color:#fff;font-size:14px;outline:none;">
+                            </div>
+                            <div>
                                 <label style="font-size:11px;font-weight:800;color:#7a8098;text-transform:uppercase;display:block;margin-bottom:6px;">Expiry Date</label>
                                 <input id="new-coupon-expiry" type="datetime-local" style="width:100%;padding:10px 14px;background:#1a1c23;border:1px solid #252830;border-radius:10px;color:#fff;font-size:14px;outline:none;">
                             </div>
+                            <div style="display:flex;gap:12px;align-items:center;margin-top:24px;">
+                                <label style="display:flex;align-items:center;gap:8px;font-size:14px;color:#fff;cursor:pointer;">
+                                    <input id="new-coupon-auto-apply" type="checkbox" style="width:16px;height:16px;">
+                                    Auto Apply
+                                </label>
+                                <label style="display:flex;align-items:center;gap:8px;font-size:14px;color:#fff;cursor:pointer;">
+                                    <input id="new-coupon-stackable" type="checkbox" style="width:16px;height:16px;">
+                                    Stackable
+                                </label>
+                            </div>
                         </div>
-                        <button id="create-coupon-btn" style="padding:12px 28px;background:#F5A800;color:#000;border:none;border-radius:10px;font-weight:900;font-size:14px;cursor:pointer;">Create Coupon</button>
+
+                        <!-- Type-Specific Fields Container -->
+                        <div id="coupon-type-fields" style="margin-bottom:16px;">
+                            <!-- Fields will be dynamically added here based on type selection -->
+                        </div>
+
+                        <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:center;">
+                            <button id="create-coupon-btn" style="padding:12px 28px;background:#F5A800;color:#000;border:none;border-radius:10px;font-weight:900;font-size:14px;cursor:pointer;">Create Coupon</button>
+                            <button id="cancel-coupon-edit-btn" type="button" style="padding:12px 28px;background:#374151;color:#fff;border:none;border-radius:10px;font-weight:900;font-size:14px;cursor:pointer;display:none;">Cancel Edit</button>
+                        </div>
                         <p id="coupon-create-msg" style="margin-top:10px;font-size:13px;font-weight:600;"></p>
                     </div>
                     <div class="admin-card p-6">
@@ -292,6 +615,7 @@
     <!-- Notification Sound -->
     <audio id="notif-sound" src="https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3" preload="auto"></audio>
 
+    <script type="module" src="/src/theme.js"></script>
     <script type="module" src="/src/admin.js"></script>
 </body>
 </html>

@@ -1,0 +1,9 @@
+export const RESTAURANT_PHONE = '+916370680744';
+export const RESTAURANT_WHATSAPP = 'https://wa.me/916370680744';
+export const RESTAURANT_ADDRESS = 'Ward no-7, Punjabi Para, Barbil, Odisha 758035';
+export const RESTAURANT_LAT = 22.11542;
+export const RESTAURANT_LNG = 85.38711;
+export const RESTAURANT_HOURS = '11:00 AM – 10:30 PM';
+export const DELIVERY_TIME_DEFAULT = '25–35 min';
+export const DELIVERY_TIME_BUSY = '35–50 min';
+export const RIDER_EARNING_PER_ORDER = 20;

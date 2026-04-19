@@ -1,8 +1,87 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <meta http-equiv="refresh" content="0; url=/login.html">
-  <script>window.location.replace('/login.html');</script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Littiwale – Taste of Desi Swag</title>
+    <link rel="manifest" href="/manifest.json">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&family=Playfair+Display:wght@700;900&display=swap" rel="stylesheet">
+    <meta name="theme-color" content="#0d0d0d">
+    <link rel="icon" type="image/png" href="/images/logo.png">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background: #0d0f14;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            font-family: 'Poppins', sans-serif;
+            gap: 20px;
+        }
+        .lw-logo {
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+            object-fit: cover;
+            opacity: 0.9;
+        }
+        .spinner {
+            width: 36px;
+            height: 36px;
+            border: 3px solid #252830;
+            border-top-color: #F5A800;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        p {
+            color: #F5A800;
+            font-size: 10px;
+            font-weight: 900;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+        }
+    </style>
 </head>
-<body></body>
+<body>
+    <img class="lw-logo" src="/images/logo.png" alt="Littiwale" onerror="this.style.display='none'">
+    <div class="spinner"></div>
+    <p>Loading…</p>
+
+    <script type="module">
+        /**
+         * 🚦 LITTIWALE ENTRY POINT ROUTER
+         *
+         * Principle: Access control should ALLOW or RESTRICT, not FORCE.
+         *
+         * All authenticated users → /customer/index.html (storefront).
+         * Navigation to admin/rider panels is done via the navbar dropdown.
+         * The panel pages enforce their own access guards independently.
+         *
+         * Not logged in → /login.html
+         */
+        import { onAuthChange } from '/src/api/auth.js';
+
+        onAuthChange((user, isLoading) => {
+            if (isLoading) return;
+
+            // Only redirect when the browser is actually rendering the root entry page.
+            // If this HTML is served as a fallback for another path, do not hijack the navigation.
+            if (window.location.pathname !== '/' && window.location.pathname !== '/index.html') return;
+
+            if (!user) {
+                // No session — send to login
+                window.location.replace('/login.html');
+                return;
+            }
+
+            // Authenticated users should land on the storefront from the root entry point.
+            window.location.replace('/customer/index.html');
+        });
+    </script>
+</body>
 </html>

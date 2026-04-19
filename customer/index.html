@@ -12,16 +12,10 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&family=Playfair+Display:wght@700;900&display=swap" rel="stylesheet">
     
     <link rel="stylesheet" href="/src/style.css">
-    <script>
-        (function() {
-            const role = localStorage.getItem('littiwale_role');
-            const isGuest = localStorage.getItem('littiwale_guest') === 'true';
-            // Not logged in and not a guest → send to login
-            if (!role && !isGuest) { window.location.href = '/login.html'; return; }
-            // Everyone with a role (customer, rider, admin) can view storefront — ALLOW
-        })();
-    </script>
+    <link rel="stylesheet" href="/src/customer-menu.css">
+    <link rel="stylesheet" href="/src/panel-tokens.css">
     <link rel="icon" type="image/png" href="/images/logo.png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <!-- PWA -->
     <meta name="theme-color" content="#0d0d0d">
@@ -29,7 +23,7 @@
 </head>
 <body>
 
-    <div id="app" class="hidden">
+    <div id="app" class="hidden customer-app">
         
         <!-- SECTION 1: NAVBAR -->
         <nav class="navbar">
@@ -48,6 +42,7 @@
                 </ul>
 
                 <div class="nav-right">
+                    <button id="theme-toggle" type="button" data-theme-toggle class="theme-toggle-btn" aria-label="Toggle dark mode">🌙</button>
                     <!-- Profile area: injected by JS -->
                     <div id="nav-profile-area"></div>
                     
@@ -80,6 +75,9 @@
                     <a href="./menu.html" class="btn btn-primary">Explore Menu</a>
                     <a href="https://zomato.onelink.me/xqzv/pehoc5j0" target="_blank" class="btn btn-secondary">Order on Zomato</a>
                     <a href="https://wa.me/916370680744" target="_blank" class="btn btn-whatsapp">💬 WhatsApp Order</a>
+                </div>
+                <div style="display:flex;justify-content:center;">
+                    <button id="pwa-install-btn">📱 Install App</button>
                 </div>
             </div>
             <div class="hero-glow"></div>
@@ -132,25 +130,25 @@
                         <span class="catering-icon">🎉</span>
                         <h3>Party Orders</h3>
                         <p>Bulk orders for family events and get-togethers.</p>
-                        <a href="https://wa.me/916370680744?text=Party Order Inquiry" target="_blank" class="btn btn-outline">Book Now</a>
+                        <button type="button" data-service="Party Orders" class="btn btn-outline catering-service-btn">Book Now</button>
                     </div>
                     <div class="catering-card">
                         <span class="catering-icon">🎂</span>
                         <h3>Birthday Orders</h3>
                         <p>Special kids combo and snack platters for birthdays.</p>
-                        <a href="https://wa.me/916370680744?text=Birthday Order Inquiry" target="_blank" class="btn btn-outline">Book Now</a>
+                        <button type="button" data-service="Birthday Orders" class="btn btn-outline catering-service-btn">Book Now</button>
                     </div>
                     <div class="catering-card">
                         <span class="catering-icon">🏢</span>
                         <h3>Office Meals</h3>
                         <p>Daily thali or bulk corporate lunches.</p>
-                        <a href="https://wa.me/916370680744?text=Office Meal Inquiry" target="_blank" class="btn btn-outline">Book Now</a>
+                        <button type="button" data-service="Office Meals" class="btn btn-outline catering-service-btn">Book Now</button>
                     </div>
                     <div class="catering-card">
                         <span class="catering-icon">✨</span>
                         <h3>Custom Menu</h3>
                         <p>Tailored catering requests exactly to your taste.</p>
-                        <a href="https://wa.me/916370680744?text=Custom Menu Inquiry" target="_blank" class="btn btn-outline">Book Now</a>
+                        <button type="button" data-service="Custom Menu" class="btn btn-outline catering-service-btn">Book Now</button>
                     </div>
                 </div>
             </div>
@@ -162,12 +160,24 @@
                 <h2 class="section-title text-center">📸 What People Are Loving at Littiwale Barbil 💗</h2>
                 <div class="divider"></div>
                 <div class="social-strip" id="social-images-strip">
-                    <img src="/images/instagram/reel1.png" alt="Littiwale Love" onerror="this.src='/images/logo.png'">
-                    <img src="/images/instagram/reel2.png" alt="Littiwale Love" onerror="this.src='/images/logo.png'">
-                    <img src="/images/instagram/reel3.png" alt="Littiwale Love" onerror="this.src='/images/logo.png'">
-                    <img src="/images/instagram/reel4.png" alt="Littiwale Love" onerror="this.src='/images/logo.png'">
-                    <img src="/images/instagram/reel5.png" alt="Littiwale Love" onerror="this.src='/images/logo.png'">
-                    <img src="/images/instagram/reel6.png" alt="Littiwale Love" onerror="this.src='/images/logo.png'">
+                    <a href="https://www.instagram.com/reel/DM0OaRuTorz/" target="_blank" rel="noopener noreferrer">
+                        <img src="/images/instagram/reel1.png" alt="Littiwale Reel 1" onerror="this.src='/images/logo.png'">
+                    </a>
+                    <a href="https://www.instagram.com/reel/DVOCmnIk-Yt/" target="_blank" rel="noopener noreferrer">
+                        <img src="/images/instagram/reel2.png" alt="Littiwale Reel 2" onerror="this.src='/images/logo.png'">
+                    </a>
+                    <a href="https://www.instagram.com/reel/DUsneR7E1Vh/" target="_blank" rel="noopener noreferrer">
+                        <img src="/images/instagram/reel3.png" alt="Littiwale Reel 3" onerror="this.src='/images/logo.png'">
+                    </a>
+                    <a href="https://www.instagram.com/reel/DU20uoDE9vY/" target="_blank" rel="noopener noreferrer">
+                        <img src="/images/instagram/reel4.png" alt="Littiwale Reel 4" onerror="this.src='/images/logo.png'">
+                    </a>
+                    <a href="https://www.instagram.com/reel/DUVd2y6k_bG/" target="_blank" rel="noopener noreferrer">
+                        <img src="/images/instagram/reel5.png" alt="Littiwale Reel 5" onerror="this.src='/images/logo.png'">
+                    </a>
+                    <a href="https://www.instagram.com/reel/DTcsHKbE2C7/" target="_blank" rel="noopener noreferrer">
+                        <img src="/images/instagram/reel6.png" alt="Littiwale Reel 6" onerror="this.src='/images/logo.png'">
+                    </a>
                 </div>
             </div>
         </section>
@@ -203,9 +213,18 @@
                     <h3>Connect With Us</h3>
                     <div class="divider"></div>
                     <div class="connect-links">
-                        <a href="https://instagram.com/littiwale" target="_blank" class="connect-link">Instagram</a>
-                        <a href="https://facebook.com/littiwale" target="_blank" class="connect-link">Facebook</a>
-                        <a href="#" target="_blank" class="connect-link">YouTube</a>
+                        <a href="https://www.instagram.com/littiwaleofficial/" target="_blank" rel="noopener noreferrer" class="connect-card instagram">
+                            <i class="fab fa-instagram" aria-hidden="true"></i>
+                            Instagram
+                        </a>
+                        <a href="https://www.facebook.com/share/18fQs5NEQU/" target="_blank" rel="noopener noreferrer" class="connect-card facebook">
+                            <i class="fab fa-facebook-f" aria-hidden="true"></i>
+                            Facebook
+                        </a>
+                        <a href="https://www.youtube.com" target="_blank" rel="noopener noreferrer" class="connect-card youtube">
+                            <i class="fab fa-youtube" aria-hidden="true"></i>
+                            YouTube
+                        </a>
                     </div>
                 </div>
             </div>
@@ -217,38 +236,153 @@
         </footer>
 
         <!-- SECTION 11: FLOATING BUTTONS -->
-        <div class="float-buttons">
-            <a href="./menu.html" class="float-btn float-menu" title="Menu">🍴</a>
-            <a href="#" class="float-btn float-cart" id="float-cart-btn" title="Cart">
-                🛒 <span class="cart-counter-bubble" id="float-cart-count">0</span>
-            </a>
-            <a href="tel:+916370680744" class="float-btn float-call" title="Call">📞</a>
-            <a href="https://wa.me/916370680744" target="_blank" class="float-btn float-wa" title="WhatsApp">💬</a>
+        <div class="float-buttons" aria-label="Floating actions">
+            <button id="floating-order-btn" type="button" class="float-action-btn" title="Order" aria-label="Open order options">
+                <i class="fas fa-utensils"></i>
+            </button>
+            <button id="float-cart-btn" type="button" class="float-action-btn" title="Cart" aria-label="Open cart">
+                <i class="fas fa-shopping-cart"></i>
+                <span class="float-action-badge" id="float-cart-count">0</span>
+            </button>
+            <button id="floating-connect-btn" type="button" class="float-action-btn" title="Connect" aria-label="Open contact options">
+                <i class="fas fa-comment-dots"></i>
+            </button>
         </div>
 
     </div>
 
-    <!-- MODALS -->
-    <div id="cart-modal" class="modal-overlay">
-        <div class="modal-content animate-up">
+    <!-- ORDER MODAL -->
+    <div id="order-modal" class="modal-overlay service-modal" style="display:none;">
+        <div class="service-modal-content animate-up">
             <div class="modal-header">
-                <h3 class="modal-title">Your Cart</h3>
-                <button id="close-cart" class="modal-close-btn">&times;</button>
-            </div>
-            <div id="cart-items" class="cart-list">
-                <!-- Items injected by JS -->
-            </div>
-            <div class="cart-footer">
-                <div class="cart-summary-line">
-                    <span class="cart-summary-label">Subtotal</span>
-                    <span id="cart-total" class="cart-summary-value">₹0</span>
+                <div>
+                    <h3 class="modal-title">Order Online</h3>
+                    <p class="text-sm text-secondary">Choose a delivery partner to place your order.</p>
                 </div>
-                <!-- Delivery Estimate (Item 7) -->
-                <p id="delivery-estimate" style="font-size:12px;color:#F5A800;text-align:center;margin:6px 0 12px;font-weight:600;letter-spacing:0.5px;">🕐 Estimating delivery time...</p>
-                <div style="display:flex;gap:10px;margin-bottom:12px;">
-                    <button id="my-orders-btn" class="btn btn-outline" style="flex:1;font-size:12px;padding:10px;">📦 My Orders</button>
+                <button id="close-order-modal" class="modal-close-btn" aria-label="Close order popup">&times;</button>
+            </div>
+            <div class="service-card-list">
+                <a href="#" onclick="event.preventDefault();" class="service-card">
+                    <span class="platform-logo">Z</span>
+                    <div>
+                        <strong>Zomato</strong>
+                        <p>Order directly through Zomato.</p>
+                    </div>
+                </a>
+                <a href="#" onclick="event.preventDefault();" class="service-card">
+                    <span class="platform-logo">E</span>
+                    <div>
+                        <strong>Ebee</strong>
+                        <p>Order directly through Ebee.</p>
+                    </div>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- CONNECT MODAL -->
+    <div id="connect-modal" class="modal-overlay service-modal" style="display:none;">
+        <div class="service-modal-content animate-up">
+            <div class="modal-header">
+                <div>
+                    <h3 class="modal-title">Connect With Us</h3>
+                    <p class="text-sm text-secondary">Quick contact options for support and orders.</p>
                 </div>
-                <button id="checkout-btn" class="btn btn-primary w-full py-4 text-xl">Checkout Now</button>
+                <button id="close-connect-modal" class="modal-close-btn" aria-label="Close contact popup">&times;</button>
+            </div>
+            <div class="service-card-list">
+                <a href="tel:+916370680744" class="service-card">
+                    <span class="platform-logo">📞</span>
+                    <div>
+                        <strong>Call</strong>
+                        <p>Speak directly to us.</p>
+                    </div>
+                </a>
+                <a href="https://wa.me/916370680744" target="_blank" rel="noopener noreferrer" class="service-card">
+                    <span class="platform-logo">💬</span>
+                    <div>
+                        <strong>WhatsApp</strong>
+                        <p>Chat with our team instantly.</p>
+                    </div>
+                </a>
+                <a href="https://www.instagram.com/littiwaleofficial/" target="_blank" rel="noopener noreferrer" class="service-card">
+                    <span class="platform-logo">📷</span>
+                    <div>
+                        <strong>Instagram</strong>
+                        <p>Follow and message us.</p>
+                    </div>
+                </a>
+                <a href="https://www.facebook.com/share/18fQs5NEQU/" target="_blank" rel="noopener noreferrer" class="service-card">
+                    <span class="platform-logo">📘</span>
+                    <div>
+                        <strong>Facebook</strong>
+                        <p>Visit our Facebook page.</p>
+                    </div>
+                </a>
+                <a href="mailto:spicy88ck@gmail.com" class="service-card">
+                    <span class="platform-logo">📧</span>
+                    <div>
+                        <strong>Email</strong>
+                        <p>Send us a message.</p>
+                    </div>
+                </a>
+                <button id="raise-complaint-btn" type="button" class="service-card">
+                    <span class="platform-logo">🎫</span>
+                    <div>
+                        <strong>Raise Complaint</strong>
+                        <p>Submit a ticket to our support team.</p>
+                    </div>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- COMPLAINT MODAL -->
+    <div id="complaint-modal" class="modal-overlay service-modal" style="display:none;">
+        <div class="service-modal-content animate-up">
+            <div class="modal-header">
+                <div>
+                    <h3 class="modal-title">Submit a Complaint</h3>
+                    <p class="text-sm text-secondary">Tell us what went wrong and we will follow up.</p>
+                </div>
+                <button id="close-complaint-modal" class="modal-close-btn" aria-label="Close complaint popup">&times;</button>
+            </div>
+            <form id="complaint-form" class="complaint-form">
+                <div class="form-group">
+                    <label for="complaint-name">Name</label>
+                    <input id="complaint-name" name="complaint-name" type="text" required placeholder="Your name">
+                </div>
+                <div class="form-group">
+                    <label for="complaint-phone">Phone</label>
+                    <input id="complaint-phone" name="complaint-phone" type="tel" required placeholder="10-digit phone">
+                </div>
+                <div class="form-group">
+                    <label for="complaint-issue">Issue</label>
+                    <textarea id="complaint-issue" name="complaint-issue" rows="4" required placeholder="Describe your complaint"></textarea>
+                </div>
+                <div class="complaint-actions">
+                    <button type="submit" class="btn btn-primary">Send Ticket</button>
+                    <button type="button" id="complaint-cancel-btn" class="btn btn-outline">Cancel</button>
+                </div>
+                <p id="complaint-feedback" class="complaint-feedback"></p>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODALS -->
+    <div id="cart-modal" class="modal-overlay" style="display:none;">
+        <div class="modal-content animate-up bg-[#181818]">
+            <div class="drawer-header">
+                <h3 class="text-xl font-black text-white">Your Cart (<span id="drawer-item-count">0</span>)</h3>
+                <button id="close-cart" class="text-white/70 hover:text-white text-3xl font-light">&times;</button>
+            </div>
+
+            <div id="cart-items" class="drawer-items scrollbar-thin">
+                <!-- Items rendered by cart-ui.js -->
+            </div>
+            <div class="drawer-footer bg-[#1a1c23] border-t border-white/5">
+                <p id="delivery-estimate" class="text-[11px] text-[#C47F17] text-center font-bold mb-3 tracking-wide uppercase">⌚ Estimating delivery time...</p>
+                <div id="drawer-summary-container"></div>
             </div>
         </div>
     </div>
@@ -266,76 +400,115 @@
         </div>
     </div>
 
-    <!-- CHECKOUT MODAL (Item 6 - Coupon + Address) -->
+    <!-- CHECKOUT MODAL (Item 6 - Coupon + Address + Phase 3 form fields) -->
     <div id="checkout-modal" class="modal-overlay" style="display:none;">
-        <div class="modal-content animate-up" style="max-width:480px;">
+        <div class="modal-content animate-up" style="margin:auto;max-width:480px;max-height:90vh;overflow:auto;padding:24px;border-radius:28px;">
             <div class="modal-header">
                 <h3 class="modal-title">Confirm Order</h3>
                 <button id="close-checkout" class="modal-close-btn">&times;</button>
             </div>
-            <form id="checkout-form" style="display:flex;flex-direction:column;gap:14px;">
-                <div>
-                    <label style="font-size:11px;font-weight:800;color:#7a8098;text-transform:uppercase;letter-spacing:1px;display:block;margin-bottom:6px;">Your Name</label>
-                    <input id="cust-name" name="cust-name" type="text" required placeholder="Full Name"
-                        style="width:100%;padding:12px 16px;background:#1a1c23;border:1px solid #252830;border-radius:12px;color:#fff;font-size:14px;outline:none;"
-                        onfocus="this.style.borderColor='#F5A800'" onblur="this.style.borderColor='#252830'">
-                </div>
-                <div>
-                    <label style="font-size:11px;font-weight:800;color:#7a8098;text-transform:uppercase;letter-spacing:1px;display:block;margin-bottom:6px;">Phone Number</label>
-                    <input id="cust-phone" name="cust-phone" type="tel" required placeholder="10-digit number"
-                        style="width:100%;padding:12px 16px;background:#1a1c23;border:1px solid #252830;border-radius:12px;color:#fff;font-size:14px;outline:none;"
-                        onfocus="this.style.borderColor='#F5A800'" onblur="this.style.borderColor='#252830'">
-                </div>
-                <div>
-                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
-                        <label style="font-size:11px;font-weight:800;color:#7a8098;text-transform:uppercase;letter-spacing:1px;display:block;">Delivery Address</label>
-                        <select id="saved-addresses-select" style="display:none;background:#252830;color:#fff;border:none;border-radius:6px;padding:4px 8px;font-size:11px;font-weight:600;outline:none;cursor:pointer;">
-                            <option value="">-- Saved Addresses --</option>
-                        </select>
+
+            <form id="checkout-form" style="display:flex;flex-direction:column;gap:16px;margin-top:18px;">
+                <div style="display:flex;gap:12px;flex-wrap:wrap;">
+                    <div style="flex:1;min-width:200px;">
+                        <label style="display:block;font-size:11px;font-weight:800;color:#9ca3af;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;">Your Name</label>
+                        <input id="cust-name" name="cust-name" type="text" required placeholder="Full Name"
+                            style="width:100%;padding:14px 16px;background:#1f222b;border:1px solid #374151;border-radius:16px;color:#fff;font-size:14px;outline:none;">
                     </div>
-                    <textarea id="cust-address" name="cust-address" required rows="3" placeholder="Full delivery address..."
-                        style="width:100%;padding:12px 16px;background:#1a1c23;border:1px solid #252830;border-radius:12px;color:#fff;font-size:14px;outline:none;resize:none;"
-                        onfocus="this.style.borderColor='#F5A800'" onblur="this.style.borderColor='#252830'"></textarea>
-                    <label style="display:flex;align-items:center;gap:6px;margin-top:6px;cursor:pointer;font-size:12px;color:#7a8098;font-weight:600;">
-                        <input type="checkbox" id="save-address-cb" style="accent-color:#F5A800;"> Save this address for future
-                    </label>
+                    <div style="flex:1;min-width:200px;">
+                        <label style="display:block;font-size:11px;font-weight:800;color:#9ca3af;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;">Phone</label>
+                        <input id="cust-phone" name="cust-phone" type="tel" required placeholder="10-digit #"
+                            style="width:100%;padding:14px 16px;background:#1f222b;border:1px solid #374151;border-radius:16px;color:#fff;font-size:14px;outline:none;">
+                    </div>
                 </div>
+
                 <div>
-                    <label style="font-size:11px;font-weight:800;color:#7a8098;text-transform:uppercase;letter-spacing:1px;display:block;margin-bottom:6px;">Payment Method</label>
-                    <div style="display:flex;gap:10px;">
-                        <label style="flex:1;display:flex;align-items:center;gap:8px;padding:12px;background:#1a1c23;border:1px solid #252830;border-radius:12px;cursor:pointer;">
-                            <input type="radio" name="payment-method" value="COD" checked style="accent-color:#F5A800;"> Cash on Delivery
+                    <label style="display:block;font-size:11px;font-weight:800;color:#9ca3af;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;">Delivery Address</label>
+                    <textarea id="cust-address" name="cust-address" required rows="3" placeholder="House no, street, landmark..."
+                        style="width:100%;padding:14px 16px;background:#1f222b;border:1px solid #374151;border-radius:16px;color:#fff;font-size:14px;outline:none;resize:none;"></textarea>
+                    <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:12px;">
+                        <input id="checkout-pincode" name="cust-pincode" type="text" maxlength="6" pattern="[0-9]{6}" placeholder="Pincode" required
+                            style="flex:1;min-width:120px;padding:14px 16px;background:#1f222b;border:1px solid #374151;border-radius:16px;color:#fff;font-size:14px;outline:none;">
+                        <label style="display:flex;align-items:center;gap:8px;font-size:12px;color:#9ca3af;">
+                            <input type="checkbox" id="save-address-cb" style="accent-color:#F5A800;width:18px;height:18px;"> Save address
                         </label>
                     </div>
                 </div>
-                <!-- COUPON FIELD (Item 6) -->
+
                 <div>
-                    <label style="font-size:11px;font-weight:800;color:#7a8098;text-transform:uppercase;letter-spacing:1px;display:block;margin-bottom:6px;">Coupon Code (Optional)</label>
-                    <div style="display:flex;gap:8px;">
-                        <input id="coupon-input" type="text" placeholder="Enter coupon code"
-                            style="flex:1;padding:12px 16px;background:#1a1c23;border:1px solid #252830;border-radius:12px;color:#fff;font-size:14px;outline:none;text-transform:uppercase;"
-                            onfocus="this.style.borderColor='#F5A800'" onblur="this.style.borderColor='#252830'">
-                        <button type="button" id="apply-coupon-btn"
-                            style="padding:10px 18px;background:#F5A800;color:#000;border:none;border-radius:12px;font-weight:800;font-size:13px;cursor:pointer;">Apply</button>
-                    </div>
-                    <p id="coupon-message" style="font-size:12px;margin-top:6px;font-weight:600;"></p>
+                    <label style="display:block;font-size:11px;font-weight:800;color:#9ca3af;text-transform:uppercase;letter-spacing:1px;margin-bottom:6px;">Delivery Instructions (Optional)</label>
+                    <textarea id="checkout-instructions" name="cust-instructions" rows="2" placeholder="e.g. Ring the bell, leave at door..."
+                        style="width:100%;padding:14px 16px;background:#1f222b;border:1px solid #374151;border-radius:16px;color:#fff;font-size:14px;outline:none;resize:none;"></textarea>
                 </div>
-                <!-- ORDER TOTAL DISPLAY -->
-                <div style="display:flex;justify-content:space-between;align-items:center;padding:14px 16px;background:#13161e;border-radius:12px;border:1px solid #252830;">
-                    <span style="color:#7a8098;font-weight:700;">Order Total</span>
+
+                <div id="checkout-items-wrapper" style="margin-top:4px;">
+                    <label style="display:block;font-size:11px;font-weight:800;color:#9ca3af;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;">Order Items</label>
+                    <div id="checkout-items-list" class="scrollbar-thin" style="max-height:140px;overflow-y:auto;display:flex;flex-direction:column;gap:10px;padding-bottom:12px;border-bottom:1px solid rgba(255,255,255,0.12);">
+                        <!-- Rendered by JS -->
+                    </div>
+                </div>
+
+                <div>
+                    <label style="display:block;font-size:11px;font-weight:800;color:#9ca3af;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;">Coupon Code (Optional)</label>
+                    <div style="display:flex;gap:10px;flex-wrap:wrap;">
+                        <input id="coupon-input" type="text" placeholder="Enter coupon code"
+                            style="flex:1;min-width:180px;padding:14px 16px;background:#1f222b;border:1px solid #374151;border-radius:16px;color:#fff;font-size:14px;outline:none;text-transform:uppercase;">
+                        <button type="button" id="apply-coupon-btn" style="padding:14px 18px;background:#F5A800;color:#000;border:none;border-radius:16px;font-weight:800;cursor:pointer;">Apply</button>
+                    </div>
+                    <p id="coupon-message" style="margin:8px 0 0;font-size:12px;font-weight:700;color:#d1d5db;"></p>
+                    <div id="active-coupons-list" style="display:none;"></div>
+                </div>
+
+                <div>
+                    <label style="display:block;font-size:11px;font-weight:800;color:#9ca3af;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;">Payment Method</label>
+                    <div style="display:flex;flex-direction:column;gap:10px;">
+                        <label style="display:flex;align-items:center;gap:12px;padding:14px;background:#1f222b;border:1px solid #374151;border-radius:16px;cursor:pointer;">
+                            <input type="radio" name="payment-method" value="COD" checked style="accent-color:#F5A800;"> Cash on Delivery
+                        </label>
+                        <label style="display:flex;align-items:center;gap:12px;padding:14px;background:#1f222b;border:1px solid rgba(255,255,255,0.12);border-radius:16px;opacity:0.7;cursor:not-allowed;">
+                            <input type="radio" name="payment-method" value="UPI" disabled style="accent-color:#F5A800;"> UPI (Coming soon)
+                        </label>
+                        <label style="display:flex;align-items:center;gap:12px;padding:14px;background:#1f222b;border:1px solid rgba(255,255,255,0.12);border-radius:16px;opacity:0.7;cursor:not-allowed;">
+                            <input type="radio" name="payment-method" value="CARD" disabled style="accent-color:#F5A800;"> Card (Coming soon)
+                        </label>
+                    </div>
+                    <p style="margin-top:10px;font-size:12px;font-weight:800;color:#F5A800;text-align:center;">Online payment feature is coming soon 🚀</p>
+                </div>
+
+                <div style="display:flex;justify-content:space-between;align-items:center;padding:16px;background:#1a1c23;border:1px solid rgba(255,255,255,0.12);border-radius:20px;">
+                    <span style="font-size:11px;font-weight:800;color:#9ca3af;text-transform:uppercase;letter-spacing:1px;">Grand Total</span>
                     <span id="checkout-amount" style="font-size:22px;font-weight:900;color:#F5A800;">₹0</span>
                 </div>
-                <p id="checkout-error" class="hidden" style="color:#ef4444;font-size:13px;font-weight:600;text-align:center;"></p>
-                <button type="submit" id="place-order-btn"
-                    style="width:100%;padding:16px;background:#F5A800;color:#000;border:none;border-radius:14px;font-size:16px;font-weight:900;letter-spacing:1px;text-transform:uppercase;cursor:pointer;">
-                    Place Order
-                </button>
+
+                <p id="checkout-error" class="hidden" style="margin:0;font-size:13px;font-weight:700;color:#ef4444;text-align:center;"></p>
+                <button type="submit" id="place-order-btn" style="width:100%;padding:16px;background:#F5A800;color:#000;border:none;border-radius:18px;font-size:15px;font-weight:900;cursor:pointer;">Place Order</button>
             </form>
         </div>
     </div>
 
+    <!-- SERVICE MODAL -->
+    <div id="service-modal" class="modal-overlay service-modal" style="display:none;">
+        <div class="modal-content service-modal-content animate-up">
+            <div class="modal-header">
+                <div>
+                    <span id="service-modal-icon" class="service-modal-icon">🎪</span>
+                    <h3 class="modal-title" id="service-modal-title">Service Title</h3>
+                    <p class="service-modal-copy" id="service-modal-copy">Service subtitle goes here.</p>
+                </div>
+                <button id="close-service-modal" class="modal-close-btn" aria-label="Close service details">&times;</button>
+            </div>
+            <p class="service-modal-description" id="service-modal-description">A short description of the service will appear here.</p>
+            <div class="modal-actions">
+                <a id="service-call-btn" class="btn btn-outline" href="tel:+916370680744">Call Now</a>
+                <a id="service-whatsapp-btn" class="btn btn-whatsapp" href="#" target="_blank" rel="noreferrer noopener">WhatsApp</a>
+                <a id="service-visit-btn" class="btn btn-primary" href="#" target="_blank" rel="noreferrer noopener">Visit Us</a>
+            </div>
+        </div>
+    </div>
+
     <!-- SCRIPTS -->
-    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+    <script type="module" src="/src/customer-home.js"></script>
+    <script type="module" src="/src/theme.js"></script>
     <script type="module" src="/src/main.js"></script>
 </body>
 </html>

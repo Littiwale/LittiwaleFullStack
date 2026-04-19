@@ -24,7 +24,13 @@ service cloud.firestore {
 
     // ── USERS ──
     match /users/{uid} {
-      allow read, write: if request.auth != null && request.auth.uid == uid;
+      allow read: if request.auth != null && request.auth.uid == uid;
+      allow write: if request.auth != null && request.auth.uid == uid &&
+        request.resource.data.uid == uid &&
+        (
+          (resource == null && request.resource.data.role == 'customer') ||
+          (resource != null && request.resource.data.role == resource.data.role)
+        );
       allow read, write: if isAdmin(); // Admin reads ALL users
 
       // Saved addresses subcollection (max 3 enforced client-side)
@@ -37,18 +43,33 @@ service cloud.firestore {
     // ── USERNAME / PHONE UNIQUENESS ──
     match /usernames/{username} {
       allow read: if true;
-      allow write: if request.auth != null;
+      allow write: if request.auth != null && request.resource.data.uid == request.auth.uid &&
+        (resource == null || resource.data.uid == request.auth.uid);
     }
 
     match /phones/{phone} {
       allow read: if true;
-      allow write: if request.auth != null;
+      allow write: if request.auth != null && request.resource.data.uid == request.auth.uid &&
+        (resource == null || resource.data.uid == request.auth.uid);
     }
 
     // ── ORDERS ──
     match /orders/{orderId} {
-      // Only logged-in users can place orders
-      allow create: if request.auth != null;
+      // Only logged-in users can place orders, and only for their own UID
+      allow create: if request.auth != null &&
+        request.resource.data.userId == request.auth.uid &&
+        request.resource.data.items is list &&
+        request.resource.data.total is number &&
+        request.resource.data.customer is map &&
+        request.resource.data.orderId is string &&
+        request.resource.data.trackingToken is string &&
+        request.resource.data.paymentMethod is string &&
+        request.resource.data.status in ['PLACED', 'AWAITING_PAYMENT'] &&
+        request.resource.data.paymentStatus in ['cod', 'pending', 'paid', 'failed'] &&
+        request.resource.data.createdAt is timestamp &&
+        request.resource.data.updatedAt is timestamp &&
+        request.resource.data.updatedAt == request.resource.data.createdAt &&
+        !request.resource.data.keys().hasAny(['riderId', 'riderName', 'deliveredAt']);
 
       // Customer reads their own order
       allow read: if request.auth != null && request.auth.uid == resource.data.userId;
@@ -66,6 +87,10 @@ service cloud.firestore {
         resource.data.riderId == request.auth.uid &&
         request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status', 'deliveredAt', 'updatedAt']);
 
+      // Customer may only update fcmToken on their own order after creation
+      allow update: if request.auth != null && request.auth.uid == resource.data.userId &&
+        request.resource.data.diff(resource.data).affectedKeys().hasOnly(['fcmToken']);
+
       // Ratings subcollection on each order
       match /rating/{ratingId} {
         // Owner of the order can write their rating
@@ -76,6 +101,19 @@ service cloud.firestore {
           (get(/databases/$(database)/documents/orders/$(orderId)).data.userId == request.auth.uid
             || isAdminOrManager());
       }
+    }
+
+    // ── TICKETS ──
+    match /tickets/{ticketId} {
+      // Support tickets can be submitted by anyone (public-facing form)
+      allow create: if request.resource.data.status == 'pending' &&
+        request.resource.data.ticketId is string &&
+        request.resource.data.name is string &&
+        request.resource.data.phone is string &&
+        request.resource.data.issue is string &&
+        request.resource.data.createdAt is timestamp;
+
+      allow read, update, delete: if isAdminOrManager();
     }
 
     // ── MENU ──

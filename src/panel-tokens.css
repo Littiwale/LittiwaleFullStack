@@ -1,0 +1,706 @@
+/* ═══════════════════════════════════════════════════════════
+   PANEL DESIGN TOKENS & SCOPED UI POLISH
+   Littiwale — Customer / Admin / Rider
+   STEP 2: Scope Separation + STEP 3: Design Tokens
+   ═══════════════════════════════════════════════════════════ */
+
+/* ────────────────────────────────────────
+   STEP 3A — CUSTOMER DESIGN TOKENS
+   Scope: .customer-app (applied to #app div)
+   ──────────────────────────────────────── */
+.customer-app {
+  --brand-gold: #d97706;
+  --brand-gold-light: #f59e0b;
+  --brand-gold-glow: rgba(217, 119, 6, 0.2);
+  --brand-dark: #1a0f00;
+  --brand-card-bg: #f5f0e8;
+  --brand-bg: #0d0700;
+  --customer-bg: #0d0700;
+  --customer-nav-bg: #0d0700;
+  --customer-text-primary: #f5f0e8;
+  --customer-border: rgba(217, 119, 6, 0.15);
+  --color-veg: #22c55e;
+  --color-veg-bg: rgba(34, 197, 94, 0.1);
+  --color-nonveg: #ef4444;
+  --color-nonveg-bg: rgba(239, 68, 68, 0.1);
+  --text-primary: #ffffff;
+  --text-warm: #f5f0e8;
+  --text-muted: #e5e7eb;
+  --transition-fast: all 200ms ease-in-out;
+  --transition-card: all 250ms ease-in-out;
+}
+
+/* ────────────────────────────────────────
+   STEP 3B — ADMIN DESIGN TOKENS
+   Scope: .admin-app (applied to #app div)
+   ──────────────────────────────────────── */
+.admin-app {
+  --admin-bg: #0f1117;
+  --admin-sidebar-bg: #1a1d27;
+  --admin-card-bg: #1e2130;
+  --admin-accent: #f59e0b;
+  --admin-accent-hover: #d97706;
+  --admin-text-primary: #ffffff;
+  --admin-text-muted: #9ca3af;
+  --admin-border: rgba(255, 255, 255, 0.08);
+  --admin-success: #22c55e;
+  --admin-danger: #ef4444;
+  --admin-warning: #f59e0b;
+  --admin-info: #3b82f6;
+  --transition-fast: all 200ms ease-in-out;
+}
+
+/* ────────────────────────────────────────
+   STEP 3C — RIDER DESIGN TOKENS
+   Scope: body.rider-app
+   ──────────────────────────────────────── */
+body.rider-app {
+  --rider-bg: #0f1117;
+  --rider-card-bg: #1e2130;
+  --rider-accent: #3b82f6;
+  --rider-accent-hover: #2563eb;
+  --rider-success: #22c55e;
+  --rider-danger: #ef4444;
+  --rider-warning: #f59e0b;
+  --rider-text-primary: #ffffff;
+  --rider-text-muted: #9ca3af;
+  --rider-border: rgba(255, 255, 255, 0.08);
+  --transition-fast: all 200ms ease-in-out;
+}
+
+
+/* ═══════════════════════════════════════════════════════════
+   STEP 4 — CUSTOMER UI POLISH
+   All rules scoped under .customer-app
+   ═══════════════════════════════════════════════════════════ */
+
+/* 4A — NAVBAR */
+.customer-app .navbar {
+  background: var(--customer-nav-bg);
+  border-bottom: 1px solid var(--customer-border, rgba(217, 119, 6, 0.15));
+}
+
+.customer-app .nav-links a {
+  color: var(--customer-text-primary, #f5f0e8);
+  transition: color 200ms ease-in-out;
+}
+
+.customer-app .nav-links a:hover,
+.customer-app .nav-links a.active {
+  color: var(--brand-gold, #d97706);
+}
+
+/* 4B — BACKGROUND */
+.customer-app {
+  background: var(--customer-bg);
+  min-height: 100vh;
+}
+
+html[data-theme='light'] .customer-app {
+  --customer-bg: #fbf7ef;
+  --customer-nav-bg: rgba(255, 255, 255, 0.92);
+  --customer-text-primary: #2c1a0e;
+  --customer-border: rgba(44, 26, 14, 0.08);
+  --text-primary: #2c1a0e;
+  --text-secondary: #7a6652;
+  --text-muted: #7a7469;
+  --text-warm: #4b361a;
+  --brand-card-bg: #fffdf7;
+  --customer-button-text: #1a0f07;
+}
+
+html[data-theme='light'] .customer-app .navbar {
+  background: var(--customer-nav-bg) !important;
+  border-color: var(--customer-border) !important;
+}
+
+html[data-theme='light'] .customer-app .nav-links a,
+html[data-theme='light'] .customer-app .nav-links a.active {
+  color: var(--text-primary) !important;
+}
+
+html[data-theme='light'] .customer-app .nav-links a:hover,
+html[data-theme='light'] .customer-app .nav-links a.active {
+  color: var(--brand-gold) !important;
+}
+
+html[data-theme='light'] .customer-app .nav-get-deals-btn,
+html[data-theme='light'] .customer-app .cart-btn,
+html[data-theme='light'] .customer-app .btn-primary {
+  background: var(--brand-gold) !important;
+  color: var(--customer-button-text, #1a0f07) !important;
+  border-color: transparent !important;
+}
+
+html[data-theme='light'] .customer-app .menu-card {
+  background: var(--brand-card-bg) !important;
+  border-color: var(--customer-border) !important;
+  color: var(--text-primary) !important;
+}
+
+html[data-theme='light'] .customer-app .menu-card .menu-card-body {
+  background: var(--brand-card-bg) !important;
+}
+
+html[data-theme='light'] .customer-app .menu-card-title,
+html[data-theme='light'] .customer-app .menu-category-heading {
+  color: var(--text-primary) !important;
+}
+
+html[data-theme='light'] .customer-app .menu-card .item-description {
+  color: var(--text-secondary) !important;
+}
+
+html[data-theme='light'] .customer-app .theme-toggle-btn {
+  background: rgba(0, 0, 0, 0.05) !important;
+  color: var(--text-primary) !important;
+}
+
+/* 4C — CUSTOMER BUTTONS */
+.customer-app .btn {
+  transition: var(--transition-fast);
+}
+
+.customer-app .btn-primary {
+  background: var(--brand-gold, #d97706);
+  color: #000;
+  border-radius: 999px;
+  border: none;
+  transition: var(--transition-fast);
+}
+
+.customer-app .btn-primary:hover {
+  background: var(--brand-gold-light, #f59e0b);
+  color: #000;
+  transform: translateY(-1px);
+}
+
+.customer-app .btn-outline {
+  background: transparent;
+  border: 2px solid var(--brand-gold, #d97706);
+  color: var(--brand-gold, #d97706);
+  border-radius: 999px;
+  transition: var(--transition-fast);
+}
+
+.customer-app .btn-outline:hover {
+  background: var(--brand-gold, #d97706);
+  color: #000;
+}
+
+/* 4D — CATEGORY HEADINGS (menu page) */
+.customer-app .menu-category-heading {
+  color: var(--text-primary);
+  font-weight: 700;
+  font-size: 36px; /* +4px from base 32px */
+  text-shadow: 0 0 20px rgba(217, 119, 6, 0.3);
+  letter-spacing: 0.5px;
+}
+
+html[data-theme='light'] .customer-app .menu-category-heading {
+  text-shadow: none;
+}
+
+/* 4E — VEG/NON-VEG FILTER BUTTONS
+   (Core logic in customer-menu.css — these reinforce token usage) */
+.customer-app .diet-pill[data-diet="all"] {
+  border-color: var(--brand-gold, #d97706);
+  color: var(--brand-gold, #d97706);
+  background: rgba(217, 119, 6, 0.1);
+  transition: var(--transition-fast);
+}
+
+.customer-app .diet-pill[data-diet="veg"] {
+  border-color: var(--color-veg, #22c55e);
+  color: var(--color-veg, #22c55e);
+  background: var(--color-veg-bg, rgba(34, 197, 94, 0.1));
+  transition: var(--transition-fast);
+}
+
+.customer-app .diet-pill[data-diet="nonveg"] {
+  border-color: var(--color-nonveg, #ef4444);
+  color: var(--color-nonveg, #ef4444);
+  background: var(--color-nonveg-bg, rgba(239, 68, 68, 0.1));
+  transition: var(--transition-fast);
+}
+
+.customer-app .diet-pill.active[data-diet="all"]    { background: var(--brand-gold, #d97706);    color: #fff; border-color: var(--brand-gold, #d97706); }
+.customer-app .diet-pill.active[data-diet="veg"]    { background: var(--color-veg, #22c55e);     color: #fff; border-color: var(--color-veg, #22c55e); }
+.customer-app .diet-pill.active[data-diet="nonveg"] { background: var(--color-nonveg, #ef4444);  color: #fff; border-color: var(--color-nonveg, #ef4444); }
+
+/* 4F — CATEGORY PILLS */
+.customer-app .category-tab:not(.active) {
+  background: transparent;
+  border-color: rgba(217, 119, 6, 0.5);
+  color: var(--text-muted, #e5e7eb);
+  transition: var(--transition-fast);
+}
+
+.customer-app .category-tab:not(.active):hover {
+  border-color: var(--brand-gold, #d97706);
+  color: #fcd34d;
+  text-shadow: 0 0 8px rgba(217, 119, 6, 0.5);
+  background: rgba(217, 119, 6, 0.08);
+}
+
+.customer-app .category-tab.active {
+  background: #2C1A0E;
+  color: #f5f0e8;
+  border-color: #2C1A0E;
+}
+
+html[data-theme='light'] .customer-app .category-tab.active {
+  background: var(--brand-gold) !important;
+  color: #1A0F07 !important;
+  border-color: var(--brand-gold) !important;
+}
+
+html[data-theme='light'] .customer-app .category-tab:not(.active) {
+  color: var(--text-secondary);
+  border-color: rgba(44, 26, 14, 0.18);
+}
+
+/* 4G — MENU ITEM CARDS */
+.customer-app .menu-card {
+  transition: var(--transition-card);
+}
+
+.customer-app .menu-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 30px var(--brand-gold-glow, rgba(217, 119, 6, 0.2));
+}
+
+.customer-app .menu-card .relative {
+  aspect-ratio: 4 / 3;
+  width: 100%;
+  overflow: hidden;
+  background: var(--surface);
+  position: relative;
+}
+
+html[data-theme='light'] .customer-app .menu-card .relative {
+  background: var(--surface);
+}
+
+.customer-app .menu-card img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* 4H — VEG/NON-VEG CARD INDICATORS */
+.customer-app .menu-card .bg-success,
+.customer-app .menu-card .bg-error {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 20px;
+  height: 20px;
+  border-radius: 4px;
+  background: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  z-index: 2;
+}
+
+.customer-app .menu-card .bg-success {
+  border: 2px solid #22c55e;
+}
+
+.customer-app .menu-card .bg-success::after {
+  content: '';
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #22c55e;
+}
+
+.customer-app .menu-card .bg-error {
+  border: 2px solid #ef4444;
+}
+
+.customer-app .menu-card .bg-error::after {
+  content: '';
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #ef4444;
+}
+
+
+/* ═══════════════════════════════════════════════════════════
+   STEP 5 — ADMIN UI POLISH
+   All rules scoped under .admin-app
+   ═══════════════════════════════════════════════════════════ */
+
+/* 5A — SIDEBAR */
+.admin-app .admin-sidebar {
+  background: var(--admin-sidebar-bg, #1a1d27);
+  border-right: 1px solid var(--admin-border, rgba(255, 255, 255, 0.08));
+}
+
+.admin-app .nav-item {
+  color: var(--admin-text-muted, #9ca3af);
+  background: transparent;
+  transition: var(--transition-fast);
+}
+
+.admin-app .nav-item:hover {
+  color: var(--admin-text-primary, #ffffff);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.admin-app .nav-item.active {
+  background: var(--admin-accent, #f59e0b);
+  color: #000000;
+  border-radius: 10px;
+  box-shadow: 0 4px 14px rgba(245, 158, 11, 0.25);
+}
+
+.admin-app .nav-item.active .nav-icon {
+  filter: brightness(0);
+}
+
+/* 5B — STAT / KPI CARDS */
+.admin-app .kpi-card {
+  background: var(--admin-card-bg, #1e2130);
+  border: 1px solid var(--admin-border, rgba(255, 255, 255, 0.08));
+  border-radius: 16px;
+  transition: var(--transition-fast);
+}
+
+.admin-app .kpi-card:hover {
+  border-color: rgba(245, 158, 11, 0.4);
+  box-shadow: 0 4px 20px rgba(245, 158, 11, 0.1);
+}
+
+.admin-app .kpi-label {
+  color: var(--admin-text-muted, #9ca3af);
+  font-size: 11px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  font-weight: 700;
+}
+
+.admin-app .kpi-value {
+  color: var(--admin-text-primary, #ffffff);
+  font-weight: 700;
+  font-size: 28px;
+}
+
+/* Generic admin-card (used in HTML but no CSS existed) */
+.admin-app .admin-card {
+  background: var(--admin-card-bg, #1e2130);
+  border: 1px solid var(--admin-border, rgba(255, 255, 255, 0.08));
+  border-radius: 16px;
+}
+
+/* Insight cards */
+.admin-app .insight-card {
+  background: var(--admin-card-bg, #1e2130);
+  border: 1px solid var(--admin-border, rgba(255, 255, 255, 0.08));
+  border-radius: 16px;
+}
+
+.admin-app .insight-card h4 {
+  color: var(--admin-text-muted, #9ca3af);
+  text-transform: uppercase;
+  font-size: 11px;
+  letter-spacing: 1.5px;
+  border-bottom: 1px solid var(--admin-border, rgba(255, 255, 255, 0.08));
+  padding-bottom: 12px;
+  margin-bottom: 16px;
+}
+
+/* 5C — TABLES + STATUS BADGES */
+.admin-app .admin-table thead tr {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.admin-app .admin-table th {
+  color: var(--admin-text-muted, #9ca3af);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.admin-app .admin-table tbody tr:hover {
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.admin-app .admin-table td,
+.admin-app .admin-table th {
+  border-bottom: 1px solid var(--admin-border, rgba(255, 255, 255, 0.08));
+}
+
+/* Status badges — refined pill style */
+.admin-app .table-badge {
+  border-radius: 999px;
+  padding: 2px 10px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.admin-app .table-badge.success {
+  background: rgba(34, 197, 94, 0.12);
+  color: #22c55e;
+  border: 1px solid rgba(34, 197, 94, 0.25);
+}
+
+.admin-app .table-badge.warning {
+  background: rgba(245, 158, 11, 0.12);
+  color: #f59e0b;
+  border: 1px solid rgba(245, 158, 11, 0.25);
+}
+
+.admin-app .table-badge.danger {
+  background: rgba(239, 68, 68, 0.12);
+  color: #ef4444;
+  border: 1px solid rgba(239, 68, 68, 0.25);
+}
+
+/* Order status pill (rendered by admin.js) */
+.admin-app .order-badge-pill {
+  border-radius: 999px;
+  padding: 2px 10px;
+}
+
+/* Admin Orders filter tabs */
+.admin-app .filter-tab.active {
+  background: var(--admin-accent, #f59e0b);
+  color: #000;
+  border-color: var(--admin-accent, #f59e0b);
+}
+
+/* 5D — ADMIN BUTTONS */
+.admin-app .btn {
+  transition: var(--transition-fast);
+}
+
+.admin-app .btn-primary {
+  background: var(--admin-accent, #f59e0b);
+  color: #000;
+  border-radius: 8px;
+  font-weight: 600;
+  border: none;
+  transition: var(--transition-fast);
+}
+
+.admin-app .btn-primary:hover {
+  background: var(--admin-accent-hover, #d97706);
+  transform: scale(1.02);
+}
+
+.admin-app .btn-outline {
+  background: transparent;
+  border: 1.5px solid var(--admin-accent, #f59e0b);
+  color: var(--admin-accent, #f59e0b);
+  border-radius: 8px;
+  transition: var(--transition-fast);
+}
+
+.admin-app .btn-outline:hover,
+.admin-app .btn-outline.active,
+.admin-app .btn-outline:focus {
+  background: rgba(245, 158, 11, 0.12);
+  color: #fff;
+  border-color: var(--admin-accent, #f59e0b);
+  transform: scale(1.02);
+}
+
+.admin-app .btn-secondary {
+  background: var(--admin-danger, #ef4444);
+  color: #ffffff;
+  border-radius: 8px;
+  font-weight: 600;
+  transition: var(--transition-fast);
+}
+
+.admin-app .btn-secondary:hover {
+  background: #dc2626;
+  transform: scale(1.02);
+}
+
+/* 5E — CHARTS */
+.admin-app .chart-container {
+  background: var(--admin-card-bg, #1e2130);
+  border: 1px solid var(--admin-border, rgba(255, 255, 255, 0.08));
+  border-radius: 16px;
+}
+
+.admin-app .chart-header h4 {
+  color: var(--admin-text-muted, #9ca3af);
+  text-transform: uppercase;
+  font-size: 11px;
+  letter-spacing: 1.5px;
+  font-weight: 700;
+}
+
+.admin-app .chart-period {
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--admin-accent, #f59e0b);
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 4px 10px;
+}
+
+
+/* ═══════════════════════════════════════════════════════════
+   STEP 6 — RIDER UI POLISH
+   All rules scoped under body.rider-app
+   ═══════════════════════════════════════════════════════════ */
+
+/* 6A — LAYOUT */
+body.rider-app {
+  background: var(--rider-bg, #0f1117);
+}
+
+body.rider-app .rider-card {
+  background: var(--rider-card-bg, #1e2130);
+  border-radius: 16px;
+  border: 1px solid var(--rider-border, rgba(255, 255, 255, 0.08));
+  transition: var(--transition-fast);
+}
+
+body.rider-app .rider-card:hover {
+  border-color: rgba(59, 130, 246, 0.35);
+  box-shadow: 0 4px 20px rgba(59, 130, 246, 0.08);
+}
+
+/* 6B — STATUS INDICATORS */
+@keyframes lw-pulse-green {
+  0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.4); }
+  50%       { opacity: 0.8; box-shadow: 0 0 0 5px rgba(34, 197, 94, 0); }
+}
+
+@keyframes lw-pulse-blue {
+  0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.4); }
+  50%       { opacity: 0.8; box-shadow: 0 0 0 5px rgba(59, 130, 246, 0); }
+}
+
+body.rider-app .status-dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  margin-right: 6px;
+  flex-shrink: 0;
+}
+
+body.rider-app .status-dot.online {
+  background: var(--rider-success, #22c55e);
+  animation: lw-pulse-green 1.8s ease-in-out infinite;
+}
+
+body.rider-app .status-dot.offline {
+  background: var(--rider-text-muted, #9ca3af);
+}
+
+body.rider-app .status-dot.on-delivery {
+  background: var(--rider-accent, #3b82f6);
+  animation: lw-pulse-blue 1.8s ease-in-out infinite;
+}
+
+/* Status text colour helpers */
+body.rider-app #rider-status-text {
+  color: var(--rider-text-muted, #9ca3af);
+  transition: var(--transition-fast);
+}
+
+/* 6C — DELIVERY CARDS */
+body.rider-app .pickup-address {
+  color: var(--rider-warning, #f59e0b);
+  font-weight: 600;
+}
+
+body.rider-app .drop-address {
+  color: var(--rider-success, #22c55e);
+  font-weight: 600;
+}
+
+/* Accept (pickup) button */
+body.rider-app .btn-pickup {
+  background: var(--rider-success, #22c55e);
+  color: #ffffff;
+  border-radius: 999px;
+  font-weight: 700;
+  transition: var(--transition-fast);
+}
+
+body.rider-app .btn-pickup:hover {
+  transform: scale(1.02);
+  opacity: 0.92;
+}
+
+/* Reject button (not yet in rider.css — added here) */
+body.rider-app .btn-reject {
+  background: transparent;
+  border: 2px solid var(--rider-danger, #ef4444);
+  color: var(--rider-danger, #ef4444);
+  border-radius: 999px;
+  font-weight: 700;
+  width: 100%;
+  padding: 14px;
+  font-size: 13px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  cursor: pointer;
+  margin-top: 8px;
+  transition: var(--transition-fast);
+}
+
+body.rider-app .btn-reject:hover {
+  transform: scale(1.02);
+  background: rgba(239, 68, 68, 0.08);
+}
+
+/* Delivered button inherits green from rider.css, reinforce with radius */
+body.rider-app .btn-delivered {
+  border-radius: 999px;
+  transition: var(--transition-fast);
+}
+
+body.rider-app .btn-delivered:hover {
+  transform: scale(1.02);
+  opacity: 0.92;
+}
+
+/* 6D — EARNINGS CARD (overrides the inline styles on the status/earnings div) */
+body.rider-app .rider-main > div:first-child {
+  background: linear-gradient(135deg, #1e2130, #252a3d) !important;
+  border: 1px solid rgba(59, 130, 246, 0.3) !important;
+  border-radius: 16px !important;
+}
+
+body.rider-app #rider-earnings {
+  color: var(--rider-accent, #3b82f6) !important;
+  font-size: 28px !important;
+  font-weight: 700 !important;
+}
+
+/* 6E — BOTTOM NAV */
+body.rider-app .rider-bottom-nav {
+  background: var(--rider-card-bg, #1e2130) !important;
+  border-top: 1px solid var(--rider-border, rgba(255, 255, 255, 0.08)) !important;
+}
+
+body.rider-app .bnav-item {
+  color: var(--rider-text-muted, #9ca3af);
+  transition: var(--transition-fast);
+}
+
+body.rider-app .bnav-item.active {
+  color: var(--rider-accent, #3b82f6);
+}
+
+/* Rider header */
+body.rider-app .rider-header {
+  background: var(--rider-card-bg, #1e2130) !important;
+  border-bottom: 1px solid var(--rider-border, rgba(255, 255, 255, 0.08)) !important;
+}

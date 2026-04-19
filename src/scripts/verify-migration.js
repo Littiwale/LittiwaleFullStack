@@ -1,21 +1,25 @@
 import { initializeApp } from "firebase/app";
-import { 
-  getFirestore, 
-  collection, 
-  getDocs, 
-  query, 
-  where 
+import {
+  getFirestore,
+  collection,
+  getDocs,
+  query,
+  where
 } from "firebase/firestore";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyDEgXj63A1Ut0ldXLJmM9QRmtGeh66KAmw",
-  authDomain: "littiwale-90990.firebaseapp.com",
-  projectId: "littiwale-90990",
-  storageBucket: "littiwale-90990.firebasestorage.app",
-  messagingSenderId: "937555170322",
-  appId: "1:937555170322:web:c31008dac8833c308eb4cb",
-  measurementId: "G-CRSQF7SR49"
+  apiKey: process.env.FIREBASE_API_KEY,
+  authDomain: process.env.FIREBASE_AUTH_DOMAIN,
+  projectId: process.env.FIREBASE_PROJECT_ID,
+  storageBucket: process.env.FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: process.env.FIREBASE_MESSAGING_SENDER_ID,
+  appId: process.env.FIREBASE_APP_ID,
+  measurementId: process.env.FIREBASE_MEASUREMENT_ID
 };
+
+if (!firebaseConfig.apiKey || !firebaseConfig.authDomain || !firebaseConfig.projectId || !firebaseConfig.appId) {
+  throw new Error('Firebase configuration is not fully provided. Set FIREBASE_* values in your environment.');
+}
 
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
