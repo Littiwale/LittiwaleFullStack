@@ -2,6 +2,7 @@ import { collection, query, where, onSnapshot, limit, addDoc, serverTimestamp, d
 import { db } from './firebase/config';
 import { requestNotificationPermission, saveFCMTokenToOrder } from './notifications';
 import { getUserProfile, onAuthChange } from './api/auth';
+import { fetchTickets } from './api/tickets';
 import { ORDER_STATUS } from './constants/orderStatus';
 import { updateDeliveryEstimate } from './utils';
 import { initCheckout } from './menu/checkout';
@@ -98,6 +99,28 @@ const initTracking = async () => {
     }
 };
 
+const loadOrderTickets = async (customerPhone) => {
+    const section = document.getElementById('order-tickets-section');
+    const list = document.getElementById('order-tickets-list');
+    if (!section || !list || !customerPhone) return;
+
+    try {
+        const allTickets = await fetchTickets();
+        const myTickets = allTickets.filter(t => t.phone === customerPhone);
+        if (myTickets.length === 0) return;
+
+        section.style.display = 'block';
+        list.innerHTML = myTickets.map(t => `
+            <div style="background: var(--surface); border: 1px solid var(--glass-border); border-radius: 12px; padding: 14px; margin-bottom: 10px;">
+                <p style="font-size: 13px; color: var(--text-primary); margin-bottom: 4px;">${t.issue}</p>
+                <span style="font-size: 11px; font-weight: 700; padding: 3px 8px; border-radius: 6px; background: ${t.status === 'resolved' ? 'rgba(16,185,129,0.15)' : 'rgba(245,158,11,0.15)'}; color: ${t.status === 'resolved' ? '#10B981' : '#F59E0B'};">${t.status === 'resolved' ? '✓ Resolved' : '⏳ Pending'}</span>
+            </div>
+        `).join('');
+    } catch (err) {
+        console.error('Error loading tickets:', err);
+    }
+};
+
 const renderOrder = async (order, docId) => {
     loading.classList.add('hidden');
     result.classList.remove('hidden');
@@ -147,6 +170,11 @@ const renderOrder = async (order, docId) => {
     custName.textContent = order.customer.name;
     custPhone.textContent = order.customer.phone;
     custAddress.textContent = order.customer.address;
+
+    // Load customer tickets
+    if (order.customer?.phone) {
+        loadOrderTickets(order.customer.phone);
+    }
 
     // ── RATING (Item 10) ──
     const ratingContainer = document.querySelector('#rating-container');
