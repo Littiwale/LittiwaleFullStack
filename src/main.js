@@ -3,6 +3,7 @@ import { updateCartUI } from './menu/cart-ui';
 import { initCheckout } from './menu/checkout';
 import { onAuthChange, logoutUser } from './api/auth';
 import { fetchAnnouncements } from './api/announcements';
+import { createTicket } from './api/tickets';
 import { addItem } from './store/cart';
 import { fetchOrdersByUser } from './api/orders';
 import { updateDeliveryEstimate, loadMyOrders, showToast } from './utils';
@@ -285,9 +286,7 @@ const init = async () => {
         complaintFeedback.style.color = '#C47F17';
 
         try {
-            // TODO: Add Firestore submission logic here
-            // For now, show success message
-            await new Promise(resolve => setTimeout(resolve, 500)); // Simulate API delay
+            await createTicket({ name, phone, issue });
 
             complaintFeedback.textContent = '✓ Thank you! Your complaint has been submitted. We will follow up soon.';
             complaintFeedback.style.color = '#10B981';
@@ -384,7 +383,9 @@ const renderHourlyDeals = (menu) => {
                     items: `${item1.name} + ${item2.name}`,
                     price: realPrice,
                     oldPrice: fakePrice,
-                    image: HOURLY_DEAL_IMAGE_MAP[dealName] || item1.image || '/images/logo.png'
+                    image: HOURLY_DEAL_IMAGE_MAP[dealName] || item1.image || '/images/logo.png',
+                    item1: { id: item1.id, name: item1.name, price: item1.price, image: item1.image, category: item1.category, veg: item1.veg },
+                    item2: { id: item2.id, name: item2.name, price: item2.price, image: item2.image, category: item2.category, veg: item2.veg }
                 });
             }
         }
@@ -414,8 +415,15 @@ const renderHourlyDeals = (menu) => {
         dealsGrid.querySelectorAll('.deal-add-btn').forEach(btn => {
             btn.addEventListener('click', () => {
                 const deal = JSON.parse(btn.getAttribute('data-deal'));
-                addItem({ id: deal.id, name: deal.name, price: deal.price, image: deal.image }, 'combo', deal.price);
-                
+                // Add each component item individually at their real Firestore IDs
+                // so validateOrder() can find them in the menu collection
+                if (deal.item1 && deal.item2) {
+                    addItem(deal.item1, 'single', deal.item1.price);
+                    addItem(deal.item2, 'single', deal.item2.price);
+                } else {
+                    // Fallback: add as single item (for any deal that only has one item reference)
+                    addItem({ id: deal.id, name: deal.name, price: deal.price, image: deal.image }, 'single', deal.price);
+                }
                 btn.textContent = 'Added! ✅';
                 setTimeout(() => btn.textContent = 'Add Combo', 1500);
             });
