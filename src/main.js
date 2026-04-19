@@ -398,7 +398,7 @@ const renderHourlyDeals = (menu) => {
         dealsGrid.innerHTML = deals.map(deal => `
             <div class="food-card deal-card">
                 <div class="deal-badge">SAVE BIG</div>
-                <img src="${deal.image}" alt="${deal.name}" onerror="this.src='/images/logo.png'">
+                <img src="${deal.image}" alt="${deal.name}" loading="lazy" decoding="async" onerror="this.src='/images/logo.png'">
                 <div class="food-info">
                     <h3>${deal.name}</h3>
                     <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 12px;">${deal.items}</p>

@@ -199,7 +199,7 @@ const buildRecommendationCard = (item) => {
   return `
     <div class="recommendation-card">
       <div class="recommendation-media">
-        <img src="${escapeHtml(item.image || '/images/logo.png')}" alt="${escapeHtml(item.name)}">
+        <img src="${escapeHtml(item.image || '/images/logo.png')}" alt="${escapeHtml(item.name)}" loading="lazy" decoding="async">
         <span class="card-badge">⭐ Popular</span>
       </div>
       <div class="recommendation-body">

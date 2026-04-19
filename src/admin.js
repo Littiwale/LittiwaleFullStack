@@ -505,7 +505,7 @@ const renderMenuList = () => {
                     <tr>
                         <td>
                             <div class="flex items-center gap-3">
-                                <img src="${item.image || '/images/logo.png'}" alt="${item.name}" />
+                                <img src="${item.image || '/images/logo.png'}" alt="${item.name}" loading="lazy" decoding="async" />
                                 <div>
                                     <div class="item-name">${item.name || 'Untitled item'}</div>
                                     <div class="item-meta">${item.category || 'Uncategorized'} · ${item.veg ? 'Veg' : 'Non-Veg'}</div>
