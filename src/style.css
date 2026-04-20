@@ -206,16 +206,21 @@ body {
   justify-content: center;
   align-items: center;
   gap: 5px;
-  width: 40px;
-  height: 40px;
-  background: rgba(255,255,255,0.06);
-  border: 1px solid rgba(255,255,255,0.12);
+  width: 44px;
+  height: 44px;
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.15);
   border-radius: 10px;
   cursor: pointer;
   padding: 0;
-  transition: background 0.2s ease;
-  margin-left: 8px;
+  transition: all 0.2s ease;
+  order: 10;
   flex-shrink: 0;
+  z-index: 1000;
+}
+.mobile-hamburger:hover {
+  background: rgba(255,255,255,0.12);
+  border-color: rgba(255,255,255,0.25);
 }
 .mobile-hamburger span {
   display: block;
@@ -309,6 +314,36 @@ html[data-theme='light'] .mobile-nav-inner {
 html[data-theme='light'] .mobile-nav-link {
   color: #2C1A0E;
   border-bottom-color: rgba(0,0,0,0.05);
+}
+
+/* ── MOBILE NAV OPTIMIZATION ── */
+@media (max-width: 991px) {
+  .nav-container {
+    gap: 12px;
+  }
+  .nav-right {
+    gap: 12px;
+  }
+  .cart-btn {
+    padding: 8px 12px;
+    font-size: 12px;
+    gap: 4px;
+  }
+  .cart-badge {
+    min-width: 18px;
+    width: 18px;
+    height: 18px;
+    font-size: 10px;
+  }
+}
+
+@media (max-width: 600px) {
+  .nav-right {
+    order: 20;
+  }
+  .mobile-hamburger {
+    display: flex;
+  }
 }
 
 .nav-right {
