@@ -364,23 +364,22 @@ html[data-theme='light'] {
 /* ────────── MOBILE SWIPE-TO-LOGIN OVERLAY ────────── */
 @media (max-width: 768px) {
     #mobile-panda-screen {
+        display: flex;
         position: fixed;
         top: 0;
         left: 0;
-        right: 0;
-        bottom: 0;
+        width: 100vw;
+        height: 100vh;
+        z-index: 99999;
         background: linear-gradient(180deg, #1a1200 0%, #0f0a00 100%);
-        display: flex;
         flex-direction: column;
         align-items: center;
         justify-content: flex-end;
-        z-index: 999;
-        transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-        touch-action: pan-y;
+        transition: transform 0.55s cubic-bezier(0.4, 0, 0.2, 1);
         overflow: hidden;
     }
 
-    #mobile-panda-screen.hidden {
+    #mobile-panda-screen.mpanda-hidden {
         transform: translateY(-100%);
         pointer-events: none;
     }
@@ -446,91 +445,14 @@ html[data-theme='light'] {
         0%, 100% { transform: translateY(0); opacity: 0.75; }
         50% { transform: translateY(-8px); opacity: 1; }
     }
+
+    .left {
+        display: none;
+    }
+
+    .right {
+        width: 100%;
+        z-index: 1;
+    }
 }
 
-/* ── MOBILE SWIPE-TO-LOGIN OVERLAY ── */
-@media (max-width: 768px) {
-    #mobile-panda-screen {
-        position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background: linear-gradient(180deg, #1a1200 0%, #0f0a00 100%);
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: flex-end;
-        z-index: 999;
-        transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-        touch-action: pan-y;
-        overflow: hidden;
-    }
-
-    #mobile-panda-screen.hidden {
-        transform: translateY(-100%);
-        pointer-events: none;
-    }
-
-    .panda-glow {
-        position: absolute;
-        top: 25%;
-        left: 50%;
-        transform: translateX(-50%);
-        width: 280px;
-        height: 280px;
-        background: radial-gradient(circle, rgba(255, 165, 0, 0.3) 0%, transparent 70%);
-        border-radius: 50%;
-    }
-
-    #mobile-panda-img {
-        position: relative;
-        z-index: 1;
-        width: 70%;
-        max-width: 280px;
-        object-fit: contain;
-    }
-
-    .mobile-brand-name {
-        font-size: 24px;
-        font-weight: 800;
-        color: #FFB300;
-        letter-spacing: 3px;
-        margin: 10px 0 4px;
-        z-index: 1;
-    }
-
-    .mobile-swipe-hint {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: 2px;
-        margin: 16px 0 40px;
-        z-index: 1;
-        animation: swipe-pulse 1.6s ease-in-out infinite;
-    }
-
-    .swipe-arrow {
-        font-size: 22px;
-        color: #FFB300;
-        line-height: 1;
-    }
-
-    .swipe-arrow.dim {
-        opacity: 0.4;
-        margin-top: -8px;
-    }
-
-    .swipe-label {
-        font-size: 11px;
-        color: rgba(255, 255, 255, 0.55);
-        letter-spacing: 1.5px;
-        text-transform: uppercase;
-        margin-top: 4px;
-    }
-
-    @keyframes swipe-pulse {
-        0%, 100% { transform: translateY(0); opacity: 0.75; }
-        50% { transform: translateY(-8px); opacity: 1; }
-    }
-}

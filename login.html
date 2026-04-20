@@ -186,35 +186,51 @@
     <!-- Mobile Swipe Handler -->
     <script>
     (function () {
-        // Only run on mobile
-        if (window.innerWidth > 768) return;
+      if (window.innerWidth > 768) return;
 
-        const pandaScreen = document.getElementById('mobile-panda-screen');
-        if (!pandaScreen) return;
+      var overlay = document.getElementById('mobile-panda-screen');
+      if (!overlay) return;
 
-        let startY = null;
+      var startY = null;
+      var revealed = false;
 
-        function revealForm() {
-            pandaScreen.classList.add('hidden');
+      function revealForm() {
+        if (revealed) return;
+        revealed = true;
+        overlay.classList.add('mpanda-hidden');
+      }
+
+      overlay.addEventListener('touchstart', function (e) {
+        startY = e.touches[0].clientY;
+      }, { passive: true });
+
+      overlay.addEventListener('touchmove', function (e) {
+        if (startY === null) return;
+        var deltaY = startY - e.touches[0].clientY;
+        if (deltaY > 40) revealForm();
+      }, { passive: true });
+
+      overlay.addEventListener('touchend', function () {
+        startY = null;
+      }, { passive: true });
+
+      overlay.addEventListener('click', revealForm);
+
+      /* Also handle mouse drag for DevTools testing */
+      var mouseStartY = null;
+      overlay.addEventListener('mousedown', function (e) {
+        mouseStartY = e.clientY;
+      });
+      document.addEventListener('mousemove', function (e) {
+        if (mouseStartY === null) return;
+        if (mouseStartY - e.clientY > 40) {
+          revealForm();
+          mouseStartY = null;
         }
-
-        // Touch swipe up
-        pandaScreen.addEventListener('touchstart', function (e) {
-            startY = e.touches[0].clientY;
-        }, { passive: true });
-
-        pandaScreen.addEventListener('touchmove', function (e) {
-            if (startY === null) return;
-            const deltaY = startY - e.touches[0].clientY;
-            if (deltaY > 50) revealForm();
-        }, { passive: true });
-
-        pandaScreen.addEventListener('touchend', function () {
-            startY = null;
-        });
-
-        // Also allow tap to reveal (fallback)
-        pandaScreen.addEventListener('click', revealForm);
+      });
+      document.addEventListener('mouseup', function () {
+        mouseStartY = null;
+      });
     })();
     </script>
 </body>
