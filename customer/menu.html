@@ -58,8 +58,27 @@
                         🛒 Cart <span id="cart-count" class="cart-badge">0</span>
                     </a>
                 </div>
+                <!-- MOBILE HAMBURGER -->
+                <button id="mobile-nav-toggle" class="mobile-hamburger" aria-label="Open navigation menu" aria-expanded="false">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
             </div>
         </nav>
+
+        <!-- MOBILE NAV DRAWER -->
+        <div id="mobile-nav-drawer" class="mobile-nav-drawer" aria-hidden="true">
+            <div class="mobile-nav-inner">
+                <a href="./index.html" class="mobile-nav-link">Home</a>
+                <a href="./menu.html" class="mobile-nav-link">Menu</a>
+                <a href="./index.html#about" class="mobile-nav-link">About</a>
+                <a href="./index.html#reach" class="mobile-nav-link">Reach Us</a>
+                <a href="./index.html#connect" class="mobile-nav-link">Social</a>
+                <a href="#" class="mobile-nav-link mobile-nav-deals">🔥 Get Deals</a>
+            </div>
+            <div class="mobile-nav-overlay" id="mobile-nav-overlay"></div>
+        </div>
 
         <!-- MENU PAGE CONTENT -->
         <section id="menu-page-section">
@@ -426,5 +445,45 @@
     <script type="module" src="/src/theme.js"></script>
     <script type="module" src="/src/menu.js"></script>
     <script type="module" src="/premium.js"></script>
+    <script>
+(function() {
+    var toggle = document.getElementById('mobile-nav-toggle');
+    var drawer = document.getElementById('mobile-nav-drawer');
+    var overlay = document.getElementById('mobile-nav-overlay');
+    if (!toggle || !drawer) return;
+
+    function openNav() {
+        toggle.classList.add('open');
+        drawer.classList.add('open');
+        toggle.setAttribute('aria-expanded', 'true');
+        drawer.setAttribute('aria-hidden', 'false');
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeNav() {
+        toggle.classList.remove('open');
+        drawer.classList.remove('open');
+        toggle.setAttribute('aria-expanded', 'false');
+        drawer.setAttribute('aria-hidden', 'true');
+        document.body.style.overflow = '';
+    }
+
+    toggle.addEventListener('click', function() {
+        drawer.classList.contains('open') ? closeNav() : openNav();
+    });
+
+    if (overlay) overlay.addEventListener('click', closeNav);
+
+    // Close on ESC key
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') closeNav();
+    });
+
+    // Close on any nav link click
+    document.querySelectorAll('.mobile-nav-link').forEach(function(link) {
+        link.addEventListener('click', closeNav);
+    });
+})();
+    </script>
 </body>
 </html>

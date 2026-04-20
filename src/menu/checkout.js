@@ -28,6 +28,7 @@ let appliedCouponData = null;
 // DOM elements (populated in initCheckout)
 let checkoutItemsList = null;
 let checkoutAmount = null;
+let errorDisplay = null;
 
 // Handle special coupon types (freebie, special price, combo upgrade)
 
@@ -119,7 +120,7 @@ export const initCheckout = () => {
     const checkoutForm = document.querySelector('#checkout-form');
     const closeCheckout = document.querySelector('#close-checkout');
     const cartModal = document.querySelector('#cart-modal');
-    const errorDisplay = document.querySelector('#checkout-error');
+    errorDisplay = document.querySelector('#checkout-error');
     
     if (!checkoutModal || !checkoutForm) return;
     if (!checkoutModal || !closeCheckout) return;
