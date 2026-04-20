@@ -371,10 +371,10 @@ html[data-theme='light'] {
         width: 100vw;
         height: 100vh;
         z-index: 99999;
-        background: linear-gradient(180deg, #1a1200 0%, #0f0a00 100%);
+        background: linear-gradient(170deg, #2a1500 0%, #160b00 40%, #0d0600 100%);
         flex-direction: column;
         align-items: center;
-        justify-content: flex-end;
+        justify-content: center;
         transition: transform 0.55s cubic-bezier(0.4, 0, 0.2, 1);
         overflow: hidden;
     }
@@ -386,30 +386,34 @@ html[data-theme='light'] {
 
     .panda-glow {
         position: absolute;
-        top: 25%;
+        top: 50%;
         left: 50%;
-        transform: translateX(-50%);
-        width: 280px;
-        height: 280px;
-        background: radial-gradient(circle, rgba(255, 165, 0, 0.3) 0%, transparent 70%);
+        transform: translate(-50%, -60%);
+        width: 380px;
+        height: 380px;
+        background: radial-gradient(circle, rgba(255, 140, 0, 0.35) 0%, rgba(255, 80, 0, 0.1) 50%, transparent 70%);
         border-radius: 50%;
+        animation: glow-pulse 3s ease-in-out infinite;
     }
 
     #mobile-panda-img {
         position: relative;
         z-index: 1;
-        width: 70%;
-        max-width: 280px;
+        width: 82%;
+        max-width: 340px;
         object-fit: contain;
+        filter: drop-shadow(0 30px 60px rgba(255, 120, 0, 0.25));
+        animation: panda-float 4s ease-in-out infinite;
     }
 
     .mobile-brand-name {
-        font-size: 24px;
-        font-weight: 800;
+        font-size: 28px;
+        font-weight: 900;
         color: #FFB300;
-        letter-spacing: 3px;
-        margin: 10px 0 4px;
+        letter-spacing: 5px;
+        margin: 16px 0 6px;
         z-index: 1;
+        text-shadow: 0 0 30px rgba(255, 179, 0, 0.4);
     }
 
     .mobile-swipe-hint {
@@ -417,7 +421,7 @@ html[data-theme='light'] {
         flex-direction: column;
         align-items: center;
         gap: 2px;
-        margin: 16px 0 40px;
+        margin: 20px 0 0;
         z-index: 1;
         animation: swipe-pulse 1.6s ease-in-out infinite;
     }
@@ -444,6 +448,16 @@ html[data-theme='light'] {
     @keyframes swipe-pulse {
         0%, 100% { transform: translateY(0); opacity: 0.75; }
         50% { transform: translateY(-8px); opacity: 1; }
+    }
+
+    @keyframes panda-float {
+        0%, 100% { transform: translateY(0px); }
+        50% { transform: translateY(-12px); }
+    }
+
+    @keyframes glow-pulse {
+        0%, 100% { transform: translate(-50%, -60%) scale(1); opacity: 0.8; }
+        50% { transform: translate(-50%, -60%) scale(1.15); opacity: 1; }
     }
 
     .left {
