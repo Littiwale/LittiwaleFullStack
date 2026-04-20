@@ -99,6 +99,11 @@ body.signup-mode .hero-img-signup { opacity: 1; transform: scale(1); }
     pointer-events: none;
 }
 
+/* ── MOBILE PANDA SCREEN DEFAULT HIDDEN ON DESKTOP ── */
+#mobile-panda-screen {
+    display: none;
+}
+
 /* ── LOGO OVERLAY ── */
 .logo-overlay {
     position: absolute;
