@@ -133,23 +133,41 @@ const renderOrder = async (order, docId) => {
     result.classList.remove('hidden');
 
     orderIdDisplay.textContent = order.orderId;
-    statusBadge.textContent = order.status;
-    
-    orderIdDisplay.textContent = order.orderId;
     statusBadge.textContent = order.status.replace(/_/g, ' ');
     
-    // Status color
-    const statusClasses = {
-        [ORDER_STATUS.PLACED]:           'bg-blue-900 text-blue-300',
-        [ORDER_STATUS.ACCEPTED]:         'bg-indigo-900 text-indigo-300',
-        [ORDER_STATUS.PREPARING]:        'bg-orange-900 text-orange-300',
-        [ORDER_STATUS.READY]:            'bg-yellow-900 text-yellow-300',
-        [ORDER_STATUS.ASSIGNED]:         'bg-purple-900 text-purple-300',
-        [ORDER_STATUS.DELIVERED]:        'bg-green-900 text-green-300',
-        [ORDER_STATUS.CANCELLED]:        'bg-red-900 text-red-300',
-        [ORDER_STATUS.REJECTED]:         'bg-red-900 text-red-300'
+    // Status badge colors - brand-aligned (amber/green/red)
+    const statusConfig = {
+        [ORDER_STATUS.PLACED]:           { bg: 'rgba(245,158,11,0.12)', color: '#F59E0B', label: 'Order Placed', emoji: '📋' },
+        [ORDER_STATUS.ACCEPTED]:         { bg: 'rgba(245,158,11,0.12)', color: '#F59E0B', label: 'Accepted', emoji: '✅' },
+        [ORDER_STATUS.PREPARING]:        { bg: 'rgba(244,180,0,0.12)', color: '#F4B400', label: 'Preparing', emoji: '👨‍🍳' },
+        [ORDER_STATUS.READY]:            { bg: 'rgba(244,180,0,0.12)', color: '#F4B400', label: 'Ready for Pickup', emoji: '🎉' },
+        [ORDER_STATUS.ASSIGNED]:         { bg: 'rgba(16,185,129,0.12)', color: '#10B981', label: 'Out for Delivery', emoji: '🛵' },
+        [ORDER_STATUS.DELIVERED]:        { bg: 'rgba(16,185,129,0.15)', color: '#10B981', label: 'Delivered', emoji: '🎉' },
+        [ORDER_STATUS.CANCELLED]:        { bg: 'rgba(239,68,68,0.12)', color: '#EF4444', label: 'Cancelled', emoji: '❌' },
+        [ORDER_STATUS.REJECTED]:         { bg: 'rgba(239,68,68,0.12)', color: '#EF4444', label: 'Rejected', emoji: '❌' }
     };
-    statusBadge.className = `px-4 py-1 rounded-full text-[10px] font-black uppercase tracking-widest ${statusClasses[order.status] || 'bg-gray-800'}`;
+    
+    const config = statusConfig[order.status] || { bg: 'rgba(107,114,128,0.12)', color: '#9CA3AF', label: order.status.replace(/_/g, ' '), emoji: '' };
+    statusBadge.style.background = config.bg;
+    statusBadge.style.color = config.color;
+    statusBadge.style.border = `1px solid ${config.color}40`;
+    statusBadge.textContent = `${config.emoji} ${config.label}`;
+    statusBadge.className = 'px-4 py-2 rounded-full text-[12px] font-black uppercase tracking-widest';
+    
+    // Friendly status message
+    const statusMessages = {
+        [ORDER_STATUS.PLACED]: "Your order is confirmed! Hang tight.",
+        [ORDER_STATUS.ACCEPTED]: "The kitchen has your order. Starting soon!",
+        [ORDER_STATUS.PREPARING]: "Your food is being made right now 🔥",
+        [ORDER_STATUS.READY]: "Your order is ready for pickup!",
+        [ORDER_STATUS.ASSIGNED]: "On the way! Usually arrives in 10–20 minutes.",
+        [ORDER_STATUS.DELIVERED]: "Enjoy your meal! Come back soon 😊",
+        [ORDER_STATUS.CANCELLED]: "This order was cancelled. Contact us if you need help.",
+        [ORDER_STATUS.REJECTED]: "This order was rejected. Contact us for assistance."
+    };
+    const msg = statusMessages[order.status] || "Your order is being processed.";
+    const msgEl = document.querySelector('#order-status-message');
+    if (msgEl) msgEl.textContent = msg;
 
     // Handle Rider Info
     if (order.riderId && order.status === ORDER_STATUS.ASSIGNED) {

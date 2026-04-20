@@ -1,9 +1,6 @@
 const CACHE_NAME = 'littiwale-v1';
 const STATIC_ASSETS = [
-    '/',
     '/index.html',
-    '/src/style.css',
-    '/images/logo.png',
     '/favicon.ico'
 ];
 
@@ -12,9 +9,12 @@ self.addEventListener('install', (event) => {
     event.waitUntil(
         caches.open(CACHE_NAME).then((cache) => {
             console.log('📦 PWA: Caching basic static assets (Safe Mode)');
-            return cache.addAll(STATIC_ASSETS);
+            return cache.addAll(STATIC_ASSETS).catch((err) => {
+                console.warn('Cache.addAll failed, continuing anyway:', err);
+            });
         })
     );
+    self.skipWaiting();
 });
 
 // Activate Event

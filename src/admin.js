@@ -402,7 +402,7 @@ const initMenuBulkOperations = () => {
         const allChecked = Array.from(checkboxes).every(cb => cb.checked);
         
         checkboxes.forEach(cb => cb.checked = !allChecked);
-        selectAllCheckbox.checked = !allChecked;
+        if (selectAllCheckbox) selectAllCheckbox.checked = !allChecked;  // Safe null guard
         updateBulkButtons();
     });
 
@@ -427,11 +427,13 @@ const initMenuBulkOperations = () => {
         if (e.target.classList.contains('menu-item-checkbox')) {
             updateBulkButtons();
             
-            // Update select all checkbox state
-            const allCheckboxes = document.querySelectorAll('.menu-item-checkbox');
-            const checkedCheckboxes = document.querySelectorAll('.menu-item-checkbox:checked');
-            selectAllCheckbox.checked = allCheckboxes.length > 0 && allCheckboxes.length === checkedCheckboxes.length;
-            selectAllCheckbox.indeterminate = checkedCheckboxes.length > 0 && checkedCheckboxes.length < allCheckboxes.length;
+            // Update select all checkbox state with safe null guard
+            if (selectAllCheckbox) {
+                const allCheckboxes = document.querySelectorAll('.menu-item-checkbox');
+                const checkedCheckboxes = document.querySelectorAll('.menu-item-checkbox:checked');
+                selectAllCheckbox.checked = allCheckboxes.length > 0 && allCheckboxes.length === checkedCheckboxes.length;
+                selectAllCheckbox.indeterminate = checkedCheckboxes.length > 0 && checkedCheckboxes.length < allCheckboxes.length;
+            }
         }
     });
 };
@@ -1141,6 +1143,21 @@ const renderOrders = () => {
 const createOrderCard = (order) => {
     const time = order.createdAt?.toDate ? new Date(order.createdAt.toDate()).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'Now';
     
+    // Status label mapping for human-readable display
+    const STATUS_LABELS = {
+        'PLACED': 'Order Placed',
+        'ACCEPTED': 'Accepted',
+        'PREPARING': 'In Kitchen',
+        'READY': 'Ready for Pickup',
+        'ASSIGNED': 'On the Way',
+        'DELIVERED': 'Delivered',
+        'CANCELLED': 'Cancelled',
+        'REJECTED': 'Rejected',
+        'PENDING': 'Pending',
+        'AWAITING_PAYMENT': 'Awaiting Payment',
+        'ARCHIVE_AWAITING_PAYMENT': 'Awaiting Payment (Archived)'
+    };
+    
     // Status color mapping
     const statusColors = {
         [ORDER_STATUS.PLACED]: 'bg-blue-500/10 text-blue-400 border-blue-500/30',
@@ -1154,6 +1171,7 @@ const createOrderCard = (order) => {
     };
 
     const colorClass = statusColors[order.status] || 'bg-gray-800 text-gray-400 border-gray-700';
+    const statusLabel = STATUS_LABELS[order.status] || order.status.replace(/_/g, ' ');
 
     return `
         <div class="admin-order-card">
@@ -1169,7 +1187,7 @@ const createOrderCard = (order) => {
             </div>
 
             <div class="flex items-center gap-2 mb-4">
-                <span class="order-badge-pill border ${colorClass}">${order.status.replace(/_/g, ' ')}</span>
+                <span class="order-badge-pill border ${colorClass}">${statusLabel}</span>
                 <span class="px-2 py-0.5 rounded bg-gray-800 text-[10px] font-bold text-gray-400 border border-gray-700">${order.paymentMethod}</span>
             </div>
 
@@ -1214,7 +1232,9 @@ const renderActionButtons = (order) => {
         case ORDER_STATUS.ASSIGNED:
              return `<button onclick="updateOrderStatus('${order.id}', '${ORDER_STATUS.DELIVERED}')" class="action-btn-sm bg-green-600 text-white w-full">Mark Delivered</button>`;
         default:
-            return `<span class="text-[10px] text-gray-600 font-bold uppercase">Archive: ${order.status}</span>`;
+            const archiveLabels = {'PENDING': 'Pending', 'AWAITING_PAYMENT': 'Awaiting Payment', 'ARCHIVE_AWAITING_PAYMENT': 'Awaiting Payment (Archived)'};
+            const archiveLabel = archiveLabels[order.status] || order.status.replace(/_/g, ' ');
+            return `<span class="text-[10px] text-gray-600 font-bold uppercase">Archive: ${archiveLabel}</span>`;
     }
 };
 
@@ -1837,9 +1857,9 @@ const updateCouponTypeFields = () => {
     setTimeout(() => {
         const inputs = typeFields.querySelectorAll('input');
         inputs.forEach(input => {
-            input.addEventListener('input', autoGenerateCouponDescription);
+            input.addEventListener('input', generateCouponDescription);
         });
-        autoGenerateCouponDescription();
+        generateCouponDescription();
     }, 50);
 };
 

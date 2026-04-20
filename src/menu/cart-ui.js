@@ -143,7 +143,7 @@ document.addEventListener('click', (e) => {
     }
     
     // Open Checkout Modal Event Delegation
-    if (target.id === 'proceed-checkout-btn') {
+    if (target.id === 'proceed-checkout-btn' || target.closest('#proceed-checkout-btn')) {
         const cart = getCart();
         if (cart.length === 0) return;
         

@@ -4,6 +4,7 @@ import { initCheckout } from './menu/checkout';
 import { onAuthChange, logoutUser } from './api/auth';
 import { fetchAnnouncements } from './api/announcements';
 import { createTicket } from './api/tickets';
+import './scroll-reveal.js';
 import { addItem, getCart } from './store/cart';
 import { fetchOrdersByUser } from './api/orders';
 import { updateDeliveryEstimate, loadMyOrders, showToast } from './utils';
@@ -518,6 +519,7 @@ init();
 // ── ABANDONED CART RECOVERY BANNER (Task 9.3) ──
 /**
  * Shows a banner if user has items in cart but hasn't checked out.
+ * Only shows if user has visited menu before (contextually smart).
  * Banner appears after 1.5s, auto-dismisses after 6s, or on manual close.
  */
 const setupAbandonedCartRecovery = () => {
@@ -525,7 +527,11 @@ const setupAbandonedCartRecovery = () => {
     if (!banner) return;
 
     const cart = getCart();
-    if (cart.length === 0) {
+    
+    // Only show banner if:
+    // 1. Cart has items
+    // 2. User has visited the menu before
+    if (cart.length === 0 || !localStorage.getItem('lw_visited_menu')) {
         banner.style.display = 'none';
         return;
     }

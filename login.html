@@ -167,8 +167,55 @@
 
             </div>
         </div>
+
+        <!-- MOBILE ONLY: Panda swipe screen -->
+        <div id="mobile-panda-screen">
+            <div class="panda-glow"></div>
+            <img src="/images/login_panda.png" alt="Panda" id="mobile-panda-img" />
+            <div class="mobile-brand-name">LITTIWALE</div>
+            <div class="mobile-swipe-hint">
+                <span class="swipe-arrow">&#8679;</span>
+                <span class="swipe-arrow dim">&#8679;</span>
+                <span class="swipe-label">Swipe up to login</span>
+            </div>
+        </div>
     </div>
 
     <script type="module" src="./src/login.js"></script>
+
+    <!-- Mobile Swipe Handler -->
+    <script>
+    (function () {
+        // Only run on mobile
+        if (window.innerWidth > 768) return;
+
+        const pandaScreen = document.getElementById('mobile-panda-screen');
+        if (!pandaScreen) return;
+
+        let startY = null;
+
+        function revealForm() {
+            pandaScreen.classList.add('hidden');
+        }
+
+        // Touch swipe up
+        pandaScreen.addEventListener('touchstart', function (e) {
+            startY = e.touches[0].clientY;
+        }, { passive: true });
+
+        pandaScreen.addEventListener('touchmove', function (e) {
+            if (startY === null) return;
+            const deltaY = startY - e.touches[0].clientY;
+            if (deltaY > 50) revealForm();
+        }, { passive: true });
+
+        pandaScreen.addEventListener('touchend', function () {
+            startY = null;
+        });
+
+        // Also allow tap to reveal (fallback)
+        pandaScreen.addEventListener('click', revealForm);
+    })();
+    </script>
 </body>
 </html>

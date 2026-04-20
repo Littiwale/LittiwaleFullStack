@@ -18,21 +18,16 @@ const debounce = (func, wait) => {
     };
 };
 
-const checkoutModal = document.querySelector('#checkout-modal');
-const checkoutForm = document.querySelector('#checkout-form');
-const checkoutAmount = document.querySelector('#checkout-amount');
-const closeCheckout = document.querySelector('#close-checkout');
-const placeOrderBtn = document.querySelector('#place-order-btn');
-const cartModal = document.querySelector('#cart-modal');
-const errorDisplay = document.querySelector('#checkout-error');
-const checkoutItemsList = document.querySelector('#checkout-items-list');
-
 // Coupon state
 let appliedDiscount = 0;
 let appliedCouponCode = '';
 let appliedCouponType = '';
 let appliedCouponDetails = {};
 let appliedCouponData = null;
+
+// DOM elements (populated in initCheckout)
+let checkoutItemsList = null;
+let checkoutAmount = null;
 
 // Handle special coupon types (freebie, special price, combo upgrade)
 
@@ -117,6 +112,16 @@ const revalidateAppliedCoupon = async () => {
 const DELIVERY_FEE = 30; // TODO: replace flat ₹30 with actual distance-based calculation when GPS integration is added
 
 export const initCheckout = () => {
+    // Query DOM elements only when initializing (after DOM is ready)
+    checkoutItemsList = document.querySelector('#checkout-items-list');
+    checkoutAmount = document.querySelector('#checkout-amount');
+    const checkoutModal = document.querySelector('#checkout-modal');
+    const checkoutForm = document.querySelector('#checkout-form');
+    const closeCheckout = document.querySelector('#close-checkout');
+    const cartModal = document.querySelector('#cart-modal');
+    const errorDisplay = document.querySelector('#checkout-error');
+    
+    if (!checkoutModal || !checkoutForm) return;
     if (!checkoutModal || !closeCheckout) return;
 
     // Listen to custom event from cart-ui
@@ -186,19 +191,6 @@ export const initCheckout = () => {
             applyBtn.disabled = false;
 
             if (result.valid) {
-                // Record successful coupon usage for analytics
-                try {
-                    await recordCouponUsage(
-                        code,
-                        auth?.currentUser?.uid,
-                        result.discount,
-                        rawTotal,
-                        null // orderId will be set after order creation
-                    );
-                } catch (error) {
-                    console.error('Failed to record coupon usage analytics:', error);
-                }
-
                 // Store coupon details for different types
                 appliedDiscount = result.discount;
                 appliedCouponCode = code.toUpperCase();
@@ -284,8 +276,15 @@ const updateCheckoutTotal = () => {
                     </div>
                     ${appliedDiscount > 0 ? `<div style="font-size: 11px; color: #ef4444; text-decoration: line-through; opacity: 0.8;">₹${rawTotal}</div>` : ''}
                 ` : ''}
-                <div style="font-size: 20px; font-weight: 900; color: #C47F17;">₹${itemSubtotal}</div>
-                <span class="text-[10px] text-white/70 font-medium tracking-normal lowercase">delivery charges applicable at checkout</span>
+                <div style="display:flex;justify-content:space-between;width:100%;font-size:13px;color:rgba(255,255,255,0.6);margin-bottom:4px;">
+                    <span>Subtotal</span><span>₹${itemSubtotal}</span>
+                </div>
+                <div style="display:flex;justify-content:space-between;width:100%;font-size:13px;color:rgba(255,255,255,0.6);margin-bottom:8px;">
+                    <span>Delivery fee</span><span>₹${DELIVERY_FEE}</span>
+                </div>
+                <div style="border-top:1px solid rgba(255,255,255,0.15);padding-top:8px;display:flex;justify-content:space-between;width:100%;font-size:20px;font-weight:900;color:#C47F17;">
+                    <span>Grand Total</span><span>₹${itemSubtotal + DELIVERY_FEE}</span>
+                </div>
             </div>
         `;
     }
@@ -877,6 +876,10 @@ const loadSavedAddresses = async () => {
 const handleCheckoutSubmit = async (e) => {
     e.preventDefault();
 
+    // Re-query button every time handler fires — modal elements may not exist at module load
+    const placeOrderBtn = document.querySelector('#place-order-btn');
+    if (!placeOrderBtn) return; // Safety guard
+
     placeOrderBtn.disabled = true;
     const originalBtnText = placeOrderBtn.innerHTML;
     placeOrderBtn.innerHTML = 'PROCESSING... ⏳';
@@ -897,7 +900,8 @@ const handleCheckoutSubmit = async (e) => {
 
         if (customerDetails.phone.length !== 10) {
             showError('Please enter a valid 10-digit phone number.');
-            resetButton(originalBtnText);
+            placeOrderBtn.disabled = false;
+            placeOrderBtn.innerHTML = originalBtnText;
             return;
         }
 
@@ -908,7 +912,8 @@ const handleCheckoutSubmit = async (e) => {
         const validation = await validateOrder(cart);
         if (!validation.isValid) {
             showError(validation.error);
-            resetButton(originalBtnText);
+            placeOrderBtn.disabled = false;
+            placeOrderBtn.innerHTML = originalBtnText;
             return;
         }
 
@@ -935,18 +940,19 @@ const handleCheckoutSubmit = async (e) => {
         if (!success) throw new Error('Failed to create order entry');
         if (!trackingToken) throw new Error('Failed to generate secure tracking token.');
 
-        // Update coupon usage analytics with order ID
-        if (appliedCouponCode && appliedCouponData) {
+        // Record coupon usage ONLY after successful order creation
+        if (appliedCouponCode && success) {
             try {
-                // Note: We already recorded the usage during validation, but now we can update with orderId
-                // For now, we'll just ensure the usage count is incremented
-                await updateDoc(doc(db, 'coupons', appliedCouponCode), {
-                    usedCount: (appliedCouponData.usedCount || 0) + 1,
-                    updatedAt: serverTimestamp()
-                });
+                await recordCouponUsage(
+                    appliedCouponCode,
+                    auth?.currentUser?.uid,
+                    appliedDiscount,
+                    rawTotal,
+                    orderId
+                );
             } catch (error) {
-                console.error('Failed to update coupon usage count:', error);
-                // Don't fail the order for this - it's not critical
+                console.error('Failed to record coupon usage analytics:', error);
+                // Non-critical — don't fail the order
             }
         }
 
@@ -966,17 +972,26 @@ const handleCheckoutSubmit = async (e) => {
         } else {
             // Future-proofing, theoretically unreachable due to disabled radio inputs
             showError("Selected payment method is currently unavailable.");
-            resetButton(originalBtnText);
+            placeOrderBtn.disabled = false;
+            placeOrderBtn.innerHTML = originalBtnText;
         }
 
     } catch (error) {
         console.error('Checkout failed:', error);
         showError(error.message || 'An unexpected error occurred. Please try again.');
-        resetButton(originalBtnText);
+        placeOrderBtn.disabled = false;
+        placeOrderBtn.innerHTML = originalBtnText;
     }
 };
 
 const handleCODSuccess = async (orderId, trackingToken) => {
+    // Update status from AWAITING_PAYMENT → PENDING so admin sees it immediately
+    try {
+        await updateOrderDetails(orderId, { status: ORDER_STATUS.PENDING });
+    } catch (err) {
+        console.error('Failed to update order status to PENDING:', err);
+        // Don't block the customer — order is created, proceed
+    }
     clearCart();
     // Secure tracking now requires both order ID and generated token
     window.location.href = `/customer/track.html?id=${orderId}&token=${trackingToken}`;
@@ -984,11 +999,6 @@ const handleCODSuccess = async (orderId, trackingToken) => {
 
 const sanitizePhone = (phone) => {
     return phone.replace(/[^0-9]/g, '').slice(-10);
-};
-
-const resetButton = (text) => {
-    placeOrderBtn.disabled = false;
-    placeOrderBtn.innerHTML = text;
 };
 
 const showError = (msg) => {

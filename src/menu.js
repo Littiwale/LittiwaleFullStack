@@ -15,7 +15,31 @@ import { updateDeliveryEstimate, loadMyOrders, showToast } from './utils';
 
 let menuData = [];
 
+// ── MODAL UTILITIES (Module-Level for Global Access) ──
+const showModal = (modalElement) => {
+    if (!modalElement) return;
+    modalElement.classList.remove('modal-closing');
+    modalElement.style.display = 'flex';
+    requestAnimationFrame(() => modalElement.classList.add('modal-open'));
+};
+
+const hideModal = (modalElement) => {
+    if (!modalElement) return;
+    modalElement.classList.add('modal-closing');
+    modalElement.classList.remove('modal-open');
+    window.setTimeout(() => {
+        // GUARD: only hide if still in closing state (not reopened)
+        if (modalElement.classList.contains('modal-closing')) {
+            modalElement.style.display = 'none';
+            modalElement.classList.remove('modal-closing');
+        }
+    }, 250);
+};
+
 const initMenu = async () => {
+
+    // Mark that user has visited the menu page (for contextual cart banner display)
+    localStorage.setItem('lw_visited_menu', 'true');
 
     // 1. AUTH & NAVIGATION STATE
     onAuthChange((user) => {
@@ -123,26 +147,6 @@ const initMenu = async () => {
     window.addEventListener('cartUpdated', syncCartBadges);
     window.addEventListener('cartUpdated', () => refreshAllCardCTAs(menuData));
     syncCartBadges();
-
-
-    const showModal = (modalElement) => {
-        if (!modalElement) return;
-        modalElement.classList.remove('modal-closing');
-        modalElement.style.display = 'flex';
-        requestAnimationFrame(() => modalElement.classList.add('modal-open'));
-    };
-
-    const hideModal = (modalElement) => {
-        if (!modalElement) return;
-        modalElement.classList.add('modal-closing');
-        modalElement.classList.remove('modal-open');
-        window.setTimeout(() => {
-            if (modalElement.classList.contains('modal-closing')) {
-                modalElement.style.display = 'none';
-                modalElement.classList.remove('modal-closing');
-            }
-        }, 250);
-    };
 
     // Cart Modal Interactions
     const cartBtn = document.querySelector('#nav-cart-btn');
@@ -261,8 +265,8 @@ window.reorderItems = (items) => {
     items.forEach(item => addItem(item, item.variant || 'single', item.price));
     const myOrdersModal = document.querySelector('#my-orders-modal');
     const cartModal = document.querySelector('#cart-modal');
-    if (myOrdersModal) myOrdersModal.style.display = 'none';
-    if (cartModal) cartModal.style.display = 'flex';
+    if (myOrdersModal) hideModal(myOrdersModal);
+    if (cartModal) showModal(cartModal);
     showToast('Items added to cart! 🛒');
 };
 
@@ -278,6 +282,8 @@ function initMenuSearch(items) {
     const stickyBar = document.getElementById('lw-search-sticky-bar');
     const spacer = document.getElementById('lw-search-spacer');
     const container = document.querySelector('#menu-grid-container');
+    const floatingFilterBtn = document.getElementById('floating-filter-btn');
+    const categoryFilter = document.getElementById('category-filter');
 
     if (!searchInput || !dropdown || !clearBtn) return;
 
@@ -426,11 +432,35 @@ function initMenuSearch(items) {
     });
 
     // Sticky Scroll Logic
+    // Initial state: floating filter hidden (shown only on scroll)
+    if (floatingFilterBtn) floatingFilterBtn.style.display = 'none';
+
     window.addEventListener('scroll', () => {
-        if (window.scrollY > 100) {
+        const scrolled = window.scrollY > 120;
+
+        // Sticky search bar scroll class (existing)
+        if (scrolled) {
             stickyBar.classList.add('lw-scrolled');
         } else {
             stickyBar.classList.remove('lw-scrolled');
+        }
+
+        // Filter section: hide when scrolled, show floating button instead
+        if (categoryFilter) {
+            if (scrolled) {
+                categoryFilter.classList.add('filter-hidden');
+            } else {
+                categoryFilter.classList.remove('filter-hidden');
+            }
+        }
+
+        // Floating filter button: opposite of filter section visibility
+        if (floatingFilterBtn) {
+            if (scrolled) {
+                floatingFilterBtn.style.display = 'inline-flex'; // Show floating btn
+            } else {
+                floatingFilterBtn.style.display = 'none'; // Hide floating btn
+            }
         }
     }, { passive: true });
 

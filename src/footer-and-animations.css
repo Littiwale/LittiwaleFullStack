@@ -1,0 +1,96 @@
+/* 🎫 FOOTER STYLES */
+.site-footer {
+  background: #0a0a0a;
+  border-top: 1px solid rgba(244,180,0,0.15);
+  padding: 60px 0 0;
+}
+
+.footer-grid {
+  display: grid;
+  grid-template-columns: 1.5fr 1fr 1fr 1fr;
+  gap: 40px;
+  padding-bottom: 48px;
+}
+
+.footer-logo { height: 48px; margin-bottom: 16px; }
+.footer-tagline { color: var(--text-secondary); font-size: 14px; margin-bottom: 20px; }
+
+.footer-social { display: flex; gap: 16px; }
+.footer-social a {
+  width: 36px; height: 36px; border-radius: 50%;
+  background: rgba(244,180,0,0.1); border: 1px solid rgba(244,180,0,0.2);
+  display: flex; align-items: center; justify-content: center;
+  color: var(--primary); font-size: 14px;
+  transition: background 0.2s, transform 0.2s;
+}
+.footer-social a:hover { background: var(--primary); color: #000; transform: translateY(-2px); }
+
+.footer-links-col h4,
+.footer-info-col h4,
+.footer-cta-col h4 {
+  font-size: 11px; font-weight: 800; letter-spacing: 2px;
+  text-transform: uppercase; color: var(--primary);
+  margin-bottom: 16px;
+}
+
+.footer-links-col ul { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+.footer-links-col a { color: var(--text-secondary); font-size: 14px; text-decoration: none; transition: color 0.2s; }
+.footer-links-col a:hover { color: var(--primary); }
+
+.footer-info-col p { color: var(--text-secondary); font-size: 14px; line-height: 1.7; }
+.footer-order-btn { display: block; text-align: center; width: 100%; }
+
+.footer-bottom {
+  border-top: 1px solid rgba(255,255,255,0.06);
+  padding: 20px 0;
+  text-align: center;
+}
+.footer-bottom p { color: var(--text-muted); font-size: 12px; }
+
+@media (max-width: 768px) {
+  .footer-grid { grid-template-columns: 1fr 1fr; gap: 32px; }
+}
+@media (max-width: 480px) {
+  .footer-grid { grid-template-columns: 1fr; }
+}
+
+/* 🎭 SCROLL-REVEAL ANIMATIONS */
+.reveal {
+  opacity: 0;
+  transform: translateY(32px);
+  transition: opacity 0.6s ease, transform 0.6s ease;
+}
+
+.reveal.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.reveal-delay-1 { transition-delay: 0.1s; }
+.reveal-delay-2 { transition-delay: 0.2s; }
+.reveal-delay-3 { transition-delay: 0.3s; }
+.reveal-delay-4 { transition-delay: 0.4s; }
+
+/* Hall of Fame cards with reveal animation */
+.hof-card {
+  opacity: 0;
+  transform: translateY(32px);
+  transition: opacity 0.6s ease, transform 0.6s ease;
+}
+
+.hof-card.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Catering cards with reveal animation */
+.catering-card {
+  opacity: 0;
+  transform: translateY(32px);
+  transition: opacity 0.6s ease, transform 0.6s ease;
+}
+
+.catering-card.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}

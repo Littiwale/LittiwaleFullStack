@@ -119,7 +119,7 @@ const initRiderToggle = async (riderId) => {
             toggle.checked = isOnline;
             text.textContent = isOnline ? 'Online' : 'Offline';
             text.style.color = isOnline ? '#10B981' : '#7a8098';
-            slider.style.backgroundColor = isOnline ? '#10B981' : '#ef4444';
+            slider.style.backgroundColor = isOnline ? '#10B981' : '#6B7280';
             knob.style.transform = isOnline ? 'translateX(24px)' : 'translateX(0)';
         }
     } catch(e) {}
@@ -139,7 +139,7 @@ const initRiderToggle = async (riderId) => {
             await updateDoc(doc(db, 'users', riderId), updateData);
             text.textContent = isOnline ? 'Online' : 'Offline';
             text.style.color = isOnline ? '#10B981' : '#7a8098';
-            slider.style.backgroundColor = isOnline ? '#10B981' : '#ef4444';
+            slider.style.backgroundColor = isOnline ? '#10B981' : '#6B7280';
             knob.style.transform = isOnline ? 'translateX(24px)' : 'translateX(0)';
         } catch(err) {
             console.error('Failed to toggle status', err);
