@@ -1234,6 +1234,40 @@ html[data-theme='light'] .nav-links a.active {
         padding: 10px 12px;
         font-size: 11px;
     }
+
+    /* ── PHASE 5: Mobile category tabs horizontal scroll ── */
+    .category-strip {
+        display: flex !important;
+        flex-wrap: nowrap !important;
+        overflow-x: auto !important;
+        overflow-y: hidden !important;
+        -webkit-overflow-scrolling: touch;
+        scroll-snap-type: x mandatory;
+        padding: 10px 16px;
+        gap: 8px;
+        scrollbar-width: none;
+        -ms-overflow-style: none;
+    }
+
+    .category-strip::-webkit-scrollbar {
+        display: none;
+    }
+
+    .category-tab {
+        flex-shrink: 0 !important;
+        scroll-snap-align: start;
+        white-space: nowrap !important;
+        min-width: max-content !important;
+    }
+
+    .diet-filters {
+        flex-wrap: nowrap;
+        gap: 8px;
+    }
+
+    #category-filter {
+        padding: 12px 0 10px;
+    }
 }
 
 .filter-pill:hover,
