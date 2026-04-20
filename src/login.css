@@ -454,5 +454,9 @@ html[data-theme='light'] {
         width: 100%;
         z-index: 1;
     }
+
+    body.signup-mode .right {
+        transform: translateX(0) !important;
+    }
 }
 
