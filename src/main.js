@@ -4,7 +4,7 @@ import { initCheckout } from './menu/checkout';
 import { onAuthChange, logoutUser } from './api/auth';
 import { fetchAnnouncements } from './api/announcements';
 import { createTicket } from './api/tickets';
-import './scroll-reveal.js';
+import { initScrollReveal } from './scroll-reveal.js';
 import { addItem, getCart } from './store/cart';
 import { fetchOrdersByUser } from './api/orders';
 import { updateDeliveryEstimate, loadMyOrders, showToast } from './utils';
@@ -196,6 +196,9 @@ const init = async () => {
         if (menuData.length > 0) {
             renderHourlyDeals(menuData);
             renderHallOfFame(menuData);
+            
+            // Re-initialize scroll reveal for dynamically added .hof-card elements
+            initScrollReveal();
         }
     } catch (err) { console.error('Menu load failed:', err); }
 
