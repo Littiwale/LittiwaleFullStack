@@ -10,14 +10,14 @@ import { fetchOrdersByUser } from './api/orders';
 import { updateDeliveryEstimate, loadMyOrders, showToast } from './utils';
 import './pwa.js';
 
-// Firebase Storage URLs (migrated from git to reduce repo size from 259MB to ~50MB)
+// Local optimized images — matched by deal name → filename slug
 const HOURLY_DEAL_IMAGE_MAP = {
-  'Kuch bhi khila de 😭': 'https://firebasestorage.googleapis.com/v0/b/littiwale-ordering-system.appspot.com/o/images%2Fmenu%2FCraziest%20Deal%20Menu%2Fkuch-bhi-khila-de.png?alt=media',
-  'Tera jo mann wo khila de 😏': 'https://firebasestorage.googleapis.com/v0/b/littiwale-ordering-system.appspot.com/o/images%2Fmenu%2FCraziest%20Deal%20Menu%2Ftera-jo-mann-wo-khila-de.png?alt=media',
-  'Aaj diet bhool ja 😈': 'https://firebasestorage.googleapis.com/v0/b/littiwale-ordering-system.appspot.com/o/images%2Fmenu%2FCraziest%20Deal%20Menu%2Faaj-diet-bhool-ja.png?alt=media',
-  'Bhook lagi hai boss 🔥': 'https://firebasestorage.googleapis.com/v0/b/littiwale-ordering-system.appspot.com/o/images%2Fmenu%2FCraziest%20Deal%20Menu%2Fbhook-lagi-hai-boss.png?alt=media',
-  'Mehmaan nawazi special ✨': 'https://firebasestorage.googleapis.com/v0/b/littiwale-ordering-system.appspot.com/o/images%2Fmenu%2FCraziest%20Deal%20Menu%2Fpet-bhar-combo.png?alt=media',
-  'Tera jo mann khila de 😌': 'https://firebasestorage.googleapis.com/v0/b/littiwale-ordering-system.appspot.com/o/images%2Fmenu%2FCraziest%20Deal%20Menu%2Ftera-jo-mann-khila-de.png?alt=media',
+  'Kuch bhi khila de 😭': '/assets/menu/craziest-images/kuch-bhi-khila-de.png',
+  'Tera jo mann wo khila de 😏': '/assets/menu/craziest-images/tera-jo-mann-wo-khila-de.png',
+  'Aaj diet bhool ja 😈': '/assets/menu/craziest-images/aaj-diet-bhool-ja.png',
+  'Bhook lagi hai boss 🔥': '/assets/menu/craziest-images/bhook-lagi-hai-boss.png',
+  'Mehmaan nawazi special ✨': '/assets/menu/craziest-images/pet-bhar-combo.png',
+  'Tera jo mann khila de 😌': '/assets/menu/craziest-images/tera-jo-mann-khila-de.png',
 };
 
 /**

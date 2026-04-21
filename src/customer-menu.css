@@ -699,6 +699,13 @@ nav.navbar.navbar-scrolled {
     border-bottom: 1px solid rgba(255,255,255,0.05);
 }
 
+.category-strip.strip-hidden {
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(-20px);
+    transition: all 0.3s ease;
+}
+
 .category-tab {
     min-width: 130px;
     background: transparent;
@@ -1240,24 +1247,16 @@ html[data-theme='light'] .nav-links a.active {
     /* ── PHASE 5: Mobile category tabs horizontal scroll ── */
     .category-strip {
         display: flex !important;
-        flex-wrap: nowrap !important;
-        overflow-x: auto !important;
+        flex-wrap: wrap !important;          /* ← wrap, not nowrap */
+        overflow-x: hidden !important;       /* ← no horizontal scroll */
         overflow-y: hidden !important;
-        -webkit-overflow-scrolling: touch;
-        scroll-snap-type: x mandatory;
-        padding: 10px 16px;
+        justify-content: center;
+        padding: 10px 12px;
         gap: 8px;
-        scrollbar-width: none;
-        -ms-overflow-style: none;
-    }
-
-    .category-strip::-webkit-scrollbar {
-        display: none;
     }
 
     .category-tab {
         flex-shrink: 0 !important;
-        scroll-snap-align: start;
         white-space: nowrap !important;
         min-width: max-content !important;
     }

@@ -1,4 +1,6 @@
 import { db } from '../firebase/config';
+import { storage } from '../firebase/config';
+import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { collection, query, where, orderBy, getDocs, addDoc, doc, updateDoc, deleteDoc, serverTimestamp } from 'firebase/firestore';
 
 /**
@@ -55,10 +57,14 @@ export const createAnnouncement = async (imageFile, meta) => {
     try {
         let image = null;
 
-        // Generate static path from filename instead of uploading to Firebase Storage
+        // Upload to Firebase Storage and get real download URL
         if (imageFile) {
+            const timestamp = Date.now();
             const filename = imageFile.name.toLowerCase().replace(/\s+/g, '-');
-            image = `https://firebasestorage.googleapis.com/v0/b/littiwale-ordering-system.appspot.com/o/images%2Fannouncements%2F${encodeURIComponent(filename)}?alt=media`;
+            const storagePath = `announcements/${timestamp}_${filename}`;
+            const storageRef = ref(storage, storagePath);
+            await uploadBytes(storageRef, imageFile);
+            image = await getDownloadURL(storageRef);
         }
 
         const docRef = await addDoc(collection(db, 'announcements'), {

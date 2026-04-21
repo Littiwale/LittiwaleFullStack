@@ -25,6 +25,7 @@
     <link rel="stylesheet" href="/src/style.css">
     <link rel="stylesheet" href="/src/customer-menu.css">
     <link rel="stylesheet" href="/src/panel-tokens.css">
+    <link rel="stylesheet" href="/src/footer-and-animations.css">
     <link rel="icon" type="image/png" href="/images/logo.png">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
@@ -58,7 +59,7 @@
                     <div id="nav-profile-area"></div>
                     
                     <a href="#" class="cart-btn" id="nav-cart-btn">
-                        🛒 Cart <span id="cart-count" class="cart-badge">0</span>
+                        🛒 <span class="cart-text">Cart</span> <span id="cart-count" class="cart-badge">0</span>
                     </a>
                 </div>
                 <!-- MOBILE HAMBURGER -->
@@ -194,23 +195,47 @@
           </div>
         </section>
 
-        <!-- SECTION 4: ABOUT - DIVERSE MENU SHOWCASE -->
+        <!-- SECTION 4A: AUTHENTIC BIHAR AND AAMCHI MUMBAI -->
         <section id="about" class="about-section section-padding">
             <div class="container">
-                <div style="text-align: center; margin-bottom: 60px;">
-                    <h2 class="about-title">More Than Just Litti</h2>
+                <div style="text-align: center; margin-bottom: 48px;">
+                    <h2 class="about-title">Authentic Bihar and Aamchi Mumbai</h2>
                     <div class="divider"></div>
-                    <p class="about-text" style="max-width: 700px; margin: 0 auto;">
-                        Born in Barbil with a passion for authentic Litti Chokha, we've grown to serve a diverse menu. 
-                        From Biryani to Pizza, Thalis to Combos — premium food crafted daily with the finest ingredients.
+                    <p class="about-text" style="max-width: 600px; margin: 0 auto;">
+                        Born in Barbil. Rooted in Bihar. Every bite tells a story of fire, tradition, and pure desi swag.
                     </p>
                 </div>
                 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-top: 40px;">
                     <div class="reveal" style="background: linear-gradient(135deg, rgba(244,180,0,0.1) 0%, rgba(196,127,23,0.05) 100%); border: 1px solid rgba(244,180,0,0.2); border-radius: 16px; padding: 24px; text-align: center;">
-                        <div style="font-size: 48px; margin-bottom: 12px;">🍱</div>
-                        <h3 style="font-size: 18px; font-weight: 700; color: #C47F17; margin-bottom: 8px;">Litti & Bihar</h3>
-                        <p style="font-size: 13px; color: #aaaaaa;">Authentic recipes from Bihar</p>
+                        <div style="font-size: 48px; margin-bottom: 12px;">🍡</div>
+                        <h3 style="font-size: 18px; font-weight: 700; color: #C47F17; margin-bottom: 8px;">Authentic Bihari Litti Chokha</h3>
+                        <p style="font-size: 13px; color: #aaaaaa;">Flame-grilled litti with tangy chokha — the original Bihar classic</p>
                     </div>
+                    <div class="reveal" style="background: linear-gradient(135deg, rgba(244,180,0,0.1) 0%, rgba(196,127,23,0.05) 100%); border: 1px solid rgba(244,180,0,0.2); border-radius: 16px; padding: 24px; text-align: center;">
+                        <div style="font-size: 48px; margin-bottom: 12px;">🍗</div>
+                        <h3 style="font-size: 18px; font-weight: 700; color: #C47F17; margin-bottom: 8px;">Desi Delight Chick-a-Litti</h3>
+                        <p style="font-size: 13px; color: #aaaaaa;">Litti meets chicken — desi fusion done right</p>
+                    </div>
+                    <div class="reveal" style="background: linear-gradient(135deg, rgba(244,180,0,0.1) 0%, rgba(196,127,23,0.05) 100%); border: 1px solid rgba(244,180,0,0.2); border-radius: 16px; padding: 24px; text-align: center;">
+                        <div style="font-size: 48px; margin-bottom: 12px;">🥙</div>
+                        <h3 style="font-size: 18px; font-weight: 700; color: #C47F17; margin-bottom: 8px;">Mumbai Street Vada Pav</h3>
+                        <p style="font-size: 13px; color: #aaaaaa;">Street style vada pav — Mumbai's swag, now in Barbil</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SECTION 4B: BEYOND BIHAR -->
+        <section id="beyond-bihar" class="about-section section-padding" style="background: var(--bg-light);">
+            <div class="container">
+                <div style="text-align: center; margin-bottom: 48px;">
+                    <h2 class="about-title">Beyond Bihar</h2>
+                    <div class="divider"></div>
+                    <p class="about-text" style="max-width: 600px; margin: 0 auto;">
+                        From crispy pizzas to aromatic biryanis — there's something for everyone at Littiwale.
+                    </p>
+                </div>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-top: 40px;">
                     <div class="reveal" style="background: linear-gradient(135deg, rgba(244,180,0,0.1) 0%, rgba(196,127,23,0.05) 100%); border: 1px solid rgba(244,180,0,0.2); border-radius: 16px; padding: 24px; text-align: center;">
                         <div style="font-size: 48px; margin-bottom: 12px;">🍕</div>
                         <h3 style="font-size: 18px; font-weight: 700; color: #C47F17; margin-bottom: 8px;">Pizza</h3>
@@ -218,8 +243,8 @@
                     </div>
                     <div class="reveal" style="background: linear-gradient(135deg, rgba(244,180,0,0.1) 0%, rgba(196,127,23,0.05) 100%); border: 1px solid rgba(244,180,0,0.2); border-radius: 16px; padding: 24px; text-align: center;">
                         <div style="font-size: 48px; margin-bottom: 12px;">🍛</div>
-                        <h3 style="font-size: 18px; font-weight: 700; color: #C47F17; margin-bottom: 8px;">Biryani</h3>
-                        <p style="font-size: 13px; color: #aaaaaa;">Aromatic and flavorful rice</p>
+                        <h3 style="font-size: 18px; font-weight: 700; color: #C47F17; margin-bottom: 8px;">Biryani Feast Party Combos</h3>
+                        <p style="font-size: 13px; color: #aaaaaa;">Aromatic biryani combos — perfect for sharing</p>
                     </div>
                     <div class="reveal" style="background: linear-gradient(135deg, rgba(244,180,0,0.1) 0%, rgba(196,127,23,0.05) 100%); border: 1px solid rgba(244,180,0,0.2); border-radius: 16px; padding: 24px; text-align: center;">
                         <div style="font-size: 48px; margin-bottom: 12px;">🍖</div>
@@ -233,7 +258,7 @@
                     </div>
                     <div class="reveal" style="background: linear-gradient(135deg, rgba(244,180,0,0.1) 0%, rgba(196,127,23,0.05) 100%); border: 1px solid rgba(244,180,0,0.2); border-radius: 16px; padding: 24px; text-align: center;">
                         <div style="font-size: 48px; margin-bottom: 12px;">🍜</div>
-                        <h3 style="font-size: 18px; font-weight: 700; color: #C47F17; margin-bottom: 8px;">Noodles & Pasta</h3>
+                        <h3 style="font-size: 18px; font-weight: 700; color: #C47F17; margin-bottom: 8px;">Noodles &amp; Pasta</h3>
                         <p style="font-size: 13px; color: #aaaaaa;">Quick and delicious</p>
                     </div>
                 </div>

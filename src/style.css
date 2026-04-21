@@ -365,6 +365,33 @@ html[data-theme='light'] .mobile-nav-link {
     height: 36px;
     font-size: 16px;
   }
+
+  .cart-btn {
+      padding: 6px 10px !important;
+      font-size: 11px !important;
+      gap: 3px !important;
+      max-width: 90px;
+  }
+
+  /* Hide "Cart" text, keep icon + count */
+  .cart-btn .cart-text {
+      display: none;
+  }
+
+  /* Tighten nav-right gap */
+  .nav-right {
+      gap: 6px !important;
+  }
+
+  /* Constrain overall navbar */
+  .navbar {
+      padding: 0 10px;
+  }
+
+  .nav-container {
+      gap: 6px !important;
+      overflow: hidden;
+  }
 }
 
 .nav-right {
@@ -760,7 +787,20 @@ html[data-theme='light'] .admin-select {
 @media (max-width: 760px) {
   .deals-grid, .catering-grid { grid-template-columns: 1fr; }
   .service-modal-content { padding: 24px; margin: 16px; }
-  .modal-actions { flex-direction: column; }
+  .modal-actions {
+    flex-direction: column;
+    gap: 10px;
+  }
+  .modal-actions .btn {
+    width: 100%;
+    min-height: 44px !important;
+    max-height: 44px !important;
+    padding: 0 16px !important;
+    font-size: 13px !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
 }
 
 .hidden { display: none !important; }

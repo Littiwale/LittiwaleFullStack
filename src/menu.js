@@ -445,22 +445,35 @@ function initMenuSearch(items) {
             stickyBar.classList.remove('lw-scrolled');
         }
 
-        // Filter section: hide when scrolled, show floating button instead
+        // Hide BOTH filters together on scroll
+        const categoryStrip = document.getElementById('category-tabs');
+
+        let shouldHide = scrolled;
+        // Prevent hiding during programmatic programmatic scroll up
+        if (window.isMenuScrollingToFilter) {
+            shouldHide = false;
+        }
+
         if (categoryFilter) {
-            if (scrolled) {
+            if (shouldHide) {
                 categoryFilter.classList.add('filter-hidden');
             } else {
                 categoryFilter.classList.remove('filter-hidden');
             }
         }
 
+        if (categoryStrip) {
+            if (shouldHide) {
+                categoryStrip.classList.add('strip-hidden');
+            } else {
+                categoryStrip.classList.remove('strip-hidden');
+            }
+        }
+
         // Floating filter button: opposite of filter section visibility
         if (floatingFilterBtn) {
-            if (scrolled) {
-                floatingFilterBtn.style.display = 'inline-flex'; // Show floating btn
-            } else {
-                floatingFilterBtn.style.display = 'none'; // Hide floating btn
-            }
+            // Only show floating button if we actually hide the filters
+            floatingFilterBtn.style.display = shouldHide ? 'inline-flex' : 'none';
         }
     }, { passive: true });
 

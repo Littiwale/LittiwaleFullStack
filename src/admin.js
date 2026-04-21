@@ -1,4 +1,4 @@
-import { collection, query, orderBy, onSnapshot, doc, updateDoc, serverTimestamp, where, Timestamp, getDocs, limit, addDoc } from 'firebase/firestore';
+import { collection, query, orderBy, onSnapshot, doc, updateDoc, serverTimestamp, where, Timestamp, getDocs, limit, addDoc, getDoc, setDoc } from 'firebase/firestore';
 import { db } from './firebase/config';
 import { onAuthChange, logoutUser, getUserRole, isAdminOrManager } from './api/auth';
 import { fetchAllUsers, fetchUsersByRole, updateUserRole } from './api/users';
@@ -244,7 +244,7 @@ const setActiveNavItem = (viewName) => {
 
 const navigateToView = (viewName) => {
     if (!viewName) return;
-    const validViews = ['dashboard','orders','tickets','customers','menu','analytics','riders','coupons','announcements'];
+    const validViews = ['dashboard','orders','tickets','customers','menu','analytics','riders','coupons','announcements','settings'];
     const normalizedView = validViews.includes(viewName) ? viewName : 'dashboard';
 
     setActiveNavItem(normalizedView);
@@ -270,7 +270,7 @@ const setupNavigation = () => {
 
 const restoreViewFromHash = () => {
     const currentHash = window.location.hash.replace('#', '').trim();
-    const validViews = ['dashboard','orders','tickets','customers','menu','analytics','riders','coupons','announcements'];
+    const validViews = ['dashboard','orders','tickets','customers','menu','analytics','riders','coupons','announcements','settings'];
     const view = validViews.includes(currentHash) ? currentHash : 'dashboard';
     navigateToView(view);
 };
@@ -293,6 +293,7 @@ const switchView = (viewName) => {
         setupCouponAdmin();
     }
     if (viewName === 'announcements') loadAnnouncements();
+    if (viewName === 'settings') initSettings();
 };
 
 const setupOrderFiltering = () => {
@@ -2785,3 +2786,37 @@ const renderMenuAnalyticsTable = (analytics) => {
     }).join('');
 };
 
+const initSettings = async () => {
+    const input = document.getElementById('admin-delivery-fee-input');
+    const saveBtn = document.getElementById('admin-delivery-fee-save');
+    const status = document.getElementById('admin-delivery-fee-status');
+    if (!input || !saveBtn) return;
+
+    // Load current value from Firestore
+    try {
+        const snap = await getDoc(doc(db, 'settings', 'store'));
+        if (snap.exists() && snap.data().deliveryFee !== undefined) {
+            input.value = snap.data().deliveryFee;
+        } else {
+            input.value = 30;
+        }
+    } catch (e) {
+        input.value = 30;
+    }
+
+    saveBtn.addEventListener('click', async () => {
+        const fee = parseInt(input.value);
+        if (isNaN(fee) || fee < 0) return;
+        saveBtn.textContent = 'Saving...';
+        saveBtn.disabled = true;
+        try {
+            await setDoc(doc(db, 'settings', 'store'), { deliveryFee: fee }, { merge: true });
+            status.style.display = 'block';
+            setTimeout(() => { status.style.display = 'none'; }, 3000);
+        } catch (e) {
+            alert('Failed to save. Check Firestore connection.');
+        }
+        saveBtn.textContent = 'Save';
+        saveBtn.disabled = false;
+    });
+};

@@ -3,7 +3,7 @@ import { validateOrder, createOrderEntry, updateOrderDetails } from '../api/orde
 import { validateCoupon, fetchActiveCoupons, recordCouponUsage, recordCouponAttempt } from '../api/coupons';
 import { auth, db } from '../firebase/config';
 import { ORDER_STATUS } from '../constants/orderStatus';
-import { collection, getDocs, addDoc, doc, query, orderBy, serverTimestamp, updateDoc } from 'firebase/firestore';
+import { collection, getDocs, addDoc, doc, query, orderBy, serverTimestamp, updateDoc, getDoc } from 'firebase/firestore';
 
 // Simple debounce utility
 const debounce = (func, wait) => {
@@ -29,6 +29,7 @@ let appliedCouponData = null;
 let checkoutItemsList = null;
 let checkoutAmount = null;
 let errorDisplay = null;
+let checkoutForm = null;
 
 // Handle special coupon types (freebie, special price, combo upgrade)
 
@@ -110,14 +111,26 @@ const revalidateAppliedCoupon = async () => {
     }
 };
 
-const DELIVERY_FEE = 30; // TODO: replace flat ₹30 with actual distance-based calculation when GPS integration is added
+let DELIVERY_FEE = 30; // default, overridden by Firestore on init
+
+const loadDeliveryFee = async () => {
+    try {
+        const snap = await getDoc(doc(db, 'settings', 'store'));
+        if (snap.exists() && snap.data().deliveryFee !== undefined) {
+            DELIVERY_FEE = snap.data().deliveryFee;
+        }
+    } catch (e) {
+        // keep default 30
+    }
+};
 
 export const initCheckout = () => {
+    loadDeliveryFee(); // load from Firestore, falls back to 30
     // Query DOM elements only when initializing (after DOM is ready)
     checkoutItemsList = document.querySelector('#checkout-items-list');
     checkoutAmount = document.querySelector('#checkout-amount');
     const checkoutModal = document.querySelector('#checkout-modal');
-    const checkoutForm = document.querySelector('#checkout-form');
+    checkoutForm = document.querySelector('#checkout-form');
     const closeCheckout = document.querySelector('#close-checkout');
     const cartModal = document.querySelector('#cart-modal');
     errorDisplay = document.querySelector('#checkout-error');

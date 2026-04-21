@@ -315,8 +315,22 @@ const initFloatingFilterShortcut = () => {
     if (!trigger || !topFilter || trigger.dataset.initialized === 'true') return;
     trigger.dataset.initialized = 'true';
     trigger.addEventListener('click', () => {
+        // Prevent scroll listener from hiding filters during smooth scroll
+        window.isMenuScrollingToFilter = true;
+
+        // Scroll to top of filter area
         topFilter.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+        // Show both filters
         topFilter.classList.remove('filter-hidden');
+
+        const categoryStrip = document.getElementById('category-tabs');
+        if (categoryStrip) categoryStrip.classList.remove('strip-hidden');
+
+        // Reset the flag after smooth scroll is complete (roughly 800ms)
+        setTimeout(() => {
+            window.isMenuScrollingToFilter = false;
+        }, 800);
     });
 };
 
