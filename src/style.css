@@ -670,6 +670,7 @@ html[data-theme='light'] .admin-select {
 }
 
 .food-card {
+  position: relative;
   background: var(--card-bg);
   border: 1px solid var(--glass-border);
   border-radius: var(--border-radius);
