@@ -22,7 +22,7 @@
   --card-bg: #131313;
   --card-border: rgba(255, 255, 255, 0.08);
   --glass-border: rgba(255, 255, 255, 0.1);
-  --nav-bg: rgba(13, 13, 13, 0.8);
+  --nav-bg: #0d0d0d;
   --shadow-elevated: 0 20px 40px rgba(0,0,0,0.25);
   --focus-ring: rgba(244, 180, 0, 0.18);
   --card-hover-shadow: 0 20px 40px rgba(0,0,0,0.5);
@@ -57,7 +57,7 @@ html[data-theme='light'] {
   --card-bg: #ffffff;
   --card-border: rgba(0, 0, 0, 0.08);
   --glass-border: rgba(0, 0, 0, 0.08);
-  --nav-bg: rgba(255, 255, 255, 0.92);
+  --nav-bg: #ffffff;
   --button-text-on-primary: #000000;
   --shadow-elevated: 0 20px 40px rgba(0,0,0,0.12);
   --focus-ring: rgba(244, 180, 0, 0.12);
