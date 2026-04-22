@@ -155,10 +155,20 @@ onAuthChange(async (user, isLoading) => {
             loader.classList.add('hidden');
             showForm('completion');
         } else {
-            // All roles land on the storefront after login.
-            // Admin/Rider can navigate to their panels via the navbar dropdown.
-            // Access control is enforced on the panel pages themselves, not here.
-            window.location.href = '/';
+            // Role-based redirect after login
+            const role = profile.role || 'customer';
+            let redirectUrl = '/';
+            
+            if (role === 'admin' || role === 'manager') {
+                redirectUrl = '/admin/index.html';
+            } else if (role === 'rider') {
+                redirectUrl = '/rider/index.html';
+            } else {
+                // customer or unknown role → go to home
+                redirectUrl = '/';
+            }
+            
+            window.location.href = redirectUrl;
         }
     } else {
         // Auth resolved — no user, show login form
@@ -318,8 +328,23 @@ completionForm?.addEventListener('submit', async (e) => {
         if (!user) throw new Error('Session expired');
 
         await updateProfile(user.uid, { username, phone });
-        // After profile completion, all roles go to the storefront.
-        window.location.href = '/';
+        
+        // Fetch updated profile to get role for proper redirect
+        // Get the role from current user profile or default to customer
+        const profile = user.profile || {};
+        const role = profile.role || 'customer';
+        let redirectUrl = '/';
+        
+        if (role === 'admin' || role === 'manager') {
+            redirectUrl = '/admin/index.html';
+        } else if (role === 'rider') {
+            redirectUrl = '/rider/index.html';
+        } else {
+            // customer or unknown role → go to home
+            redirectUrl = '/';
+        }
+        
+        window.location.href = redirectUrl;
     } catch (error) {
         console.error('Completion failed:', error);
         completionError.textContent = error.message;

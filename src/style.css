@@ -110,10 +110,6 @@ body {
   background: rgba(13, 13, 13, 0.9) !important;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
 }
-  align-items: center;
-  z-index: 10000 !important;
-  transition: all 0.3s ease;
-}
 
 .nav-container {
   display: flex;
@@ -346,8 +342,20 @@ body {
   margin-bottom: 12px;
   text-transform: uppercase;
 }
+
+.mobile-nav-drawer {
+  position: fixed;
+  top: 80px;
+  right: -100%;
+  width: 100%;
+  height: calc(100vh - 80px);
+  background: rgba(0, 0, 0, 0.95);
+  display: flex;
+  flex-direction: column;
+  z-index: 999;
   transition: right 0.35s cubic-bezier(0.4, 0, 0.2, 1);
 }
+
 .mobile-nav-drawer.open {
   right: 0;
 }
