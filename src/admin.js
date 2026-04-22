@@ -1551,37 +1551,37 @@ const renderRiders = async (riders) => {
             const phone = r.phone ? `<a href="tel:${r.phone}" style="color:#10B981;text-decoration:none;font-weight:600;">${r.phone}</a>` : 'No phone';
             
             return `
-                <div style="background: linear-gradient(135deg, rgba(30,30,30,0.8) 0%, rgba(26,28,35,1) 100%); border: 1px solid #252830; border-radius: 16px; padding: 16px; display: flex; flex-direction: column; gap: 12px; hover: border-color: #F5A800; transition: all 0.3s;">
+                <div class="rider-card-premium">
                     <div style="display: flex; align-items: center; gap: 12px;">
-                        <div style="width: 48px; height: 48px; background: linear-gradient(135deg, #F5A800, #c47f17); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 24px; flex-shrink: 0;">🛵</div>
+                        <div style="width: 48px; height: 48px; background: linear-gradient(135deg, #F5A800, #c47f17); border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 24px; flex-shrink: 0; box-shadow: 0 8px 16px rgba(245, 168, 0, 0.2);">🛵</div>
                         <div style="flex: 1; min-width: 0;">
-                            <div style="font-size: 15px; font-weight: 800; color: #fff; margin-bottom: 2px;">${r.name || 'Unknown'}</div>
+                            <div style="font-size: 16px; font-weight: 900; color: #fff; margin-bottom: 2px;">${r.name || 'Unknown'}</div>
                             <div style="font-size: 12px; color: #9ca3af; word-break: break-all;">${phone}</div>
                         </div>
                     </div>
                     
-                    <div style="display: flex; align-items: center; gap: 8px; background: ${statusBg}; padding: 8px 12px; border-radius: 8px; border: 1px solid ${statusColor};">
+                    <div style="display: flex; align-items: center; gap: 8px; background: ${statusBg}; padding: 10px 14px; border-radius: 14px; border: 1px solid ${statusColor};">
                         <span style="width: 8px; height: 8px; background: ${statusColor}; border-radius: 50%; animation: ${r.isOnline ? 'pulse' : 'none'} 2s infinite;"></span>
                         <div style="flex: 1;">
-                            <div style="font-size: 12px; font-weight: 700; color: ${statusColor};">${status}</div>
-                            <div style="font-size: 10px; color: ${statusColor}; opacity: 0.8;">${duration}</div>
+                            <div style="font-size: 13px; font-weight: 800; color: ${statusColor};">${status}</div>
+                            <div style="font-size: 10px; color: ${statusColor}; opacity: 0.8; font-weight: 600;">${duration}</div>
                         </div>
                     </div>
                     
-                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-                        <div style="background: rgba(245, 158, 11, 0.1); border: 1px solid rgba(245, 158, 11, 0.3); padding: 10px; border-radius: 8px; text-align: center;">
-                            <div style="font-size: 18px; font-weight: 900; color: #F5A800;">${deliveries}</div>
-                            <div style="font-size: 10px; color: #F5A800; font-weight: 600; margin-top: 2px; text-transform: uppercase;">Delivered</div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                        <div style="background: rgba(245, 158, 11, 0.05); border: 1px solid rgba(245, 158, 11, 0.1); padding: 12px; border-radius: 14px; text-align: center;">
+                            <div style="font-size: 20px; font-weight: 950; color: #F5A800;">${deliveries}</div>
+                            <div style="font-size: 9px; color: #F5A800; font-weight: 800; margin-top: 4px; text-transform: uppercase; letter-spacing: 1px;">Delivered</div>
                         </div>
-                        <div style="background: rgba(59, 130, 246, 0.1); border: 1px solid rgba(59, 130, 246, 0.3); padding: 10px; border-radius: 8px; text-align: center;">
-                            <div style="font-size: 18px; font-weight: 900; color: #3b82f6;">${r.email ? r.email.split('@')[0] : 'N/A'}</div>
-                            <div style="font-size: 10px; color: #3b82f6; font-weight: 600; margin-top: 2px; text-transform: uppercase;">User ID</div>
+                        <div style="background: rgba(59, 130, 246, 0.05); border: 1px solid rgba(59, 130, 246, 0.1); padding: 12px; border-radius: 14px; text-align: center;">
+                            <div style="font-size: 20px; font-weight: 950; color: #3b82f6;">${r.email ? r.email.split('@')[0].slice(0, 5) : 'N/A'}</div>
+                            <div style="font-size: 9px; color: #3b82f6; font-weight: 800; margin-top: 4px; text-transform: uppercase; letter-spacing: 1px;">ID CODE</div>
                         </div>
                     </div>
                     
-                    <div style="display: flex; gap: 8px; margin-top: 4px;">
-                        <button onclick="alert('Chat feature coming soon!')" style="flex: 1; padding: 8px 12px; background: #374151; color: #fff; border: 1px solid #4b5563; border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.background='#4b5563'" onmouseout="this.style.background='#374151'">💬 Contact</button>
-                        <button onclick="openRiderAnalytics('${r.uid}', '${r.name}')" style="flex: 1; padding: 8px 12px; background: #374151; color: #fff; border: 1px solid #4b5563; border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.background='#4b5563'" onmouseout="this.style.background='#374151'">📊 Analytics</button>
+                    <div style="display: flex; gap: 10px; margin-top: 5px;">
+                        <button onclick="alert('Chat feature coming soon!')" class="action-btn-sm bg-gray-800 text-gray-300 flex-1 hover:bg-gray-700 transition-colors">💬 Contact</button>
+                        <button onclick="openRiderAnalytics('${r.uid}', '${r.name}')" class="action-btn-sm bg-gray-800 text-gray-300 flex-1 hover:bg-gray-700 transition-colors">📊 Stats</button>
                     </div>
                 </div>
             `;
@@ -1637,46 +1637,120 @@ const loadDashboardAnalytics = async () => {
     const revs = dates.map(d => data.dailyStats[d].revenue);
     const ords = dates.map(d => data.dailyStats[d].orders);
     
-    renderMinimalChart('revenue-chart', revs, '#F5A800');
-    renderMinimalChart('orders-chart', ords, '#3B82F6');
-    renderMinimalChart('analytics-revenue-chart', revs, '#F5A800');
-    renderMinimalChart('analytics-orders-chart', ords, '#3B82F6');
+    // Calculate trends
+    const calculateTrend = (series) => {
+        if (series.length < 2) return { val: 0, up: true };
+        const current = series[series.length - 1];
+        const previous = series[series.length - 2] || 0;
+        if (previous === 0) return { val: 100, up: true };
+        const diff = ((current - previous) / previous) * 100;
+        return { val: Math.abs(Math.round(diff)), up: diff >= 0 };
+    };
+
+    const revTrend = calculateTrend(revs);
+    const ordTrend = calculateTrend(ords);
+
+    renderPremiumChart('revenue-chart', dates, revs, '#F5A800', 'Revenue', revTrend);
+    renderPremiumChart('orders-chart', dates, ords, '#3B82F6', 'Orders', ordTrend);
+    renderPremiumChart('analytics-revenue-chart', dates, revs, '#F5A800', 'Revenue', revTrend);
+    renderPremiumChart('analytics-orders-chart', dates, ords, '#3B82F6', 'Orders', ordTrend);
 };
 
-const renderMinimalChart = (id, data, color) => {
+const renderPremiumChart = (id, labels, data, color, label, trend) => {
     const el = document.getElementById(id);
     if (!el) return;
 
-    // Empty state — no orders yet
     const hasData = data.length > 0 && data.some(v => v > 0);
     if (!hasData) {
         el.innerHTML = `
-            <div style="height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;opacity:0.4;">
-                <span style="font-size:28px;">📊</span>
-                <p style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:#7a8098;text-align:center;line-height:1.5;">
-                    No data yet —<br>place your first order<br>to see trends
-                </p>
+            <div class="h-full flex flex-col items-center justify-center gap-3 opacity-30">
+                <span class="text-4xl">📊</span>
+                <p class="text-[10px] font-bold uppercase tracking-widest text-center">No data trends yet</p>
             </div>
         `;
         return;
     }
-    
-    const max = Math.max(...data, 1);
-    const step = 100 / (data.length - 1 || 1);
-    const points = data.map((v, i) => `${i * step},${100 - (v / max * 100)}`).join(' ');
-    
-    el.innerHTML = `
-        <svg viewBox="0 0 100 100" class="w-full h-full" preserveAspectRatio="none">
-            <defs>
-                <linearGradient id="grad-${id}" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stop-color="${color}" stop-opacity="0.3"/>
-                    <stop offset="100%" stop-color="${color}" stop-opacity="0"/>
-                </linearGradient>
-            </defs>
-            <path d="M 0,100 L ${points} L 100,100 Z" fill="url(#grad-${id})" stroke="none" />
-            <polyline points="${points}" fill="none" stroke="${color}" stroke-width="2" stroke-linejoin="round" stroke-linecap="round" />
-        </svg>
+
+    // Add trend indicator to parent if possible
+    const parent = el.parentElement;
+    const existingTrend = parent.querySelector('.trend-indicator');
+    if (existingTrend) existingTrend.remove();
+
+    const trendHtml = `
+        <div class="trend-indicator absolute top-6 right-6 flex items-center gap-1 font-black text-[10px] ${trend.up ? 'text-green-500' : 'text-red-500'}">
+            ${trend.up ? '↑' : '↓'} ${trend.val}%
+            <span class="text-gray-600 font-bold ml-1 uppercase">vs yesterday</span>
+        </div>
     `;
+    parent.insertAdjacentHTML('beforeend', trendHtml);
+
+    // Destroy existing
+    if (activeCharts[id]) activeCharts[id].destroy();
+
+    // Setup Canvas
+    el.innerHTML = '<canvas></canvas>';
+    const ctx = el.querySelector('canvas').getContext('2d');
+
+    const gradient = ctx.createLinearGradient(0, 0, 0, 200);
+    gradient.addColorStop(0, `${color}33`);
+    gradient.addColorStop(1, `${color}00`);
+
+    activeCharts[id] = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: labels.map(d => d.split('-').slice(1).join('/')), // Shorten dates
+            datasets: [{
+                label: label,
+                data: data,
+                borderColor: color,
+                backgroundColor: gradient,
+                borderWidth: 3,
+                fill: true,
+                tension: 0.4,
+                pointRadius: 0,
+                pointHoverRadius: 6,
+                pointHoverBackgroundColor: color,
+                pointHoverBorderColor: '#fff',
+                pointHoverBorderWidth: 2
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    mode: 'index',
+                    intersect: false,
+                    backgroundColor: '#1e2130',
+                    titleColor: '#9ca3af',
+                    bodyColor: '#fff',
+                    borderColor: 'rgba(255,255,255,0.1)',
+                    borderWidth: 1,
+                    padding: 12,
+                    displayColors: false,
+                    callbacks: {
+                        label: (ctx) => `${label}: ${label === 'Revenue' ? '₹' : ''}${ctx.raw}`
+                    }
+                }
+            },
+            scales: {
+                x: {
+                    display: true,
+                    grid: { display: false },
+                    ticks: { color: '#4b5563', font: { size: 10, weight: 'bold' } }
+                },
+                y: {
+                    display: false,
+                    grid: { display: false }
+                }
+            },
+            interaction: {
+                intersect: false,
+                mode: 'index',
+            }
+        }
+    });
 };
 
 /**
@@ -1749,18 +1823,19 @@ const loadCoupons = async () => {
         }
 
         return `
-            <div style="display:flex;justify-content:space-between;align-items:center;padding:14px 18px;background:#0d0f14;border:1px solid #252830;border-radius:14px;">
+            <div class="coupon-card-premium">
                 <div>
-                    <p style="font-weight:900;color:#F5A800;font-size:15px;letter-spacing:1px;">${c.id} | ${couponDetails}</p>
-                    <p style="font-size:12px;color:#9ca3af;margin-top:4px;">${c.description || 'No description'} &nbsp;|&nbsp; Min Order: ₹${c.minOrderValue || 0}</p>
-                    <p style="font-size:11px;color:#7a8098;margin-top:2px;">Type: ${c.type || 'flat'} &nbsp;|&nbsp; ${usageInfo} &nbsp;|&nbsp; Expires: ${expiry}</p>
-                    ${isExpired ? '<span style="font-size:10px;font-weight:800;color:#ef4444;text-transform:uppercase;">EXPIRED</span>' : (c.active !== false ? '<span style="font-size:10px;font-weight:800;color:#10B981;text-transform:uppercase;">ACTIVE</span>' : '<span style="font-size:10px;font-weight:800;color:#7a8098;text-transform:uppercase;">INACTIVE</span>')}
-                    ${c.autoApply ? '<span style="font-size:10px;font-weight:800;color:#3B82F6;text-transform:uppercase;margin-left:8px;">AUTO</span>' : ''}
-                    ${c.stackable ? '<span style="font-size:10px;font-weight:800;color:#8B5CF6;text-transform:uppercase;margin-left:8px;">STACKABLE</span>' : ''}
+                    <p style="font-weight:950;color:#F5A800;font-size:16px;letter-spacing:1px;font-family:var(--font-display);">${c.id} | ${couponDetails}</p>
+                    <p style="font-size:12px;color:#9ca3af;margin-top:6px;font-weight:600;">${c.description || 'No description'} &nbsp;|&nbsp; Min Order: ₹${c.minOrderValue || 0}</p>
+                    <div style="display:flex;gap:12px;align-items:center;margin-top:10px;">
+                        ${isExpired ? '<span class="px-2 py-0.5 rounded bg-red-500/10 text-red-500 text-[9px] font-black uppercase border border-red-500/20">Expired</span>' : (c.active !== false ? '<span class="px-2 py-0.5 rounded bg-green-500/10 text-green-500 text-[9px] font-black uppercase border border-green-500/20">Active</span>' : '<span class="px-2 py-0.5 rounded bg-gray-500/10 text-gray-500 text-[9px] font-black uppercase border border-gray-500/20">Inactive</span>')}
+                        ${c.autoApply ? '<span class="px-2 py-0.5 rounded bg-blue-500/10 text-blue-500 text-[9px] font-black uppercase border border-blue-500/20">Auto-Apply</span>' : ''}
+                        <span class="text-[10px] text-gray-600 font-bold uppercase tracking-wider">${usageInfo}</span>
+                    </div>
                 </div>
-                <div style="display:flex;gap:8px;align-items:center;">
-                    <button onclick="window.adminEditCoupon('${c.id}')" style="padding:8px 16px;background:#374151;color:#fff;border:none;border-radius:8px;font-size:12px;font-weight:800;cursor:pointer;">Edit</button>
-                    <button onclick="window.adminDeleteCoupon('${c.id}')" style="padding:8px 16px;background:#ef4444;color:#fff;border:none;border-radius:8px;font-size:12px;font-weight:800;cursor:pointer;">Delete</button>
+                <div style="display:flex;gap:10px;align-items:center;">
+                    <button onclick="window.adminEditCoupon('${c.id}')" class="action-btn-sm bg-gray-800 text-white hover:bg-gray-700">Edit</button>
+                    <button onclick="window.adminDeleteCoupon('${c.id}')" class="action-btn-sm bg-red-950/30 text-red-500 border border-red-500/20 hover:bg-red-900/40">Delete</button>
                 </div>
             </div>
         `;
@@ -2250,16 +2325,18 @@ const loadAnnouncements = async () => {
         // Support both old imageUrl and new image field for backward compatibility
         const imageSource = a.image || a.imageUrl;
         return `
-            <div style="display:flex;align-items:center;gap:16px;padding:14px 18px;background:#0d0f14;border:1px solid #252830;border-radius:14px;">
-                ${imageSource ? `<img src="${imageSource}" style="width:80px;height:56px;object-fit:cover;border-radius:8px;flex-shrink:0;">` : '<div style="width:80px;height:56px;background:#1a1c23;border-radius:8px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:24px;">📢</div>'}
+            <div class="announcement-card-premium">
+                ${imageSource ? `<img src="${imageSource}" style="width:100px;height:70px;object-fit:cover;border-radius:14px;flex-shrink:0;box-shadow: 0 8px 20px rgba(0,0,0,0.3);">` : '<div style="width:100px;height:70px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.05);border-radius:14px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:32px;">📢</div>'}
                 <div style="flex:1;min-width:0;">
-                    <p style="font-weight:800;color:#fff;font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${a.title || '(No title)'}</p>
-                    <p style="font-size:12px;color:#9ca3af;margin-top:3px;">Expires: ${expiry}</p>
-                    ${isExpired ? '<span style="font-size:10px;font-weight:800;color:#ef4444;">EXPIRED</span>' : (a.active ? '<span style="font-size:10px;font-weight:800;color:#10B981;">ACTIVE</span>' : '<span style="font-size:10px;font-weight:800;color:#7a8098;">HIDDEN</span>')}
+                    <p style="font-weight:900;color:#fff;font-size:16px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-family:var(--font-display);">${a.title || '(No title)'}</p>
+                    <div style="display:flex;gap:12px;align-items:center;margin-top:8px;">
+                        ${isExpired ? '<span class="px-2 py-0.5 rounded bg-red-500/10 text-red-500 text-[9px] font-black uppercase border border-red-500/20">Expired</span>' : (a.active ? '<span class="px-2 py-0.5 rounded bg-green-500/10 text-green-500 text-[9px] font-black uppercase border border-green-500/20">Live</span>' : '<span class="px-2 py-0.5 rounded bg-gray-500/10 text-gray-500 text-[9px] font-black uppercase border border-gray-500/20">Hidden</span>')}
+                        <p style="font-size:11px;color:#7a8098;font-weight:700;text-transform:uppercase;letter-spacing:1px;">Ends: ${expiry}</p>
+                    </div>
                 </div>
-                <div style="display:flex;gap:8px;flex-shrink:0;">
-                    <button onclick="window.adminToggleAnn('${a.id}', ${!a.active})" style="padding:8px 12px;background:${a.active ? '#374151' : '#10B981'};color:#fff;border:none;border-radius:8px;font-size:11px;font-weight:800;cursor:pointer;">${a.active ? 'Hide' : 'Show'}</button>
-                    <button onclick="window.adminDeleteAnn('${a.id}', '${a.storagePath || ''}')" style="padding:8px 12px;background:#ef4444;color:#fff;border:none;border-radius:8px;font-size:11px;font-weight:800;cursor:pointer;">Delete</button>
+                <div style="display:flex;gap:10px;flex-shrink:0;">
+                    <button onclick="window.adminToggleAnn('${a.id}', ${!a.active})" class="action-btn-sm bg-gray-800 text-white hover:bg-gray-700">${a.active ? 'Hide' : 'Publish'}</button>
+                    <button onclick="window.adminDeleteAnn('${a.id}', '${a.storagePath || ''}')" class="action-btn-sm bg-red-950/30 text-red-500 border border-red-500/20 hover:bg-red-900/40">Delete</button>
                 </div>
             </div>
         `;

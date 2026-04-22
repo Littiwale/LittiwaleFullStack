@@ -367,27 +367,63 @@ html[data-theme='light'] .customer-app .menu-card .relative {
 .admin-app .kpi-card {
   background: var(--admin-card-bg, #1e2130);
   border: 1px solid var(--admin-border, rgba(255, 255, 255, 0.08));
-  border-radius: 16px;
-  transition: var(--transition-fast);
+  border-radius: 20px;
+  padding: 24px;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.admin-app .kpi-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0; height: 3px;
+  background: var(--card-accent, var(--admin-accent));
+  opacity: 0.3;
+  transition: opacity 0.3s;
 }
 
 .admin-app .kpi-card:hover {
-  border-color: rgba(245, 158, 11, 0.4);
-  box-shadow: 0 4px 20px rgba(245, 158, 11, 0.1);
+  transform: translateY(-5px);
+  border-color: var(--card-accent, var(--admin-accent));
+  box-shadow: 0 10px 30px -10px var(--card-glow, rgba(245, 158, 11, 0.15));
 }
+
+.admin-app .kpi-card:hover::before {
+  opacity: 1;
+}
+
+/* KPI Variants */
+.admin-app .kpi-card.kpi--revenue { --card-accent: #f59e0b; --card-glow: rgba(245, 158, 11, 0.2); }
+.admin-app .kpi-card.kpi--active  { --card-accent: #3b82f6; --card-glow: rgba(59, 130, 246, 0.2); }
+.admin-app .kpi-card.kpi--success { --card-accent: #22c55e; --card-glow: rgba(34, 197, 94, 0.2); }
+.admin-app .kpi-card.kpi--danger  { --card-accent: #ef4444; --card-glow: rgba(239, 68, 68, 0.2); }
 
 .admin-app .kpi-label {
   color: var(--admin-text-muted, #9ca3af);
   font-size: 11px;
-  letter-spacing: 1px;
+  letter-spacing: 1.2px;
   text-transform: uppercase;
-  font-weight: 700;
+  font-weight: 800;
 }
 
 .admin-app .kpi-value {
   color: var(--admin-text-primary, #ffffff);
-  font-weight: 700;
-  font-size: 28px;
+  font-weight: 800;
+  font-size: 32px;
+  letter-spacing: -0.5px;
+  margin: 4px 0;
+}
+
+.admin-app .kpi-trend {
+  font-size: 12px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 4px;
 }
 
 /* Generic admin-card (used in HTML but no CSS existed) */

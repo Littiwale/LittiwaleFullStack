@@ -118,30 +118,44 @@
                     </div>
                 </div>
 
+                <div class="header-left">
+                    <h1 id="view-title" class="uppercase" style="font-family: var(--font-futuristic); font-size: 18px; letter-spacing: 6px; font-weight: 700; color: #fff;">Dashboard</h1>
+                </div>
             </header>
 
             <!-- VIEW containers (SPA style) -->
             <div class="view-container-wrapper">
                 <!-- VIEW: DASHBOARD -->
                 <section id="view-dashboard" class="content-view active">
+                    <!-- 👑 Premium Greeting -->
+                    <div class="mb-12 animate-slide-in">
+                        <div class="flex items-center gap-4 mb-4">
+                            <span class="px-3 py-1 bg-accent/10 text-accent text-[10px] font-black uppercase tracking-widest border border-accent/20 rounded-full">Owner Dashboard</span>
+                            <span class="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse"></span>
+                            <span class="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Live System Status</span>
+                        </div>
+                        <h2 class="text-7xl font-black text-white tracking-tighter mb-3" style="font-family: var(--font-heading); text-shadow: 0 10px 30px rgba(0,0,0,0.5);">Welcome Back, <span class="text-accent">Admin</span></h2>
+                        <p class="text-gray-500 font-bold uppercase text-[11px] tracking-[4px] opacity-80">Command center for <span class="text-white border-b border-accent/30">Littiwale Premium</span> Operations</p>
+                    </div>
+
                     <!-- KPI Cards -->
                     <div class="kpi-grid">
-                        <div class="kpi-card">
+                        <div class="kpi-card kpi--revenue">
                             <p class="kpi-label">Today's Revenue</p>
                             <h3 id="kpi-revenue" class="kpi-value text-accent">₹0</h3>
                             <p class="kpi-trend">Live updates</p>
                         </div>
-                        <div class="kpi-card">
+                        <div class="kpi-card kpi--active">
                             <p class="kpi-label">Active Orders</p>
                             <h3 id="kpi-active" class="kpi-value">0</h3>
                             <p class="kpi-trend text-blue-400">In kitchen</p>
                         </div>
-                        <div class="kpi-card">
+                        <div class="kpi-card kpi--success">
                             <p class="kpi-label">Completed</p>
                             <h3 id="kpi-completed" class="kpi-value">0</h3>
                             <p class="kpi-trend text-green-400">Total today</p>
                         </div>
-                        <div class="kpi-card">
+                        <div class="kpi-card kpi--danger">
                             <p class="kpi-label">Cancelled</p>
                             <h3 id="kpi-cancelled" class="kpi-value">0</h3>
                             <p class="kpi-trend text-red-500">Failed/Rejected</p>
@@ -196,118 +210,58 @@
 
                 <!-- VIEW: MENU ANALYTICS -->
                 <section id="view-analytics" class="content-view">
-                    <div class="admin-header">
-                        <h1 class="admin-title">Menu Analytics Dashboard</h1>
-                        <p class="admin-subtitle">Insights and performance metrics for your menu</p>
+                    <div class="admin-card mb-8 p-10 relative overflow-hidden" style="background: linear-gradient(135deg, #1e2130, #11141d); border: 1px solid var(--admin-accent);">
+                        <div class="relative z-10">
+                            <h1 class="text-4xl font-black uppercase tracking-tighter text-white mb-2">Menu Analytics Dashboard</h1>
+                            <p class="text-admin-accent font-bold tracking-widest uppercase text-xs">Performance & Insights Engine</p>
+                        </div>
+                        <div class="absolute -right-20 -top-20 w-64 h-64 bg-admin-accent opacity-5 blur-[100px] rounded-full"></div>
                     </div>
 
                     <!-- Analytics Cards -->
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-                        <div class="admin-card">
-                            <div class="flex items-center justify-between">
-                                <div>
-                                    <p class="text-sm text-gray-500 uppercase tracking-widest">Total Items</p>
-                                    <p id="analytics-total-items" class="text-2xl font-bold text-gray-900">0</p>
-                                </div>
-                                <div class="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-                                    <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
-                                    </svg>
-                                </div>
-                            </div>
+                    <div class="kpi-grid mb-8">
+                        <div class="kpi-card kpi--active">
+                            <p class="kpi-label">Total Items</p>
+                            <h3 id="analytics-total-items" class="kpi-value">0</h3>
+                            <p class="kpi-trend">Catalog depth</p>
                         </div>
-
-                        <div class="admin-card">
-                            <div class="flex items-center justify-between">
-                                <div>
-                                    <p class="text-sm text-gray-500 uppercase tracking-widest">Available Items</p>
-                                    <p id="analytics-available-items" class="text-2xl font-bold text-green-600">0</p>
-                                </div>
-                                <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
-                                    <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                                    </svg>
-                                </div>
-                            </div>
+                        <div class="kpi-card kpi--success">
+                            <p class="kpi-label">Available</p>
+                            <h3 id="analytics-available-items" class="kpi-value text-green-500">0</h3>
+                            <p class="kpi-trend text-green-400">Live on store</p>
                         </div>
-
-                        <div class="admin-card">
-                            <div class="flex items-center justify-between">
-                                <div>
-                                    <p class="text-sm text-gray-500 uppercase tracking-widest">Out of Stock</p>
-                                    <p id="analytics-out-of-stock" class="text-2xl font-bold text-red-600">0</p>
-                                </div>
-                                <div class="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center">
-                                    <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"></path>
-                                    </svg>
-                                </div>
-                            </div>
+                        <div class="kpi-card kpi--danger">
+                            <p class="kpi-label">Out of Stock</p>
+                            <h3 id="analytics-out-of-stock" class="kpi-value text-red-500">0</h3>
+                            <p class="kpi-trend text-red-400">Action required</p>
                         </div>
-
-                        <div class="admin-card">
-                            <div class="flex items-center justify-between">
-                                <div>
-                                    <p class="text-sm text-gray-500 uppercase tracking-widest">Hidden Items</p>
-                                    <p id="analytics-hidden-items" class="text-2xl font-bold text-gray-600">0</p>
-                                </div>
-                                <div class="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center">
-                                    <svg class="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L3 3m6.878 6.878L21 21"></path>
-                                </svg>
-                            </div>
+                        <div class="kpi-card kpi--revenue">
+                            <p class="kpi-label">Avg Item Price</p>
+                            <h3 id="analytics-avg-price" class="kpi-value text-accent">₹0</h3>
+                            <p class="kpi-trend text-accent">Menu value</p>
                         </div>
+                    </div>
 
-                        <div class="admin-card">
-                            <div class="flex items-center justify-between">
-                                <div>
-                                    <p class="text-sm text-gray-500 uppercase tracking-widest">Avg Item Price</p>
-                                    <p id="analytics-avg-price" class="text-2xl font-bold text-yellow-600">₹0</p>
-                                </div>
-                                <div class="w-12 h-12 bg-yellow-100 rounded-lg flex items-center justify-center">
-                                    <svg class="w-6 h-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                                    </svg>
-                                </div>
-                            </div>
+                    <div class="kpi-grid mb-8">
+                        <div class="kpi-card" style="--card-accent: #6b7280;">
+                            <p class="kpi-label">Hidden Items</p>
+                            <h3 id="analytics-hidden-items" class="kpi-value text-gray-400">0</h3>
+                            <p class="kpi-trend">Internal only</p>
                         </div>
-
-                        <div class="admin-card">
-                            <div class="flex items-center justify-between">
-                                <div>
-                                    <p class="text-sm text-gray-500 uppercase tracking-widest">Low Stock Items</p>
-                                    <p id="analytics-low-stock" class="text-2xl font-bold text-orange-600">0</p>
-                                </div>
-                                <div class="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center">
-                                    <svg class="w-6 h-6 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4v2m0 4v2M6 21h12M6 9V7a2 2 0 012-2h8a2 2 0 012 2v2"></path>
-                                    </svg>
-                                </div>
-                            </div>
+                        <div class="kpi-card kpi--revenue" style="--card-accent: #f97316;">
+                            <p class="kpi-label">Low Stock</p>
+                            <h3 id="analytics-low-stock" class="kpi-value text-orange-500">0</h3>
+                            <p class="kpi-trend text-orange-400">Restock soon</p>
                         </div>
-
-                        <div class="admin-card">
-                            <div class="flex items-center justify-between">
-                                <div>
-                                    <p class="text-sm text-gray-500 uppercase tracking-widest">Vegetarian Items</p>
-                                    <p id="analytics-veg-items" class="text-2xl font-bold text-green-500">0</p>
-                                </div>
-                                <div class="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
-                                    <span class="text-xl">🥬</span>
-                                </div>
-                            </div>
+                        <div class="kpi-card kpi--success">
+                            <p class="kpi-label">Vegetarian</p>
+                            <h3 id="analytics-veg-items" class="kpi-value text-green-500">0</h3>
+                            <p class="kpi-trend text-green-400">Pure Veg</p>
                         </div>
-
-                        <div class="admin-card">
-                            <div class="flex items-center justify-between">
-                                <div>
-                                    <p class="text-sm text-gray-500 uppercase tracking-widest">Non-Veg Items</p>
-                                    <p id="analytics-nonveg-items" class="text-2xl font-bold text-red-500">0</p>
-                                </div>
-                                <div class="w-12 h-12 bg-red-100 rounded-lg flex items-center justify-center">
-                                    <span class="text-xl">🍗</span>
-                                </div>
-                            </div>
+                        <div class="kpi-card kpi--danger">
+                            <p class="kpi-label">Non-Vegetarian</p>
+                            <h3 id="analytics-nonveg-items" class="kpi-value text-red-500">0</h3>
+                            <p class="kpi-trend text-red-400">Protein rich</p>
                         </div>
                     </div>
 
@@ -524,22 +478,22 @@
 
                     <!-- KPI Cards -->
                     <div class="kpi-grid mb-8">
-                        <div class="kpi-card">
+                        <div class="kpi-card kpi--danger">
                             <p class="kpi-label">Revenue Saved by Coupons</p>
                             <h3 id="coupon-revenue-saved" class="kpi-value text-red-400">₹0</h3>
                             <p class="kpi-trend">Last 30 days</p>
                         </div>
-                        <div class="kpi-card">
+                        <div class="kpi-card kpi--active">
                             <p class="kpi-label">Coupon Usage</p>
                             <h3 id="coupon-usage-count" class="kpi-value text-blue-400">0</h3>
                             <p class="kpi-trend">Total redemptions</p>
                         </div>
-                        <div class="kpi-card">
+                        <div class="kpi-card kpi--success">
                             <p class="kpi-label">Conversion Rate</p>
                             <h3 id="coupon-conversion-rate" class="kpi-value text-green-400">0%</h3>
                             <p class="kpi-trend">Valid attempts</p>
                         </div>
-                        <div class="kpi-card">
+                        <div class="kpi-card kpi--revenue">
                             <p class="kpi-label">Fake Attempts</p>
                             <h3 id="coupon-fake-attempts" class="kpi-value text-orange-400">0</h3>
                             <p class="kpi-trend">Suspicious activity</p>
@@ -580,7 +534,7 @@
 
                         <!-- Coupon Performance Table -->
                         <div class="overflow-x-auto">
-                            <table class="admin-table w-full text-left text-sm">
+                            <table class="admin-table">
                                 <thead>
                                     <tr>
                                         <th>Coupon Code</th>
@@ -593,7 +547,7 @@
                                         <th>Last Used</th>
                                     </tr>
                                 </thead>
-                                <tbody id="coupon-analytics-table-body" class="divide-y divide-gray-800/50">
+                                <tbody id="coupon-analytics-table-body">
                                     <tr>
                                         <td colspan="8" class="text-center py-8 text-gray-500">Loading coupon analytics...</td>
                                     </tr>
@@ -637,7 +591,7 @@
                             </div>
                         </div>
                         <div class="overflow-x-auto p-6">
-                            <table class="admin-table w-full text-left text-sm">
+                            <table class="admin-table">
                                 <thead>
                                     <tr>
                                         <th>Customer</th>
@@ -646,7 +600,7 @@
                                         <th>Action</th>
                                     </tr>
                                 </thead>
-                                <tbody id="customers-table-body" class="divide-y divide-gray-800/50">
+                                <tbody id="customers-table-body">
                                     <!-- Users injected here -->
                                 </tbody>
                             </table>

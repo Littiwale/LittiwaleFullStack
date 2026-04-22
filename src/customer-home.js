@@ -189,10 +189,22 @@ const initCartInteractions = () => {
   syncCartBadges();
 };
 
+const initNavbarScroll = () => {
+  const navbar = document.querySelector('.navbar');
+  window.addEventListener('scroll', () => {
+    if (window.scrollY > 50) {
+      navbar.classList.add('scrolled');
+    } else {
+      navbar.classList.remove('scrolled');
+    }
+  });
+};
+
 const init = () => {
   renderDeals();
   initCateringFlow();
   initCartInteractions();
+  initNavbarScroll();
 };
 
 if (document.readyState === 'loading') {
