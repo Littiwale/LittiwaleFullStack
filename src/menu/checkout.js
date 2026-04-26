@@ -165,6 +165,30 @@ export const initCheckout = () => {
         loadSavedAddresses();
         loadActiveCoupons();
         suggestBestCoupon();
+
+        // Wire promo-toggle-btn every time checkout opens — works regardless of coupon count
+        // 600ms delay so loadActiveCoupons has time to inject coupon-toggle-btn if coupons exist
+        setTimeout(() => {
+            const promoBtn = document.getElementById('promo-toggle-btn');
+            if (!promoBtn) return;
+            const freshBtn = promoBtn.cloneNode(true);
+            promoBtn.parentNode.replaceChild(freshBtn, promoBtn);
+            freshBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                const innerToggle = document.getElementById('coupon-toggle-btn');
+                const noMsg = document.getElementById('no-coupon-msg');
+                if (innerToggle) {
+                    // Coupons exist — expand/collapse coupon list
+                    if (noMsg) noMsg.style.display = 'none';
+                    innerToggle.click();
+                } else {
+                    // No coupons — toggle the friendly message
+                    if (noMsg) {
+                        noMsg.style.display = noMsg.style.display === 'block' ? 'none' : 'block';
+                    }
+                }
+            });
+        }, 600);
     });
 
     closeCheckout.addEventListener('click', () => {
@@ -633,8 +657,12 @@ const loadActiveCoupons = async () => {
 
         if (activeCoupons.length === 0) {
             container.style.display = 'none';
+            // no-coupon-msg is shown by promo-toggle-btn click, not auto-shown
             return;
         }
+        // Hide no-coupon message when coupons exist
+        const noMsgEl = document.querySelector('#no-coupon-msg');
+        if (noMsgEl) noMsgEl.style.display = 'none';
 
         container.style.display = 'block';
 
@@ -727,6 +755,7 @@ const loadActiveCoupons = async () => {
                 section.style.display = isVisible ? 'none' : 'block';
             });
         }
+
     } catch (err) {
         console.error('Error loading active coupons:', err);
         const container = document.querySelector('#active-coupons-list');

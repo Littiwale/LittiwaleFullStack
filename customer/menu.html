@@ -25,6 +25,7 @@
     <link rel="stylesheet" href="/src/style.css">
     <link rel="stylesheet" href="/src/customer-menu.css">
     <link rel="stylesheet" href="/src/panel-tokens.css">
+    <link rel="stylesheet" href="/src/footer-and-animations.css">
     <link rel="stylesheet" href="/premium.css">
     <link rel="icon" type="image/png" href="/images/logo.png">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -47,9 +48,10 @@
                 <ul class="nav-links" style="font-family: var(--font-body); font-weight: 700; text-transform: uppercase; letter-spacing: 1px; font-size: 13px;">
                     <li><a href="./index.html#home">Home</a></li>
                     <li><a href="./menu.html" class="active">Menu</a></li>
+                    <li><a href="./index.html#why">Why Us</a></li>
+                    <li><a href="./index.html#plans">Plans</a></li>
                     <li><a href="./index.html#about">About</a></li>
                     <li><a href="./index.html#reach">Reach Us</a></li>
-                    <li><a href="./index.html#connect">Social</a></li>
                     <li><a href="#" class="btn btn-primary nav-get-deals-btn" style="border-radius: 99px; padding: 10px 24px;">🔥 Get Deals</a></li>
                 </ul>
                 <div class="nav-right">
@@ -73,9 +75,10 @@
             <div class="mobile-nav-inner">
                 <a href="./index.html" class="mobile-nav-link">Home</a>
                 <a href="./menu.html" class="mobile-nav-link">Menu</a>
+                <a href="./index.html#why" class="mobile-nav-link">Why Us</a>
+                <a href="./index.html#plans" class="mobile-nav-link">Plans</a>
                 <a href="./index.html#about" class="mobile-nav-link">About</a>
                 <a href="./index.html#reach" class="mobile-nav-link">Reach Us</a>
-                <a href="./index.html#connect" class="mobile-nav-link">Social</a>
                 <a href="#" class="mobile-nav-link mobile-nav-deals">🔥 Get Deals</a>
             </div>
             <div class="mobile-nav-overlay" id="mobile-nav-overlay"></div>
@@ -141,11 +144,64 @@
         </section>
 
         <!-- FOOTER -->
-        <footer style="padding: 60px 0; text-align: center; color: var(--text-secondary); font-size: 14px; border-top: 1px solid var(--glass-border); background: #0d0f14;">
-            <div class="container">
-                <img src="/images/logo.png" alt="Littiwale" style="height: 50px; margin-bottom: 20px; opacity: 0.8;">
-                <p>&copy; 2026 Littiwale. Best Food in Barbil. All Rights Reserved.</p>
+        <footer class="footer" style="background: #131313; border-top: 1px solid rgba(244,180,0,0.15); padding: 64px 0 0;">
+          <div class="container">
+            <div class="footer-grid" style="display: grid; grid-template-columns: 1.5fr 1fr 1fr 1fr; gap: 40px; margin-bottom: 48px;">
+              <!-- BRAND -->
+              <div>
+                <div class="footer-brand-logo" style="display: flex; align-items: center; gap: 10px; margin-bottom: 16px;">
+                  <div class="footer-logo-box" style="width: 40px; height: 40px; background: #F4B400; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-family: var(--font-head); font-weight: 900; font-size: 18px; color: #000;">L</div>
+                  <span class="footer-brand-name" style="font-family: var(--font-head); font-weight: 900; font-size: 18px; letter-spacing: 3px; color: #F4B400;">LITTIWALE</span>
+                </div>
+                <p class="footer-tagline" style="font-size: 14px; color: #888; line-height: 1.7; margin-bottom: 24px;">The Soul of Bihar, Delivered.<br>Authentic Bihari flavours, made fresh daily in Barbil, Odisha.</p>
+                <div class="footer-socials" style="display: flex; gap: 12px;">
+                  <div class="footer-social-icon" style="width: 38px; height: 38px; background: #181818; border: 1px solid rgba(244,180,0,0.15); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 15px; cursor: pointer;"><i class="fab fa-instagram"></i></div>
+                  <div class="footer-social-icon" style="width: 38px; height: 38px; background: #181818; border: 1px solid rgba(244,180,0,0.15); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 15px; cursor: pointer;"><i class="fab fa-facebook-f"></i></div>
+                  <div class="footer-social-icon" style="width: 38px; height: 38px; background: #181818; border: 1px solid rgba(244,180,0,0.15); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 15px; cursor: pointer;"><i class="fab fa-whatsapp"></i></div>
+                  <div class="footer-social-icon" style="width: 38px; height: 38px; background: #181818; border: 1px solid rgba(244,180,0,0.15); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 15px; cursor: pointer;"><i class="fab fa-youtube"></i></div>
+                </div>
+              </div>
+              <!-- MENU COL -->
+              <div class="footer-col">
+                <h5 style="font-family: var(--font-head); font-weight: 800; font-size: 12px; letter-spacing: 2px; text-transform: uppercase; color: #F4B400; margin-bottom: 20px;">Menu</h5>
+                <ul style="list-style: none; display: flex; flex-direction: column; gap: 12px;">
+                  <li><a href="./index.html#why" style="font-size: 14px; color: #888; text-decoration: none;">Why Littiwale</a></li>
+                  <li><a href="./index.html#how" style="font-size: 14px; color: #888; text-decoration: none;">How It Works</a></li>
+                  <li><a href="./index.html#plans" style="font-size: 14px; color: #888; text-decoration: none;">Membership Plans</a></li>
+                  <li><a href="./menu.html" style="font-size: 14px; color: #888; text-decoration: none;">Full Menu</a></li>
+                  <li><a href="./index.html#catering" style="font-size: 14px; color: #888; text-decoration: none;">Catering Services</a></li>
+                </ul>
+              </div>
+              <!-- COMPANY COL -->
+              <div class="footer-col">
+                <h5 style="font-family: var(--font-head); font-weight: 800; font-size: 12px; letter-spacing: 2px; text-transform: uppercase; color: #F4B400; margin-bottom: 20px;">Company</h5>
+                <ul style="list-style: none; display: flex; flex-direction: column; gap: 12px;">
+                  <li><a href="./index.html#about" style="font-size: 14px; color: #888; text-decoration: none;">About Littiwale</a></li>
+                  <li><a href="./index.html#reach" style="font-size: 14px; color: #888; text-decoration: none;">Reach Us</a></li>
+                  <li><a href="./index.html#faq" style="font-size: 14px; color: #888; text-decoration: none;">FAQ</a></li>
+                  <li><a href="./track.html" style="font-size: 14px; color: #888; text-decoration: none;">Track Order</a></li>
+                </ul>
+              </div>
+              <!-- VISIT COL -->
+              <div class="footer-col">
+                <h5 style="font-family: var(--font-head); font-weight: 800; font-size: 12px; letter-spacing: 2px; text-transform: uppercase; color: #F4B400; margin-bottom: 20px;">Visit Us</h5>
+                <p style="font-size: 13px; color: #888; line-height: 1.8;">Ward No. 7, Punjabi Para<br>Barbil, Odisha 758035</p>
+                <p style="margin-top:12px; font-size: 13px; color: #888;">📞 +91 63706 80744</p>
+                <p style="font-size: 13px; color: #888;">🕚 11 AM – 10:30 PM, Daily</p>
+              </div>
             </div>
+            <!-- FOOTER BOTTOM -->
+            <div class="footer-bottom" style="margin-top: 48px; padding: 20px 0; border-top: 1px solid rgba(244,180,0,0.15); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+              <span style="font-size: 12px; color: #888;">© 2026 Littiwale Barbil. All rights reserved.</span>
+              <div style="display:flex;gap:20px;align-items:center;flex-wrap:wrap;">
+                <a href="#" style="font-size:12px;color:#888;text-decoration:none;">Privacy Policy</a>
+                <a href="#" style="font-size:12px;color:#888;text-decoration:none;">Terms of Service</a>
+                <a href="https://tushkarmakar.vercel.app/client" target="_blank" style="font-size:12px;color:#888;text-decoration:none;font-family:var(--font-body);font-weight:700;">
+                  Developed by BrandNest <i class="fas fa-external-link-alt" style="font-size:9px;"></i>
+                </a>
+              </div>
+            </div>
+          </div>
         </footer>
 
         <!-- FLOATING ACTIONS -->
@@ -178,21 +234,46 @@
     </div>
 
     <!-- CART MODAL STRUCURE -->
+    <!-- CART MODAL - Premium Layout -->
     <div id="cart-modal" class="modal-overlay" style="display:none;">
-        <div class="modal-content animate-up bg-[#181818]">
-            <div class="drawer-header">
-                <h3 class="text-xl font-black text-white">Your Cart (<span id="drawer-item-count">0</span>)</h3>
-                <button id="close-cart" class="text-white/70 hover:text-white text-3xl font-light">&times;</button>
+        <div class="animate-up" style="
+            max-width: 440px; width: 95%; background: #131313;
+            border: 1px solid rgba(244,180,0,0.15); border-radius: 24px;
+            overflow: hidden; margin: auto; max-height: 90vh; display: flex; flex-direction: column;
+        ">
+            <!-- Cart Header -->
+            <div style="
+                display: flex; justify-content: space-between; align-items: center;
+                padding: 22px 24px; border-bottom: 1px solid rgba(244,180,0,0.15);
+            ">
+                <h3 style="font-family: var(--font-futuristic); font-weight: 900; font-size: 20px; color: #F0EAD6;">
+                    Your Cart <span id="drawer-item-count" style="color: #888; font-size: 14px; font-weight: 400;">(0 items)</span>
+                </h3>
+                <button id="close-cart" style="
+                    font-size: 24px; cursor: pointer; color: #888;
+                    background: none; border: none; line-height: 1;
+                    transition: color .2s;
+                " onmouseover="this.style.color='#F0EAD6'" onmouseout="this.style.color='#888'">&times;</button>
             </div>
-            
-            <div id="cart-items" class="drawer-items scrollbar-thin">
+
+            <!-- Delivery estimate bar -->
+            <div style="padding: 10px 24px; background: rgba(244,180,0,0.08); border-bottom: 1px solid rgba(244,180,0,0.15);">
+                <p id="delivery-estimate" style="
+                    font-size: 12px; font-family: var(--font-futuristic); font-weight: 700;
+                    color: #F4B400; text-transform: uppercase; letter-spacing: 1px; margin: 0;
+                ">⌚ Estimating delivery time...</p>
+            </div>
+
+            <!-- Cart Items - JS renders here -->
+            <div id="cart-items" class="drawer-items scrollbar-thin" style="
+                flex: 1; overflow-y: auto; padding: 16px 24px;
+                display: flex; flex-direction: column; gap: 14px;
+            ">
                 <!-- Items rendered by cart-ui.js -->
             </div>
-            
-            <div class="drawer-footer bg-[#1a1c23] border-t border-white/5">
-                <!-- Delivery Estimate (Item 7) -->
-                <p id="delivery-estimate" class="text-[11px] text-[#C47F17] text-center font-bold mb-3 tracking-wide uppercase">&#128336; Estimating delivery time...</p>
-                
+
+            <!-- Cart Footer / Summary -->
+            <div style="padding: 20px 24px; border-top: 1px solid rgba(244,180,0,0.15); background: #181818;">
                 <!-- Drawer Footer Content (Order Summary) -> render target -->
                 <div id="drawer-summary-container">
                     <!-- Overwritten by JS -->
@@ -332,114 +413,165 @@
         </div>
     </div>
 
-    <!-- CHECKOUT MODAL (Item 6 - Coupon + Address + Phase 3 form fields) -->
+    <!-- CHECKOUT MODAL — Premium Layout -->
     <div id="checkout-modal" class="modal-overlay" style="display:none;">
-        <div class="modal-content animate-up !h-auto !max-h-[90vh] !rounded-2xl !p-6" style="margin: auto; max-width: 480px !important;">
-            <div class="modal-header">
-                <h3 class="modal-title">Confirm Order</h3>
-                <button id="close-checkout" class="modal-close-btn">&times;</button>
+        <div class="animate-up" style="width:95%;max-width:820px;background:#0D0D0D;border:1px solid rgba(244,180,0,0.15);border-radius:24px;overflow:hidden;margin:auto;max-height:92vh;overflow-y:auto;">
+            <!-- Header -->
+            <div style="display:flex;justify-content:space-between;align-items:center;padding:20px 28px;border-bottom:1px solid rgba(244,180,0,0.15);background:#0D0D0D;position:sticky;top:0;z-index:10;">
+                <div>
+                    <p style="font-family:var(--font-futuristic);font-size:10px;font-weight:800;letter-spacing:3px;color:#F4B400;text-transform:uppercase;margin:0 0 4px;">Checkout</p>
+                    <h3 style="font-family:var(--font-futuristic);font-weight:900;font-size:20px;color:#F0EAD6;margin:0;">Confirm Your Order</h3>
+                </div>
+                <button id="close-checkout" style="font-size:28px;cursor:pointer;color:#888;background:none;border:none;" onmouseover="this.style.color='#F0EAD6'" onmouseout="this.style.color='#888'">&times;</button>
             </div>
-            
-            <form id="checkout-form" class="flex flex-col gap-4 mt-4">
-                
-                <!-- Customer Details -->
-                <div class="grid grid-cols-2 gap-3">
-                    <div>
-                        <label class="text-[10px] font-black tracking-widest uppercase text-white/70 block mb-1">Your Name</label>
-                        <input id="cust-name" name="cust-name" type="text" required placeholder="Full Name"
-                            class="w-full p-3 bg-[#1f222b] border border-white/20 rounded-xl text-white text-sm focus:outline-none focus:border-[#C47F17] transition-colors placeholder:text-white/40">
+            <form id="checkout-form">
+                <div class="lw-co-grid">
+                    <!-- LEFT -->
+                    <div class="lw-co-left">
+                        <div class="lw-co-card">
+                            <h4 class="lw-co-card-title">📍 Delivery Details</h4>
+                            <div class="lw-co-row2">
+                                <div class="lw-co-fg">
+                                    <label class="lw-co-lbl">Full Name</label>
+                                    <input id="cust-name" name="cust-name" type="text" required placeholder="Rahul Sharma" class="lw-co-inp">
+                                </div>
+                                <div class="lw-co-fg">
+                                    <label class="lw-co-lbl">Phone</label>
+                                    <input id="cust-phone" name="cust-phone" type="tel" required placeholder="98765 43210" class="lw-co-inp">
+                                </div>
+                            </div>
+                            <div class="lw-co-fg" style="margin-bottom:14px;">
+                                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+                                    <label class="lw-co-lbl" style="margin:0;">Delivery Address</label>
+                                    <select id="saved-addresses-select" class="hidden" style="background:#252830;color:#F0EAD6;border:1px solid rgba(244,180,0,0.15);border-radius:8px;padding:4px 8px;font-size:11px;outline:none;cursor:pointer;"><option value="">-- Saved Addresses --</option></select>
+                                </div>
+                                <textarea id="cust-address" name="cust-address" required rows="3" placeholder="House no., street, landmark..." class="lw-co-inp" style="resize:none;"></textarea>
+                            </div>
+                            <div class="lw-co-row2">
+                                <div class="lw-co-fg">
+                                    <label class="lw-co-lbl">Pincode</label>
+                                    <input type="text" id="checkout-pincode" name="cust-pincode" maxlength="6" pattern="[0-9]{6}" placeholder="758035" required class="lw-co-inp">
+                                </div>
+                                <div class="lw-co-fg">
+                                    <label class="lw-co-lbl">Instructions (Optional)</label>
+                                    <input id="checkout-instructions" name="cust-instructions" placeholder="Ring bell, leave at door..." class="lw-co-inp">
+                                </div>
+                            </div>
+                            <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px;color:#888;margin-top:8px;">
+                                <input type="checkbox" id="save-address-cb" style="accent-color:#F4B400;width:16px;height:16px;"> Save this address
+                            </label>
+                        </div>
+                        <div class="lw-co-card">
+                            <h4 class="lw-co-card-title">💳 Payment Method</h4>
+                            <div id="payment-methods" style="display:flex;flex-direction:column;gap:10px;">
+                                <label class="lw-co-pay lw-co-pay-active">
+                                    <div class="lw-co-pay-icon">💵</div>
+                                    <div style="flex:1;"><div class="lw-co-pay-lbl">Cash on Delivery</div><div class="lw-co-pay-sub">Pay when order arrives</div></div>
+                                    <input type="radio" name="payment-method" value="COD" checked style="accent-color:#F4B400;width:18px;height:18px;">
+                                </label>
+                                <label class="lw-co-pay" style="opacity:.5;cursor:not-allowed;">
+                                    <div class="lw-co-pay-icon">📱</div>
+                                    <div style="flex:1;"><div class="lw-co-pay-lbl">UPI</div><div class="lw-co-pay-sub">Coming Soon 🚀</div></div>
+                                    <input type="radio" name="payment-method" value="UPI" disabled style="accent-color:#F4B400;">
+                                </label>
+                                <label class="lw-co-pay" style="opacity:.5;cursor:not-allowed;">
+                                    <div class="lw-co-pay-icon">💳</div>
+                                    <div style="flex:1;"><div class="lw-co-pay-lbl">Card</div><div class="lw-co-pay-sub">Coming Soon 🚀</div></div>
+                                    <input type="radio" name="payment-method" value="CARD" disabled style="accent-color:#F4B400;">
+                                </label>
+                            </div>
+                        </div>
                     </div>
-                    <div>
-                        <label class="text-[10px] font-black tracking-widest uppercase text-white/70 block mb-1">Phone</label>
-                        <input id="cust-phone" name="cust-phone" type="tel" required placeholder="10-digit #"
-                            class="w-full p-3 bg-[#1f222b] border border-white/20 rounded-xl text-white text-sm focus:outline-none focus:border-[#C47F17] transition-colors placeholder:text-white/40">
+                    <!-- RIGHT -->
+                    <div class="lw-co-right">
+                        <div class="lw-co-summary">
+                            <div class="lw-co-sum-hdr">🧾 Order Summary</div>
+                            <div style="padding:16px 24px;" id="checkout-items-wrapper">
+                                <div id="checkout-items-list" style="display:flex;flex-direction:column;gap:10px;max-height:200px;overflow-y:auto;"></div>
+                            </div>
+                            <div class="lw-co-sum-calc">
+                                <div style="display:flex;gap:10px;margin-bottom:6px;">
+                                    <input id="coupon-input" type="text" placeholder="COUPON CODE" class="lw-co-coupon-inp">
+                                    <button type="button" id="apply-coupon-btn" class="lw-co-coupon-btn">Apply</button>
+                                </div>
+                                <!-- Have a promo code? toggle -->
+                                <div style="margin-bottom:8px;">
+                                    <button type="button" id="promo-toggle-btn"
+                                        style="background:none;border:none;color:#F4B400;font-size:12px;font-weight:700;cursor:pointer;padding:0;font-family:var(--font-futuristic);letter-spacing:0.5px;text-decoration:underline;text-underline-offset:3px;"
+                                        onmouseover="this.style.opacity='0.7'" onmouseout="this.style.opacity='1'">
+                                        🎟️ Have a promo code?
+                                    </button>
+                                </div>
+                                <!-- Active Coupons — JS populates & controls visibility -->
+                                <div id="active-coupons-list" style="display:none;"></div>
+                                <!-- No coupon message — shown only after promo btn click + JS confirms 0 coupons -->
+                                <div id="no-coupon-msg" style="display:none;margin-bottom:10px;padding:12px 14px;background:rgba(244,180,0,0.05);border:1px solid rgba(244,180,0,0.12);border-radius:10px;">
+                                    <p style="margin:0;font-size:12px;color:rgba(255,255,255,0.45);font-family:var(--font-futuristic);line-height:1.7;">
+                                        Oops! Sorry, you don't have any promo codes right now.<br>
+                                        <span style="color:#F4B400;font-weight:700;">Wait karo, jaldi aayega! 🎉</span>
+                                    </p>
+                                </div>
+                                <p id="coupon-message" style="font-size:12px;font-weight:700;margin-bottom:8px;"></p>
+                                <div id="coupon-benefits"></div>
+                                <div id="coupon-suggestion" style="display:none;"></div>
+                                <div id="coupon-rewards-section" style="display:none;"></div>
+                                <div class="lw-co-sum-row"><span>Subtotal</span><span>—</span></div>
+                                <div class="lw-co-sum-row"><span>Delivery</span><span>₹30</span></div>
+                                <div class="lw-co-sum-row"><span>Discount</span><span style="color:#4ade80;">−₹0</span></div>
+                                <div class="lw-co-sum-row lw-co-sum-total"><span>Grand Total</span><span id="checkout-amount" style="color:#F4B400;">₹0</span></div>
+                            </div>
+                            <div style="padding:20px 24px;border-top:1px solid rgba(244,180,0,0.15);">
+                                <p id="checkout-error" style="display:none;color:#ef4444;font-size:12px;font-weight:700;text-align:center;margin-bottom:12px;"></p>
+                                <button type="submit" id="place-order-btn" class="lw-co-place-btn">Place Order 🎉</button>
+                            </div>
+                        </div>
                     </div>
                 </div>
-
-                <!-- Address & Pincode -->
-                <div>
-                    <div class="flex justify-between items-center mb-1">
-                        <label class="text-[10px] font-black tracking-widest uppercase text-white/70 block">Delivery Address</label>
-                        <select id="saved-addresses-select" class="hidden bg-[#252830] text-white border border-white/20 rounded-md px-2 py-1 text-[10px] font-bold outline-none cursor-pointer">
-                            <option value="">-- Saved Addresses --</option>
-                        </select>
-                    </div>
-                    <textarea id="cust-address" name="cust-address" required rows="2" placeholder="House no, street, landmark..."
-                        class="w-full p-3 bg-[#1f222b] border border-white/20 rounded-xl text-white text-sm focus:outline-none focus:border-[#C47F17] transition-colors resize-none placeholder:text-white/40"></textarea>
-                    
-                    <div class="grid grid-cols-2 gap-3 mt-3">
-                        <input type="text" id="checkout-pincode" name="cust-pincode" maxlength="6" pattern="[0-9]{6}" placeholder="Pincode" required 
-                            class="w-full p-3 bg-[#1f222b] border border-white/20 rounded-xl text-white text-sm focus:outline-none focus:border-[#C47F17] transition-colors placeholder:text-white/40">
-                        <label class="flex items-center gap-2 cursor-pointer text-xs text-white/70 font-medium">
-                            <input type="checkbox" id="save-address-cb" class="accent-[#C47F17] w-4 h-4 rounded"> Save address
-                        </label>
-                    </div>
-                </div>
-                
-                <!-- Delivery Instructions -->
-                <div>
-                    <label class="text-[10px] font-black tracking-widest uppercase text-white/70 block mb-1">Delivery Instructions (Optional)</label>
-                    <textarea id="checkout-instructions" name="cust-instructions" placeholder="e.g. Ring the bell, leave at door..." rows="1"
-                        class="w-full p-3 bg-[#1f222b] border border-white/20 rounded-xl text-white text-sm focus:outline-none focus:border-[#C47F17] transition-colors resize-none placeholder:text-white/40"></textarea>
-                </div>
-
-                <!-- Itemized Checkout List -->
-                <div id="checkout-items-wrapper">
-                    <label class="text-[10px] font-black tracking-widest uppercase text-white/70 block mb-2 mt-2">Order Items</label>
-                    <div id="checkout-items-list" class="max-h-[140px] overflow-y-auto space-y-2 mb-2 border-b border-white/20 pb-4 scrollbar-thin">
-                        <!-- Rendered by JS -->
-                    </div>
-                </div>
-
-                <!-- Coupon Section -->
-                <div>
-                    <div class="flex gap-2">
-                        <input id="coupon-input" type="text" placeholder="HAVE A COUPON?"
-                            class="flex-1 p-3 bg-[#1f222b] border border-white/20 rounded-xl text-white text-sm focus:outline-none focus:border-[#C47F17] transition-colors uppercase placeholder:text-white/40">
-                        <button type="button" id="apply-coupon-btn" class="px-5 bg-[#C47F17] text-black rounded-xl font-bold text-sm hover:opacity-90">Apply</button>
-                    </div>
-                    <p id="coupon-message" class="text-xs mt-1 font-bold"></p>
-                    <div id="coupon-benefits"></div>
-                    <div id="coupon-suggestion" style="display:none;"></div>
-                    <div id="active-coupons-list" style="display:none;"></div>
-                </div>
-
-                <!-- Coupon Rewards Section -->
-                <div id="coupon-rewards-section" style="display:none;"></div>
-
-                <!-- Payment Methods -->
-                <div>
-                    <label class="text-[10px] font-black tracking-widest uppercase text-white/70 block mb-2">Payment Method</label>
-                    <div class="space-y-2" id="payment-methods">
-                        <label class="flex items-center gap-3 p-3 rounded-xl border border-white/20 cursor-pointer has-[:checked]:border-[#C47F17] bg-[#1f222b]">
-                            <input type="radio" name="payment-method" value="COD" checked class="accent-[#C47F17] w-4 h-4"> Cash on Delivery
-                        </label>
-                        <label class="flex items-center gap-3 p-3 rounded-xl border border-white/20 cursor-pointer opacity-50 bg-[#1f222b]">
-                            <input type="radio" name="payment-method" value="UPI" disabled class="accent-[#C47F17] w-4 h-4"> 
-                            UPI <span class="ml-auto text-xs text-white/50">Coming soon</span>
-                        </label>
-                        <label class="flex items-center gap-3 p-3 rounded-xl border border-white/20 cursor-pointer opacity-50 bg-[#1f222b]">
-                            <input type="radio" name="payment-method" value="CARD" disabled class="accent-[#C47F17] w-4 h-4"> 
-                            Card <span class="ml-auto text-xs text-white/50">Coming soon</span>
-                        </label>
-                    </div>
-                    <p class="text-xs font-bold text-[#F5A800] mt-2">Online payment feature is coming soon 🚀</p>
-                </div>
-
-                <!-- FINAL TOTAL -->
-                <div class="flex justify-between items-center p-4 bg-[#1a1c23] border border-white/20 rounded-xl mt-2">
-                    <span class="text-white/80 font-bold uppercase tracking-widest text-[10px]">Grand Total</span>
-                    <span id="checkout-amount" class="text-xl font-black text-[#C47F17]">₹0</span>
-                </div>
-                
-                <p id="checkout-error" class="hidden text-red-500 text-xs font-bold text-center"></p>
-                
-                <button type="submit" id="place-order-btn" class="w-full py-4 bg-[#C47F17] text-black font-black text-sm uppercase tracking-widest rounded-xl hover:opacity-90 active:scale-95 transition-all">
-                    PLACE ORDER
-                </button>
             </form>
         </div>
     </div>
+
+    <!-- SHARED PREMIUM CHECKOUT + CART CSS -->
+    <style>
+    .lw-co-grid { display:grid; grid-template-columns:1fr 360px; }
+    .lw-co-left { padding:28px; border-right:1px solid rgba(244,180,0,0.15); }
+    .lw-co-right { padding:28px; background:#0D0D0D; }
+    .lw-co-card { background:#181818; border:1px solid rgba(244,180,0,0.15); border-radius:18px; padding:24px; margin-bottom:20px; }
+    .lw-co-card-title { font-family:var(--font-futuristic); font-weight:800; font-size:14px; color:#F4B400; margin:0 0 20px; }
+    .lw-co-row2 { display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:14px; }
+    .lw-co-fg { display:flex; flex-direction:column; }
+    .lw-co-lbl { font-family:var(--font-futuristic); font-size:10px; font-weight:800; letter-spacing:1.5px; text-transform:uppercase; color:#888; margin-bottom:8px; }
+    .lw-co-inp { width:100%; background:#0D0D0D; border:1px solid rgba(244,180,0,0.15); border-radius:12px; padding:13px 16px; color:#F0EAD6; font-size:14px; outline:none; transition:border-color .2s; box-sizing:border-box; }
+    .lw-co-inp:focus { border-color:#F4B400; }
+    .lw-co-pay { display:flex; align-items:center; gap:14px; padding:14px 16px; background:#0D0D0D; border:1px solid rgba(244,180,0,0.15); border-radius:12px; cursor:pointer; }
+    .lw-co-pay-active { border-color:#F4B400; }
+    .lw-co-pay-icon { width:36px; height:36px; background:#181818; border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:18px; flex-shrink:0; }
+    .lw-co-pay-lbl { font-family:var(--font-futuristic); font-weight:700; font-size:14px; color:#F0EAD6; }
+    .lw-co-pay-sub { font-size:11px; color:#888; }
+    .lw-co-summary { background:#181818; border:1px solid rgba(244,180,0,0.15); border-radius:18px; overflow:hidden; position:sticky; top:20px; }
+    .lw-co-sum-hdr { padding:20px 24px; border-bottom:1px solid rgba(244,180,0,0.15); font-family:var(--font-futuristic); font-weight:800; font-size:16px; color:#F0EAD6; }
+    .lw-co-sum-calc { padding:16px 24px; background:#0D0D0D; border-top:1px solid rgba(244,180,0,0.15); }
+    .lw-co-sum-row { display:flex; justify-content:space-between; font-size:13px; color:#888; margin-bottom:8px; }
+    .lw-co-sum-total { color:#F0EAD6; font-family:var(--font-futuristic); font-weight:900; font-size:20px; border-top:1px solid rgba(244,180,0,0.15); padding-top:14px; margin-top:8px; margin-bottom:0; }
+    .lw-co-coupon-inp { flex:1; background:#181818; border:1px solid rgba(244,180,0,0.15); border-radius:10px; padding:12px 16px; color:#F0EAD6; font-size:13px; outline:none; text-transform:uppercase; }
+    .lw-co-coupon-inp:focus { border-color:#F4B400; }
+    .lw-co-coupon-btn { background:#F4B400; color:#000; font-family:var(--font-futuristic); font-weight:800; font-size:12px; padding:12px 18px; border-radius:10px; border:none; cursor:pointer; white-space:nowrap; }
+    .lw-co-place-btn { width:100%; padding:16px; background:#F4B400; color:#000; font-family:var(--font-futuristic); font-weight:900; font-size:14px; letter-spacing:2px; text-transform:uppercase; border:none; border-radius:14px; cursor:pointer; transition:opacity .2s; }
+    .lw-co-place-btn:hover { opacity:.9; }
+    @media(max-width:768px) {
+        .lw-co-grid { grid-template-columns:1fr !important; }
+        .lw-co-left { border-right:none !important; border-bottom:1px solid rgba(244,180,0,0.15); padding:20px 18px !important; }
+        .lw-co-right { padding:20px 18px !important; }
+        .lw-co-row2 { grid-template-columns:1fr !important; }
+        .lw-co-summary { position:static; }
+        #checkout-modal > div { width:98% !important; border-radius:20px !important; }
+    }
+    @media(max-width:480px) {
+        #cart-modal > div { width:100% !important; border-radius:20px 20px 0 0 !important; align-self:flex-end !important; }
+        .lw-co-left, .lw-co-right { padding:16px 14px !important; }
+    }
+    </style>
+
 
     <!-- SCRIPTS -->
     <script type="module" src="/src/pwa.js"></script>

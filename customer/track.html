@@ -24,11 +24,19 @@
     <link rel="stylesheet" href="/src/style.css">
     <link rel="stylesheet" href="/src/customer-menu.css">
     <link rel="stylesheet" href="/src/panel-tokens.css">
+    <link rel="stylesheet" href="/src/footer-and-animations.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script>
         // Track page now requires both a valid order ID and secure tracking token.
         // The direct tracking link is delivered after checkout.
     </script>
     <link rel="icon" type="image/png" href="/images/logo.png">
+    <style>
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+        }
+    </style>
 </head>
 <body class="bg-primary text-white font-sans">
     <div id="app">
@@ -40,6 +48,8 @@
             <nav class="hidden md:flex space-x-10 text-sm font-semibold tracking-wide">
                 <a href="./index.html" class="hover:text-accent transition">Home</a>
                 <a href="./menu.html" class="hover:text-accent transition">Menu</a>
+                <a href="./index.html#why" class="hover:text-accent transition">Why Us</a>
+                <a href="./index.html#plans" class="hover:text-accent transition">Plans</a>
                 <a href="./track.html" class="text-accent">Track Order</a>
                 <a href="./index.html#reach" class="hover:text-accent transition">Contact Us</a>
             </nav>
@@ -138,19 +148,123 @@
                     </div>
                 </div>
                 
-                <div id="tracking-error" class="hidden text-center py-20">
-                    <div class="text-6xl mb-6">🔍</div>
-                    <h3 class="text-3xl font-black text-white mb-4">Order Not Found</h3>
-                    <p class="text-gray-400 mb-10 max-w-sm mx-auto">This page requires the secure tracking link issued after your order. If you opened this page directly, please use the link from your SMS/Email.</p>
-                    <button onclick="window.location.href='./menu.html'" class="btn-primary px-10 py-4 rounded-2xl">
-                        Back to Menu
-                    </button>
+                <div id="tracking-error" class="hidden">
+                    <div class="max-w-2xl mx-auto py-20 px-6">
+                        <!-- Error Card -->
+                        <div style="background: linear-gradient(135deg, rgba(244, 180, 0, 0.1) 0%, rgba(24, 24, 24, 0.8) 100%); border: 1px solid rgba(244, 180, 0, 0.2); border-radius: 28px; padding: 48px 32px; text-align: center; margin-bottom: 32px;">
+                            
+                            <!-- Error Icon -->
+                            <div style="font-size: 80px; margin-bottom: 24px; animation: float 3s ease-in-out infinite;">🔍</div>
+                            
+                            <!-- Main Error Title -->
+                            <h2 style="font-family: var(--font-head); font-size: 42px; font-weight: 900; color: #F0EAD6; margin: 0 0 16px 0; letter-spacing: 1px;">Order Not Found</h2>
+                            
+                            <!-- Divider -->
+                            <div style="width: 60px; height: 3px; background: #F4B400; border-radius: 999px; margin: 24px auto 32px;"></div>
+                            
+                            <!-- Error Description -->
+                            <p style="color: #888; font-size: 16px; line-height: 1.8; margin: 0 0 8px 0;">This page requires a secure tracking link issued after your order.</p>
+                            <p style="color: #888; font-size: 16px; line-height: 1.8; margin: 0 0 32px 0;">If you opened this page directly, please use the link from your SMS or Email.</p>
+                            
+                            <!-- Helpful Info Boxes -->
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin: 32px 0; text-align: left;">
+                                <!-- Box 1 -->
+                                <div style="background: rgba(244, 180, 0, 0.08); border: 1px solid rgba(244, 180, 0, 0.2); border-radius: 16px; padding: 20px;">
+                                    <div style="font-size: 24px; margin-bottom: 8px;">📧</div>
+                                    <div style="font-family: var(--font-head); font-weight: 800; font-size: 13px; color: #F4B400; letter-spacing: 1px; margin-bottom: 4px;">CHECK EMAIL</div>
+                                    <div style="font-size: 13px; color: #888; line-height: 1.6;">Look for tracking link in your order confirmation email</div>
+                                </div>
+                                
+                                <!-- Box 2 -->
+                                <div style="background: rgba(244, 180, 0, 0.08); border: 1px solid rgba(244, 180, 0, 0.2); border-radius: 16px; padding: 20px;">
+                                    <div style="font-size: 24px; margin-bottom: 8px;">💬</div>
+                                    <div style="font-family: var(--font-head); font-weight: 800; font-size: 13px; color: #F4B400; letter-spacing: 1px; margin-bottom: 4px;">CHECK SMS</div>
+                                    <div style="font-size: 13px; color: #888; line-height: 1.6;">We sent a WhatsApp message with your tracking link</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Action Buttons -->
+                        <div style="display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; margin-bottom: 40px;">
+                            <button onclick="window.location.href='./menu.html'" style="background: #F4B400; color: #000; border: none; border-radius: 50px; padding: 14px 32px; font-family: var(--font-head); font-weight: 800; font-size: 14px; letter-spacing: 1px; text-transform: uppercase; cursor: pointer; transition: all 0.2s ease; box-shadow: 0 12px 30px rgba(244, 180, 0, 0.25);">
+                                🍲 Back to Menu
+                            </button>
+                            <button onclick="window.location.href='./index.html'" style="background: transparent; color: #F0EAD6; border: 1.5px solid rgba(244, 180, 0, 0.3); border-radius: 50px; padding: 14px 32px; font-family: var(--font-head); font-weight: 800; font-size: 14px; letter-spacing: 1px; text-transform: uppercase; cursor: pointer; transition: all 0.2s ease;">
+                                🏠 Home
+                            </button>
+                        </div>
+                        
+                        <!-- Help Section -->
+                        <div style="background: #181818; border: 1px solid rgba(244, 180, 0, 0.15); border-radius: 20px; padding: 28px; text-align: center;">
+                            <div style="font-family: var(--font-head); font-size: 12px; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; color: #F4B400; margin-bottom: 16px;">Need Help?</div>
+                            <p style="color: #888; font-size: 14px; margin: 0 0 16px 0;">Contact us directly on WhatsApp</p>
+                            <a href="https://wa.me/916370680744" target="_blank" style="display: inline-flex; align-items: center; gap: 10px; background: #1aad4e; color: #fff; padding: 12px 24px; border-radius: 50px; text-decoration: none; font-family: var(--font-head); font-weight: 800; font-size: 12px; letter-spacing: 1px; text-transform: uppercase; transition: all 0.2s ease;">
+                                💬 WhatsApp Support
+                            </a>
+                        </div>
+                    </div>
                 </div>
             </div>
         </main>
 
-        <footer class="p-12 text-center text-gray-600 border-t border-gray-900">
-            <p class="text-sm font-medium">&copy; 2026 Littiwale. Freshly Roasted & Delivered.</p>
+        <footer class="footer" style="background: #131313; border-top: 1px solid rgba(244,180,0,0.15); padding: 64px 0 0;">
+          <div class="container">
+            <div class="footer-grid" style="display: grid; grid-template-columns: 1.5fr 1fr 1fr 1fr; gap: 40px; margin-bottom: 48px;">
+              <!-- BRAND -->
+              <div>
+                <div class="footer-brand-logo" style="display: flex; align-items: center; gap: 10px; margin-bottom: 16px;">
+                  <div class="footer-logo-box" style="width: 40px; height: 40px; background: #F4B400; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-family: var(--font-head); font-weight: 900; font-size: 18px; color: #000;">L</div>
+                  <span class="footer-brand-name" style="font-family: var(--font-head); font-weight: 900; font-size: 18px; letter-spacing: 3px; color: #F4B400;">LITTIWALE</span>
+                </div>
+                <p class="footer-tagline" style="font-size: 14px; color: #888; line-height: 1.7; margin-bottom: 24px;">The Soul of Bihar, Delivered.<br>Authentic Bihari flavours, made fresh daily in Barbil, Odisha.</p>
+                <div class="footer-socials" style="display: flex; gap: 12px;">
+                  <div class="footer-social-icon" style="width: 38px; height: 38px; background: #181818; border: 1px solid rgba(244,180,0,0.15); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 15px; cursor: pointer;"><i class="fab fa-instagram"></i></div>
+                  <div class="footer-social-icon" style="width: 38px; height: 38px; background: #181818; border: 1px solid rgba(244,180,0,0.15); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 15px; cursor: pointer;"><i class="fab fa-facebook-f"></i></div>
+                  <div class="footer-social-icon" style="width: 38px; height: 38px; background: #181818; border: 1px solid rgba(244,180,0,0.15); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 15px; cursor: pointer;"><i class="fab fa-whatsapp"></i></div>
+                  <div class="footer-social-icon" style="width: 38px; height: 38px; background: #181818; border: 1px solid rgba(244,180,0,0.15); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 15px; cursor: pointer;"><i class="fab fa-youtube"></i></div>
+                </div>
+              </div>
+              <!-- MENU COL -->
+              <div class="footer-col">
+                <h5 style="font-family: var(--font-head); font-weight: 800; font-size: 12px; letter-spacing: 2px; text-transform: uppercase; color: #F4B400; margin-bottom: 20px;">Menu</h5>
+                <ul style="list-style: none; display: flex; flex-direction: column; gap: 12px;">
+                  <li><a href="./index.html#why" style="font-size: 14px; color: #888; text-decoration: none;">Why Littiwale</a></li>
+                  <li><a href="./index.html#how" style="font-size: 14px; color: #888; text-decoration: none;">How It Works</a></li>
+                  <li><a href="./index.html#plans" style="font-size: 14px; color: #888; text-decoration: none;">Membership Plans</a></li>
+                  <li><a href="./menu.html" style="font-size: 14px; color: #888; text-decoration: none;">Full Menu</a></li>
+                  <li><a href="./index.html#catering" style="font-size: 14px; color: #888; text-decoration: none;">Catering Services</a></li>
+                </ul>
+              </div>
+              <!-- COMPANY COL -->
+              <div class="footer-col">
+                <h5 style="font-family: var(--font-head); font-weight: 800; font-size: 12px; letter-spacing: 2px; text-transform: uppercase; color: #F4B400; margin-bottom: 20px;">Company</h5>
+                <ul style="list-style: none; display: flex; flex-direction: column; gap: 12px;">
+                  <li><a href="./index.html#about" style="font-size: 14px; color: #888; text-decoration: none;">About Littiwale</a></li>
+                  <li><a href="./index.html#reach" style="font-size: 14px; color: #888; text-decoration: none;">Reach Us</a></li>
+                  <li><a href="./index.html#faq" style="font-size: 14px; color: #888; text-decoration: none;">FAQ</a></li>
+                  <li><a href="./track.html" style="font-size: 14px; color: #888; text-decoration: none;">Track Order</a></li>
+                </ul>
+              </div>
+              <!-- VISIT COL -->
+              <div class="footer-col">
+                <h5 style="font-family: var(--font-head); font-weight: 800; font-size: 12px; letter-spacing: 2px; text-transform: uppercase; color: #F4B400; margin-bottom: 20px;">Visit Us</h5>
+                <p style="font-size: 13px; color: #888; line-height: 1.8;">Ward No. 7, Punjabi Para<br>Barbil, Odisha 758035</p>
+                <p style="margin-top:12px; font-size: 13px; color: #888;">📞 +91 63706 80744</p>
+                <p style="font-size: 13px; color: #888;">🕚 11 AM – 10:30 PM, Daily</p>
+              </div>
+            </div>
+            <!-- FOOTER BOTTOM -->
+            <div class="footer-bottom" style="margin-top: 48px; padding: 20px 0; border-top: 1px solid rgba(244,180,0,0.15); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+              <span style="font-size: 12px; color: #888;">© 2026 Littiwale Barbil. All rights reserved.</span>
+              <div style="display:flex;gap:20px;align-items:center;flex-wrap:wrap;">
+                <a href="#" style="font-size:12px;color:#888;text-decoration:none;">Privacy Policy</a>
+                <a href="#" style="font-size:12px;color:#888;text-decoration:none;">Terms of Service</a>
+                <a href="https://tushkarmakar.vercel.app/client" target="_blank" style="font-size:12px;color:#888;text-decoration:none;font-family:var(--font-body);font-weight:700;">
+                  Developed by BrandNest <i class="fas fa-external-link-alt" style="font-size:9px;"></i>
+                </a>
+              </div>
+            </div>
+          </div>
         </footer>
     </div>
 
