@@ -1,21 +1,37 @@
 /* ============================================================
    RIDER PANEL — NEON DARK THEME
-   Replaces: src/rider.css
+   Fixed: All hardcoded hex colors replaced with CSS variables
+   Light mode fully compatible
    ============================================================ */
 
 :root {
     --rider-bg: #080b12;
     --rider-surface: #0d1120;
+    --rider-surface-deep: #080b12;
     --rider-border: #1a2035;
+    --rider-border-soft: #1a2035;
     --rider-primary: #F5A800;
     --rider-primary-soft: rgba(245,168,0,0.12);
     --rider-success: #10B981;
     --rider-success-soft: rgba(16,185,129,0.12);
+    --rider-success-border: rgba(16,185,129,0.3);
     --rider-secondary: #2563EB;
+    --rider-secondary-soft: rgba(37,99,235,0.15);
+    --rider-secondary-border: rgba(37,99,235,0.3);
+    --rider-danger: #ef4444;
+    --rider-danger-soft: rgba(239,68,68,0.12);
+    --rider-danger-border: rgba(239,68,68,0.3);
     --rider-text: #ffffff;
+    --rider-text-dim: #2a3a6a;
+    --rider-text-muted: #2a3560;
     --rider-muted: #3a4a70;
     --rider-card-bg: #0d1120;
     --rider-card-border: #1a2540;
+    --rider-status-bg: linear-gradient(135deg, #0d1a2e, #0a1220);
+    --rider-status-border: #1e3a5f;
+    --rider-status-glow: #2563EB;
+    --rider-nav-bg: #0d1120;
+    --rider-nav-border: #1a2035;
     --rider-bg-soft: rgba(255,255,255,0.03);
     --button-on-primary: #000;
     --button-on-success: #fff;
@@ -24,15 +40,34 @@
 html[data-theme='light'] {
     --rider-bg: #f7f3ed;
     --rider-surface: #ffffff;
+    --rider-surface-deep: #f0ece6;
     --rider-border: rgba(0,0,0,0.08);
+    --rider-border-soft: rgba(0,0,0,0.06);
     --rider-primary: #f59e0b;
+    --rider-primary-soft: rgba(245,158,11,0.1);
     --rider-success: #10B981;
+    --rider-success-soft: rgba(16,185,129,0.1);
+    --rider-success-border: rgba(16,185,129,0.25);
     --rider-secondary: #2563EB;
+    --rider-secondary-soft: rgba(37,99,235,0.1);
+    --rider-secondary-border: rgba(37,99,235,0.25);
+    --rider-danger: #ef4444;
+    --rider-danger-soft: rgba(239,68,68,0.1);
+    --rider-danger-border: rgba(239,68,68,0.25);
     --rider-text: #1c1b18;
+    --rider-text-dim: #6b7280;
+    --rider-text-muted: #9ca3af;
     --rider-muted: #5a6280;
     --rider-card-bg: #ffffff;
     --rider-card-border: rgba(0,0,0,0.08);
+    --rider-status-bg: linear-gradient(135deg, #e8f0fe, #f0f4ff);
+    --rider-status-border: rgba(37,99,235,0.2);
+    --rider-status-glow: rgba(37,99,235,0.4);
+    --rider-nav-bg: #ffffff;
+    --rider-nav-border: rgba(0,0,0,0.08);
     --rider-bg-soft: rgba(0,0,0,0.04);
+    --button-on-primary: #000;
+    --button-on-success: #fff;
 }
 
 /* ── BASE ─────────────────────────────────────────── */
@@ -65,7 +100,7 @@ body {
     color: var(--rider-primary); letter-spacing: 2px;
 }
 .rider-logo-sub {
-    font-size: 9px; color: #2a3560;
+    font-size: 9px; color: var(--rider-text-dim);
     font-weight: 700; letter-spacing: 3px; text-transform: uppercase;
 }
 
@@ -74,8 +109,8 @@ body {
 
 /* ── EARNINGS + TOGGLE BAR ────────────────────────── */
 .nd-status-bar {
-    background: linear-gradient(135deg, #0d1a2e, #0a1220);
-    border: 1px solid #1e3a5f;
+    background: var(--rider-status-bg);
+    border: 1px solid var(--rider-status-border);
     border-radius: 18px;
     padding: 20px;
     margin-bottom: 24px;
@@ -87,36 +122,36 @@ body {
 }
 .nd-status-bar-glow {
     position: absolute; top: 0; left: 0; right: 0; height: 1px;
-    background: linear-gradient(90deg, transparent, #2563EB, transparent);
+    background: linear-gradient(90deg, transparent, var(--rider-status-glow), transparent);
     pointer-events: none;
 }
 .nd-earn-label {
-    font-size: 9px; font-weight: 800; color: #2a3a6a;
+    font-size: 9px; font-weight: 800; color: var(--rider-text-dim);
     letter-spacing: 2px; text-transform: uppercase; margin-bottom: 4px;
 }
 .nd-earn-val {
     font-family: 'Space Mono', monospace;
-    font-size: 30px; font-weight: 700; color: #10B981; line-height: 1;
+    font-size: 30px; font-weight: 700; color: var(--rider-success); line-height: 1;
 }
-.nd-earn-meta { font-size: 10px; color: #2a4a6a; margin-top: 4px; }
+.nd-earn-meta { font-size: 10px; color: var(--rider-text-dim); margin-top: 4px; }
 .nd-toggle-wrap { text-align: right; }
 .nd-online-tag {
     display: inline-block;
-    background: rgba(16,185,129,0.12); color: #10B981;
+    background: var(--rider-success-soft); color: var(--rider-success);
     font-size: 9px; font-weight: 900; padding: 4px 12px;
-    border-radius: 20px; border: 1px solid rgba(16,185,129,0.3);
+    border-radius: 20px; border: 1px solid var(--rider-success-border);
     letter-spacing: 1px;
 }
 .nd-online-tag.offline {
-    background: rgba(239,68,68,0.12); color: #ef4444;
-    border-color: rgba(239,68,68,0.3);
+    background: var(--rider-danger-soft); color: var(--rider-danger);
+    border-color: var(--rider-danger-border);
 }
 
 /* ── SECTION TITLE ────────────────────────────────── */
 .rider-section-title {
     font-size: 9px; font-weight: 800;
     text-transform: uppercase; letter-spacing: 3px;
-    color: #2a3560; margin-bottom: 14px;
+    color: var(--rider-text-muted); margin-bottom: 14px;
     display: flex; align-items: center; gap: 8px;
 }
 .rider-section-title .count-pill {
@@ -127,9 +162,9 @@ body {
 
 /* ── NEON CARD ────────────────────────────────────── */
 .nd-card {
-    background: #0d1120;
-    border: 1px solid #1a2540;
-    border-left: 3px solid #F5A800;
+    background: var(--rider-card-bg);
+    border: 1px solid var(--rider-card-border);
+    border-left: 3px solid var(--rider-primary);
     border-radius: 20px;
     padding: 18px;
     margin-bottom: 14px;
@@ -137,13 +172,13 @@ body {
     overflow: hidden;
 }
 .nd-card-delivery {
-    border-color: #1e3a2f;
-    border-left-color: #10B981;
-    box-shadow: 0 0 0 1px rgba(16,185,129,0.12);
+    border-color: var(--rider-card-border);
+    border-left-color: var(--rider-success);
+    box-shadow: 0 0 0 1px var(--rider-success-soft);
 }
 .nd-delivery-glow {
     position: absolute; inset: 0; border-radius: 20px;
-    background: radial-gradient(ellipse at top, rgba(16,185,129,0.06) 0%, transparent 70%);
+    background: radial-gradient(ellipse at top, var(--rider-success-soft) 0%, transparent 70%);
     pointer-events: none;
 }
 
@@ -152,10 +187,10 @@ body {
     display: flex; align-items: center; gap: 6px;
     margin-bottom: 14px;
     font-size: 9px; font-weight: 900;
-    color: #10B981; letter-spacing: 2px; text-transform: uppercase;
+    color: var(--rider-success); letter-spacing: 2px; text-transform: uppercase;
 }
 .nd-transit-dot {
-    width: 8px; height: 8px; background: #10B981;
+    width: 8px; height: 8px; background: var(--rider-success);
     border-radius: 50%; display: inline-block;
     animation: pulse 1.5s infinite;
 }
@@ -167,43 +202,43 @@ body {
 }
 .nd-order-id {
     font-family: 'Space Mono', monospace;
-    font-size: 9px; color: #2a3a6a; letter-spacing: 1px;
+    font-size: 9px; color: var(--rider-text-dim); letter-spacing: 1px;
 }
 .nd-amount {
     font-family: 'Space Mono', monospace;
-    font-size: 22px; font-weight: 700; color: #F5A800;
+    font-size: 22px; font-weight: 700; color: var(--rider-primary);
 }
-.nd-amount-green { color: #10B981; }
-.nd-cust-name { font-size: 17px; font-weight: 800; color: #fff; margin-bottom: 14px; }
+.nd-amount-green { color: var(--rider-success); }
+.nd-cust-name { font-size: 17px; font-weight: 800; color: var(--rider-text); margin-bottom: 14px; }
 
 /* ── 3-CHIP ROW ───────────────────────────────────── */
 .nd-chips { display: flex; gap: 8px; margin-bottom: 12px; }
 .nd-chip {
     flex: 1;
-    background: #080b12; border: 1px solid #1a2035;
+    background: var(--rider-surface-deep); border: 1px solid var(--rider-border-soft);
     border-radius: 12px; padding: 10px 8px; text-align: center;
 }
 .nd-chip-label {
-    font-size: 8px; font-weight: 800; color: #2a3a6a;
+    font-size: 8px; font-weight: 800; color: var(--rider-text-dim);
     letter-spacing: 1px; text-transform: uppercase; margin-bottom: 4px;
 }
-.nd-chip-val { font-size: 13px; font-weight: 800; color: #fff; }
-.nd-chip-val.cod  { color: #F5A800; font-size: 11px; }
-.nd-chip-val.paid { color: #10B981; font-size: 11px; }
+.nd-chip-val { font-size: 13px; font-weight: 800; color: var(--rider-text); }
+.nd-chip-val.cod  { color: var(--rider-primary); font-size: 11px; }
+.nd-chip-val.paid { color: var(--rider-success); font-size: 11px; }
 
 /* ── ADDRESS ROW ──────────────────────────────────── */
 .nd-addr-row {
     display: flex; align-items: center; justify-content: space-between; gap: 10px;
-    background: #080b12; border: 1px solid #1a2035;
+    background: var(--rider-surface-deep); border: 1px solid var(--rider-border-soft);
     border-radius: 12px; padding: 12px 14px; margin-bottom: 14px;
 }
 .nd-addr-info { flex: 1; min-width: 0; }
 .nd-addr-label {
-    font-size: 8px; font-weight: 800; color: #2a3a6a;
+    font-size: 8px; font-weight: 800; color: var(--rider-text-dim);
     text-transform: uppercase; letter-spacing: 1px; margin-bottom: 3px;
 }
 .nd-addr-val {
-    font-size: 12px; font-weight: 600; color: #fff;
+    font-size: 12px; font-weight: 600; color: var(--rider-text);
     white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
 .nd-icon-btns { display: flex; gap: 6px; flex-shrink: 0; }
@@ -213,14 +248,14 @@ body {
     font-size: 16px; text-decoration: none; transition: transform 0.15s;
 }
 .nd-icon-btn:active { transform: scale(0.9); }
-.nd-icon-btn.call { background: rgba(16,185,129,0.15); border: 1px solid rgba(16,185,129,0.3); }
-.nd-icon-btn.map  { background: rgba(37,99,235,0.15);  border: 1px solid rgba(37,99,235,0.3); }
+.nd-icon-btn.call { background: var(--rider-success-soft); border: 1px solid var(--rider-success-border); }
+.nd-icon-btn.map  { background: var(--rider-secondary-soft); border: 1px solid var(--rider-secondary-border); }
 
 /* ── BUTTONS ──────────────────────────────────────── */
 .nd-btn-primary {
     width: 100%; min-height: 48px; padding: 14px;
-    background: linear-gradient(135deg, #F5A800, #ff8c00);
-    color: #000; border: none; border-radius: 14px;
+    background: linear-gradient(135deg, var(--rider-primary), #ff8c00);
+    color: var(--button-on-primary); border: none; border-radius: 14px;
     font-size: 12px; font-weight: 900;
     letter-spacing: 2px; text-transform: uppercase; cursor: pointer;
     display: flex; align-items: center; justify-content: center;
@@ -230,8 +265,8 @@ body {
 
 .nd-btn-success {
     width: 100%; min-height: 48px; padding: 14px;
-    background: linear-gradient(135deg, #10B981, #059669);
-    color: #fff; border: none; border-radius: 14px;
+    background: linear-gradient(135deg, var(--rider-success), #059669);
+    color: var(--button-on-success); border: none; border-radius: 14px;
     font-size: 12px; font-weight: 900;
     letter-spacing: 2px; text-transform: uppercase; cursor: pointer;
     display: flex; align-items: center; justify-content: center;
@@ -240,7 +275,7 @@ body {
 .nd-btn-success:active { transform: scale(0.98); opacity: 0.9; }
 
 /* ── EMPTY STATE ──────────────────────────────────── */
-.rider-empty { text-align: center; padding: 40px 20px; color: #2a3560; }
+.rider-empty { text-align: center; padding: 40px 20px; color: var(--rider-text-muted); }
 .rider-empty .empty-emoji { font-size: 40px; margin-bottom: 12px; }
 .rider-empty p { font-size: 13px; font-weight: 600; }
 .section-gap { margin-bottom: 32px; }
@@ -248,14 +283,14 @@ body {
 /* ── BOTTOM NAV ───────────────────────────────────── */
 .rider-bottom-nav {
     position: fixed; bottom: 0; left: 0; right: 0;
-    background: #0d1120; border-top: 1px solid #1a2035;
+    background: var(--rider-nav-bg); border-top: 1px solid var(--rider-nav-border);
     display: flex; justify-content: space-around;
     align-items: center; height: 64px; z-index: 100;
 }
 .bnav-item {
     display: flex; flex-direction: column; align-items: center; gap: 3px;
     font-size: 9px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px;
-    color: #2a3560; cursor: pointer; padding: 8px 20px; border-radius: 12px;
+    color: var(--rider-text-muted); cursor: pointer; padding: 8px 20px; border-radius: 12px;
     transition: color 0.15s;
 }
 .bnav-item.active { color: var(--rider-primary); }

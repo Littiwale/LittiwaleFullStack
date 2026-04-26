@@ -3912,8 +3912,8 @@ const loadMenuAnalytics = async () => {
 
 const calculateMenuAnalytics = () => {
     const totalItems = menuItems.length;
-    const availableItems = menuItems.filter(item => item.available).length;
-    const outOfStockItems = menuItems.filter(item => (item.stockQuantity ?? 0) === 0).length;
+    const availableItems = menuItems.filter(item => item.available !== false).length;
+    const outOfStockItems = menuItems.filter(item => item.inStock === false).length;
     const hiddenItems = totalItems - availableItems;
 
     // Category distribution
@@ -3949,7 +3949,7 @@ const calculateMenuAnalytics = () => {
     const minPrice = Math.min(...prices, 0);
 
     // Low stock items (stock < 10)
-    const lowStockItems = menuItems.filter(item => (item.stockQuantity ?? 0) > 0 && (item.stockQuantity ?? 0) < 10).length;
+    const lowStockItems = menuItems.filter(item => item.inStock === false).length;
 
     // Veg/Non-Veg split
     const vegItems = menuItems.filter(item => item.veg === true).length;
@@ -4098,8 +4098,8 @@ const renderMenuAnalyticsTable = (analytics) => {
     });
 
     tableBody.innerHTML = sorted.map(item => {
-        const stock = item.stockQuantity ?? 0;
-        const isVisible = item.available;
+        const stock = item.inStock !== false;
+        const isVisible = item.available !== false;
         const isVeg = item.veg === true;
         return `
             <tr style="border-bottom:1px solid #1e2130;transition:background .15s;" onmouseover="this.style.background='#12141b'" onmouseout="this.style.background=''">
@@ -4108,8 +4108,8 @@ const renderMenuAnalyticsTable = (analytics) => {
                 <td style="padding:10px 12px;font-size:12px;font-weight:700;color:#F5A800;font-family:'Syne',sans-serif;">₹${item.price ?? 0}</td>
                 <td style="padding:10px 12px;">
                     <span style="font-size:10px;padding:2px 8px;border-radius:20px;font-weight:700;border:1px solid;
-                        ${stock > 0 ? 'background:rgba(16,185,129,.1);color:#34d399;border-color:rgba(16,185,129,.3);' : 'background:rgba(239,68,68,.1);color:#f87171;border-color:rgba(239,68,68,.3);'}">
-                        ${stock > 0 ? 'In Stock' : 'Out'}
+                        ${stock ? 'background:rgba(16,185,129,.1);color:#34d399;border-color:rgba(16,185,129,.3);' : 'background:rgba(239,68,68,.1);color:#f87171;border-color:rgba(239,68,68,.3);'}">
+                        ${stock ? 'In Stock' : 'Out'}
                     </span>
                 </td>
                 <td style="padding:10px 12px;">

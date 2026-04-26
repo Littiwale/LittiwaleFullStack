@@ -55,16 +55,7 @@
    Scope: body.rider-app
    ──────────────────────────────────────── */
 body.rider-app {
-  --rider-bg: #0f1117;
-  --rider-card-bg: #1e2130;
-  --rider-accent: #3b82f6;
-  --rider-accent-hover: #2563eb;
-  --rider-success: #22c55e;
-  --rider-danger: #ef4444;
-  --rider-warning: #f59e0b;
-  --rider-text-primary: #ffffff;
-  --rider-text-muted: #9ca3af;
-  --rider-border: rgba(255, 255, 255, 0.08);
+  /* Neon dark theme tokens — do not override rider.css :root variables */
   --transition-fast: all 200ms ease-in-out;
 }
 
@@ -1102,34 +1093,35 @@ html[data-theme='light'] .customer-app .menu-card .relative {
 /* ═══════════════════════════════════════════════════════════
    STEP 6 — RIDER UI POLISH
    All rules scoped under body.rider-app
+   Uses neon theme variables from rider.css :root
    ═══════════════════════════════════════════════════════════ */
 
 /* 6A — LAYOUT */
 body.rider-app {
-  background: var(--rider-bg, #0f1117);
+  background: var(--rider-bg);
 }
 
 body.rider-app .rider-card {
-  background: var(--rider-card-bg, #1e2130);
+  background: var(--rider-card-bg);
   border-radius: 16px;
-  border: 1px solid var(--rider-border, rgba(255, 255, 255, 0.08));
+  border: 1px solid var(--rider-card-border);
   transition: var(--transition-fast);
 }
 
 body.rider-app .rider-card:hover {
-  border-color: rgba(59, 130, 246, 0.35);
-  box-shadow: 0 4px 20px rgba(59, 130, 246, 0.08);
+  border-color: var(--rider-primary-soft);
+  box-shadow: 0 4px 20px var(--rider-primary-soft);
 }
 
 /* 6B — STATUS INDICATORS */
 @keyframes lw-pulse-green {
-  0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.4); }
-  50%       { opacity: 0.8; box-shadow: 0 0 0 5px rgba(34, 197, 94, 0); }
+  0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4); }
+  50%       { opacity: 0.8; box-shadow: 0 0 0 5px rgba(16, 185, 129, 0); }
 }
 
-@keyframes lw-pulse-blue {
-  0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.4); }
-  50%       { opacity: 0.8; box-shadow: 0 0 0 5px rgba(59, 130, 246, 0); }
+@keyframes lw-pulse-amber {
+  0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(245, 168, 0, 0.4); }
+  50%       { opacity: 0.8; box-shadow: 0 0 0 5px rgba(245, 168, 0, 0); }
 }
 
 body.rider-app .status-dot {
@@ -1142,40 +1134,40 @@ body.rider-app .status-dot {
 }
 
 body.rider-app .status-dot.online {
-  background: var(--rider-success, #22c55e);
+  background: var(--rider-success);
   animation: lw-pulse-green 1.8s ease-in-out infinite;
 }
 
 body.rider-app .status-dot.offline {
-  background: var(--rider-text-muted, #9ca3af);
+  background: var(--rider-muted);
 }
 
 body.rider-app .status-dot.on-delivery {
-  background: var(--rider-accent, #3b82f6);
-  animation: lw-pulse-blue 1.8s ease-in-out infinite;
+  background: var(--rider-primary);
+  animation: lw-pulse-amber 1.8s ease-in-out infinite;
 }
 
 /* Status text colour helpers */
 body.rider-app #rider-status-text {
-  color: var(--rider-text-muted, #9ca3af);
+  color: var(--rider-text-muted);
   transition: var(--transition-fast);
 }
 
 /* 6C — DELIVERY CARDS */
 body.rider-app .pickup-address {
-  color: var(--rider-warning, #f59e0b);
+  color: var(--rider-primary);
   font-weight: 600;
 }
 
 body.rider-app .drop-address {
-  color: var(--rider-success, #22c55e);
+  color: var(--rider-success);
   font-weight: 600;
 }
 
 /* Accept (pickup) button */
 body.rider-app .btn-pickup {
-  background: var(--rider-success, #22c55e);
-  color: #ffffff;
+  background: var(--rider-success);
+  color: var(--button-on-success);
   border-radius: 999px;
   font-weight: 700;
   transition: var(--transition-fast);
@@ -1186,11 +1178,11 @@ body.rider-app .btn-pickup:hover {
   opacity: 0.92;
 }
 
-/* Reject button (not yet in rider.css — added here) */
+/* Reject button */
 body.rider-app .btn-reject {
   background: transparent;
-  border: 2px solid var(--rider-danger, #ef4444);
-  color: var(--rider-danger, #ef4444);
+  border: 2px solid var(--rider-danger);
+  color: var(--rider-danger);
   border-radius: 999px;
   font-weight: 700;
   width: 100%;
@@ -1205,10 +1197,10 @@ body.rider-app .btn-reject {
 
 body.rider-app .btn-reject:hover {
   transform: scale(1.02);
-  background: rgba(239, 68, 68, 0.08);
+  background: var(--rider-danger-soft);
 }
 
-/* Delivered button inherits green from rider.css, reinforce with radius */
+/* Delivered button */
 body.rider-app .btn-delivered {
   border-radius: 999px;
   transition: var(--transition-fast);
@@ -1219,36 +1211,30 @@ body.rider-app .btn-delivered:hover {
   opacity: 0.92;
 }
 
-/* 6D — EARNINGS CARD (overrides the inline styles on the status/earnings div) */
-body.rider-app .rider-main > div:first-child {
-  background: linear-gradient(135deg, #1e2130, #252a3d) !important;
-  border: 1px solid rgba(59, 130, 246, 0.3) !important;
-  border-radius: 16px !important;
-}
-
+/* 6D — EARNINGS / STATUS BAR — let rider.css .nd-status-bar handle this */
 body.rider-app #rider-earnings {
-  color: var(--rider-accent, #3b82f6) !important;
-  font-size: 28px !important;
-  font-weight: 700 !important;
+  color: var(--rider-success);
+  font-size: 28px;
+  font-weight: 700;
 }
 
 /* 6E — BOTTOM NAV */
 body.rider-app .rider-bottom-nav {
-  background: var(--rider-card-bg, #1e2130) !important;
-  border-top: 1px solid var(--rider-border, rgba(255, 255, 255, 0.08)) !important;
+  background: var(--rider-nav-bg);
+  border-top: 1px solid var(--rider-nav-border);
 }
 
 body.rider-app .bnav-item {
-  color: var(--rider-text-muted, #9ca3af);
+  color: var(--rider-text-muted);
   transition: var(--transition-fast);
 }
 
 body.rider-app .bnav-item.active {
-  color: var(--rider-accent, #3b82f6);
+  color: var(--rider-primary);
 }
 
 /* Rider header */
 body.rider-app .rider-header {
-  background: var(--rider-card-bg, #1e2130) !important;
-  border-bottom: 1px solid var(--rider-border, rgba(255, 255, 255, 0.08)) !important;
+  background: var(--rider-surface);
+  border-bottom: 1px solid var(--rider-border);
 }
