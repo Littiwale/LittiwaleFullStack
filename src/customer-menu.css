@@ -1279,6 +1279,73 @@ html[data-theme='light'] .nav-links a.active {
     }
 }
 
+@media (max-width: 480px) {
+    /* ── EXTRA SMALL SCREENS (375px iPhone SE) ── */
+    #menu-page-section {
+        padding: 80px 3% 40px;
+    }
+
+    .section-title {
+        font-size: clamp(32px, 8vw, 48px);
+    }
+
+    .menu-card {
+        border-radius: 20px;
+    }
+
+    .menu-card-body {
+        padding: 16px;
+    }
+
+    .menu-card-title {
+        font-size: 16px;
+    }
+
+    .menu-card-badge {
+        font-size: 10px;
+        padding: 4px 8px;
+    }
+
+    .menu-card-intro {
+        gap: 0.5rem;
+    }
+
+    .menu-card .variant-btn {
+        padding: 8px 10px;
+        font-size: 10px;
+    }
+
+    .menu-card .item-description {
+        font-size: 12px;
+    }
+
+    /* ── CATEGORY FILTERS COMPACT ── */
+    #category-filter {
+        padding: 8px 0;
+        gap: 6px;
+    }
+
+    .category-tab {
+        padding: 6px 12px;
+        font-size: 12px;
+    }
+
+    .diet-filters {
+        gap: 6px;
+    }
+
+    .diet-pill {
+        padding: 6px 12px;
+        font-size: 11px;
+    }
+    
+    /* ── ENSURE MENU CARDS DON'T GET TOO NARROW ── */
+    .menu-grid-items {
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+        gap: 12px;
+    }
+}
+
 .filter-pill:hover,
 .category-tab:not(.active):hover {
     border-color: var(--primary) !important;

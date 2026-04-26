@@ -301,3 +301,188 @@ body {
     0%, 100% { opacity: 1; }
     50%       { opacity: 0.3; }
 }
+
+/* ══════════════════════════════════════════════════════════
+   MOBILE RESPONSIVE STYLES
+   ══════════════════════════════════════════════════════════ */
+
+@media (max-width: 768px) {
+    /* ── HEADER ADJUSTMENTS ── */
+    .rider-header {
+        height: 64px;
+        padding: 0 12px;
+    }
+    
+    .rider-logo {
+        gap: 6px;
+    }
+    
+    .rider-logo img {
+        height: 28px;
+    }
+    
+    .rider-logo-text {
+        display: none;
+    }
+    
+    /* ── MAIN CONTENT ADJUSTMENTS ── */
+    .rider-main {
+        padding: 70px 12px 80px;
+        max-width: 100%;
+    }
+    
+    /* ── STATUS BAR ADJUSTMENTS ── */
+    .nd-status-bar {
+        flex-direction: column;
+        align-items: stretch;
+        padding: 16px;
+        gap: 16px;
+    }
+    
+    .nd-toggle-wrap {
+        text-align: center;
+        order: -1;
+    }
+    
+    /* ── CARD ADJUSTMENTS ── */
+    .nd-card {
+        padding: 14px;
+        margin-bottom: 10px;
+        border-radius: 16px;
+    }
+    
+    .nd-cust-name {
+        font-size: 15px;
+        margin-bottom: 10px;
+    }
+    
+    /* ── CHIPS ROW - STACK ON MOBILE ── */
+    .nd-chips {
+        flex-direction: column;
+        gap: 6px;
+    }
+    
+    .nd-chip {
+        padding: 8px;
+    }
+    
+    .nd-chip-label {
+        font-size: 7px;
+        margin-bottom: 2px;
+    }
+    
+    .nd-chip-val {
+        font-size: 12px;
+    }
+    
+    /* ── ADDRESS ROW - SINGLE COLUMN ON MOBILE ── */
+    .nd-addr-row {
+        flex-direction: column;
+        gap: 8px;
+        padding: 10px 12px;
+    }
+    
+    .nd-icon-btns {
+        width: 100%;
+        justify-content: space-between;
+    }
+    
+    .nd-icon-btn {
+        width: 44px;
+        height: 44px;
+        flex: 1;
+        max-width: 44px;
+    }
+    
+    /* ── BUTTONS - ENSURE MIN HEIGHT ── */
+    .nd-btn-primary,
+    .nd-btn-success {
+        min-height: 44px;
+        font-size: 11px;
+    }
+    
+    /* ── BOTTOM NAV MOBILE ADJUSTMENTS ── */
+    .rider-bottom-nav {
+        height: 56px;
+        padding: 0 8px;
+    }
+    
+    .bnav-item {
+        padding: 4px 10px;
+        gap: 2px;
+        font-size: 8px;
+    }
+    
+    .bnav-icon {
+        font-size: 18px;
+    }
+    
+    /* ── SECTION GAPS ── */
+    .section-gap {
+        margin-bottom: 20px;
+    }
+    
+    .rider-section-title {
+        font-size: 8px;
+        margin-bottom: 10px;
+    }
+    
+    .count-pill {
+        padding: 1px 6px;
+        font-size: 8px;
+    }
+}
+
+@media (max-width: 480px) {
+    /* ── EXTRA SMALL DEVICES ── */
+    .rider-header {
+        height: 56px;
+        padding: 0 8px;
+    }
+    
+    .rider-main {
+        padding: 64px 8px 72px;
+    }
+    
+    .nd-status-bar {
+        padding: 12px;
+        gap: 12px;
+    }
+    
+    .nd-earn-val {
+        font-size: 24px;
+    }
+    
+    .nd-card {
+        padding: 12px;
+        border-radius: 14px;
+    }
+    
+    .nd-cust-name {
+        font-size: 14px;
+    }
+    
+    .nd-amount {
+        font-size: 18px;
+    }
+    
+    .nd-chips {
+        gap: 4px;
+    }
+    
+    .nd-chip {
+        padding: 6px;
+    }
+    
+    .nd-icon-btn {
+        width: 40px;
+        height: 40px;
+        min-width: 40px;
+    }
+    
+    /* ── PROFILE DROPDOWN ON SMALL SCREENS ── */
+    .lw-dropdown {
+        right: -50%;
+        min-width: 280px;
+    }
+}

@@ -101,6 +101,60 @@ let currentMenuStock = 'all';
 let editingMenuItemId = null;
 let editingCouponCode = null;
 
+// ─────────────────────────────────────────────
+// Mobile Sidebar Toggle Handler
+// ─────────────────────────────────────────────
+const initMobileSidebarToggle = () => {
+    const toggle = document.getElementById('admin-mobile-toggle');
+    const sidebar = document.querySelector('.admin-sidebar');
+    const overlay = document.getElementById('admin-sidebar-overlay');
+    
+    if (!toggle || !sidebar) return;
+    
+    const closeSidebar = () => {
+        sidebar.classList.remove('open');
+        overlay.classList.remove('open');
+        toggle.classList.remove('open');
+        toggle.setAttribute('aria-expanded', 'false');
+    };
+    
+    const openSidebar = () => {
+        sidebar.classList.add('open');
+        overlay.classList.add('open');
+        toggle.classList.add('open');
+        toggle.setAttribute('aria-expanded', 'true');
+    };
+    
+    // Toggle button click
+    toggle.addEventListener('click', (e) => {
+        e.stopPropagation();
+        if (sidebar.classList.contains('open')) {
+            closeSidebar();
+        } else {
+            openSidebar();
+        }
+    });
+    
+    // Overlay click to close
+    overlay.addEventListener('click', closeSidebar);
+    
+    // Nav item click to close sidebar
+    document.querySelectorAll('.nav-item').forEach(item => {
+        item.addEventListener('click', () => {
+            if (window.innerWidth <= 768) {
+                closeSidebar();
+            }
+        });
+    });
+    
+    // Close on escape key
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && sidebar.classList.contains('open')) {
+            closeSidebar();
+        }
+    });
+};
+
 // Performance optimizations (Task 6.4)
 const ITEMS_PER_PAGE = 20;
 let currentMenuPage = 1;
@@ -1811,6 +1865,10 @@ const startOrderListener = () => {
 
         updateKPIs();
         renderOrders();
+
+        // Re-render dashboard charts + insights on every order change (realtime)
+        loadDashboardAnalytics().catch(() => {});
+
         isInitialLoad = false;
     });
 };
@@ -2813,6 +2871,7 @@ const setupNotificationBell = () => {
 // Fire it up
 document.addEventListener('DOMContentLoaded', () => {
     initAdmin();
+    initMobileSidebarToggle();
 });
 
 /**

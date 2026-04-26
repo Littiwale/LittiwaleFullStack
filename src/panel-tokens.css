@@ -1084,10 +1084,6 @@ html[data-theme='light'] .customer-app .menu-card .relative {
   font-weight: 500;
   color: #6b7280;
 }
-{
-  font-weight: 700;
-  padding: 4px 10px;
-}
 
 
 /* ═══════════════════════════════════════════════════════════
@@ -1237,4 +1233,135 @@ body.rider-app .bnav-item.active {
 body.rider-app .rider-header {
   background: var(--rider-surface);
   border-bottom: 1px solid var(--rider-border);
+}
+/* ══════════════════════════════════
+   MOBILE RESPONSIVE — ADMIN PANEL
+   (overrides must come after panel-tokens base styles)
+══════════════════════════════════ */
+
+/* ── MOBILE TOGGLE BUTTON ── */
+.admin-app .admin-mobile-toggle {
+  display: none;
+  position: fixed;
+  top: 13px;
+  left: 14px;
+  z-index: 1000;
+  width: 38px;
+  height: 38px;
+  background: #f59e0b;
+  color: #0a0c12;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 5px;
+  padding: 0;
+  box-shadow: 0 4px 12px rgba(245,158,11,0.35);
+  transition: all 0.2s ease;
+}
+.admin-app .admin-mobile-toggle span {
+  display: block;
+  width: 18px;
+  height: 2px;
+  background: #0a0c12;
+  border-radius: 2px;
+  transition: all 0.3s ease;
+}
+.admin-app .admin-mobile-toggle.open span:nth-child(1) { transform: rotate(45deg) translateY(7px); }
+.admin-app .admin-mobile-toggle.open span:nth-child(2) { opacity: 0; }
+.admin-app .admin-mobile-toggle.open span:nth-child(3) { transform: rotate(-45deg) translateY(-7px); }
+
+/* ── SIDEBAR OVERLAY ── */
+.admin-app .admin-sidebar-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.65);
+  backdrop-filter: blur(4px);
+  z-index: 997;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+}
+.admin-app .admin-sidebar-overlay.open {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* ── TABLET: icon-only sidebar ── */
+@media (max-width: 900px) {
+  .admin-app .admin-sidebar {
+    width: 64px;
+    min-width: 64px;
+    overflow: hidden;
+  }
+  .admin-app .admin-logo span,
+  .admin-app .nav-item .nav-text,
+  .admin-app .sidebar-section-label,
+  .admin-app .profile-info { display: none; }
+  .admin-app .admin-logo { padding: 14px; justify-content: center; }
+  .admin-app .admin-logo img { width: 28px; height: 28px; margin: 0; }
+  .admin-app .nav-item { justify-content: center; padding: 12px 0; }
+  .admin-app .nav-item .nav-icon { margin: 0; }
+  .admin-app .nav-badge { right: 4px; top: 4px; }
+  .admin-app .sidebar-profile { padding: 8px; justify-content: center; }
+  .admin-app .profile-avatar { margin: 0; }
+  .admin-app .admin-header { padding: 0 16px; height: 52px; }
+}
+
+/* ── MOBILE: drawer sidebar ── */
+@media (max-width: 768px) {
+  /* Show hamburger */
+  .admin-app .admin-mobile-toggle { display: flex; }
+  .admin-app .admin-sidebar-overlay { display: block; }
+
+  /* Sidebar becomes off-screen drawer */
+  .admin-app .admin-sidebar {
+    position: fixed;
+    left: -260px;
+    top: 0;
+    height: 100vh;
+    width: 240px;
+    min-width: 240px;
+    z-index: 998;
+    transition: left 0.3s cubic-bezier(0.4,0,0.2,1);
+    overflow-y: auto;
+  }
+  .admin-app .admin-sidebar.open { left: 0; }
+
+  /* Restore text in open drawer */
+  .admin-app .admin-sidebar.open .admin-logo span,
+  .admin-app .admin-sidebar.open .nav-item .nav-text,
+  .admin-app .admin-sidebar.open .sidebar-section-label,
+  .admin-app .admin-sidebar.open .profile-info { display: block; }
+  .admin-app .admin-sidebar.open .admin-logo { padding: 18px 18px 16px; justify-content: flex-start; }
+  .admin-app .admin-sidebar.open .admin-logo img { width: 30px; height: 30px; }
+  .admin-app .admin-sidebar.open .nav-item { justify-content: flex-start; padding: 10px 12px; }
+  .admin-app .admin-sidebar.open .nav-item .nav-icon { margin: 0; }
+  .admin-app .admin-sidebar.open .sidebar-profile { padding: 10px; justify-content: flex-start; }
+  .admin-app .admin-sidebar.open .profile-avatar { margin-right: 10px; }
+
+  /* Full-width content, header with space for hamburger */
+  .admin-app .admin-header {
+    padding: 0 16px 0 58px;
+    height: 52px;
+  }
+
+  /* Hide duplicate title - keep only view-title */
+  .admin-app #page-title { display: none !important; }
+
+  /* KPI + charts stack */
+  .admin-app .kpi-grid { grid-template-columns: repeat(2, 1fr) !important; }
+  .admin-app .charts-row { grid-template-columns: 1fr !important; }
+  .admin-app .insights-row { grid-template-columns: 1fr !important; }
+  .admin-app .view-container-wrapper { padding: 16px !important; }
+  .admin-app .orders-grid-admin { grid-template-columns: 1fr !important; }
+}
+
+@media (max-width: 480px) {
+  .admin-app .kpi-grid { grid-template-columns: 1fr !important; }
+  .admin-app .admin-header { padding: 0 12px 0 54px; height: 48px; }
+  .admin-app .admin-mobile-toggle { top: 11px; left: 11px; width: 34px; height: 34px; }
 }

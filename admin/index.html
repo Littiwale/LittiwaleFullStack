@@ -104,6 +104,14 @@
         <div class="admin-content">
             <!-- HEADER -->
             <header class="admin-header">
+                <!-- Mobile Hamburger Toggle -->
+                <button class="admin-mobile-toggle" id="admin-mobile-toggle" aria-label="Toggle sidebar navigation" aria-expanded="false">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+                <!-- Mobile Sidebar Overlay -->
+                <div class="admin-sidebar-overlay" id="admin-sidebar-overlay"></div>
                 <h2 id="page-title" class="text-xl font-black uppercase tracking-widest text-accent">Dashboard</h2>
                 <div class="header-right">
                     <button id="theme-toggle" type="button" data-theme-toggle class="theme-toggle-btn"
@@ -1147,278 +1155,307 @@
         }, 500);
     </script>
 
+    <!-- ══════════════════════════════════════════════════
+         MENU FORM MODAL — REDESIGNED (spacious, ref-style)
+    ══════════════════════════════════════════════════ -->
     <div id="menu-drawer-overlay"
         class="hidden fixed inset-0 bg-black/75 backdrop-blur-sm z-[9998] transition-opacity duration-300 opacity-0">
     </div>
+
     <div id="menu-form-panel"
-        class="hidden fixed inset-0 z-[9999] flex items-center justify-center p-4 opacity-0 pointer-events-none transition-opacity duration-300">
-        <div
-            class="lw-split-modal bg-[#161820] border border-[#252830] rounded-2xl w-full max-w-[940px] max-h-[92vh] grid grid-cols-2 overflow-hidden shadow-[0_32px_80px_rgba(0,0,0,0.6)] scale-95 transition-transform duration-300">
-            <!-- Header -->
-            <div class="col-span-2 flex items-center justify-between px-7 py-5 border-b border-[#252830] bg-[#12141b]">
-                <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 bg-accent/10 rounded-xl flex items-center justify-center text-xl">🍽️</div>
+        class="hidden fixed inset-0 z-[9999] flex items-start justify-center p-3 md:p-6 opacity-0 pointer-events-none transition-opacity duration-300 overflow-y-auto">
+
+        <div class="lw-split-modal w-full max-w-[980px] my-auto rounded-2xl overflow-hidden shadow-[0_32px_80px_rgba(0,0,0,0.7)] scale-95 transition-transform duration-300"
+            style="background:#161820; border:1px solid #252830; display:grid; grid-template-rows:auto 1fr; grid-template-columns:1fr; min-height:0;">
+
+            <!-- ── MODAL HEADER ── -->
+            <div style="grid-column:1/-1; display:flex; align-items:center; justify-content:space-between; padding:20px 28px; border-bottom:1px solid #252830; background:#12141b;">
+                <div style="display:flex; align-items:center; gap:14px;">
+                    <div style="width:42px; height:42px; background:rgba(245,158,11,0.12); border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:20px;">🍽️</div>
                     <div>
-                        <h3 id="menu-form-title" class="font-black text-lg text-white m-0 leading-none">Add New Item
-                        </h3>
-                        <p class="text-[11px] text-gray-500 font-bold m-0 mt-1.5 uppercase tracking-widest">Fill in
-                            details below</p>
+                        <h3 id="menu-form-title" style="font-family:'Space Grotesk',sans-serif; font-size:18px; font-weight:800; color:#fff; margin:0; line-height:1.2; letter-spacing:0.5px;">Add New Item</h3>
+                        <p style="font-size:10px; font-weight:700; color:#6b7280; margin:4px 0 0; text-transform:uppercase; letter-spacing:2px;">Fill in details below</p>
                     </div>
                 </div>
                 <button id="close-menu-form-btn" type="button"
-                    class="w-9 h-9 flex items-center justify-center bg-[#1e2130] border border-[#252830] text-gray-400 rounded-lg text-lg hover:bg-white/5 hover:text-white transition-colors">✕</button>
+                    style="width:36px; height:36px; display:flex; align-items:center; justify-content:center; background:#1e2130; border:1px solid #252830; color:#9ca3af; border-radius:10px; font-size:18px; cursor:pointer; transition:all 0.15s; flex-shrink:0;"
+                    onmouseover="this.style.background='rgba(255,255,255,0.07)';this.style.color='#fff'"
+                    onmouseout="this.style.background='#1e2130';this.style.color='#9ca3af'">✕</button>
             </div>
 
-            <!-- Form Left -->
-            <div class="overflow-y-auto p-7 border-r border-[#1e2130] custom-scrollbar bg-[#161820] min-h-0">
-                <form id="menu-form" class="space-y-5">
-                    <input type="hidden" id="menu-item-id">
-                    <input type="hidden" id="menu-item-storage-path">
+            <!-- ── BODY: 2-col desktop, 1-col mobile ── -->
+            <div id="lw-modal-body" style="display:grid; grid-template-columns:1fr 1fr; overflow:hidden; min-height:0;">
 
-                    <!-- Image Upload Zone -->
-                    <div class="relative border-2 border-dashed border-[#252830] rounded-2xl p-6 text-center hover:border-accent transition-colors cursor-pointer group bg-[#1a1c23]"
-                        onclick="document.getElementById('menu-image').click()">
-                        <input id="menu-image" type="file" accept="image/*" class="hidden">
-                        <div id="menu-image-zone-content" class="relative z-10 flex flex-col items-center">
-                            <div class="text-3xl mb-2 group-hover:scale-110 transition-transform">📸</div>
-                            <p class="text-xs text-gray-400 font-semibold" id="menu-image-filename">Click or drag image
-                                to upload</p>
-                        </div>
-                        <img id="menu-image-thumbnail" src=""
-                            class="hidden absolute inset-0 w-full h-full object-cover rounded-2xl opacity-40 group-hover:opacity-20 transition-opacity">
-                    </div>
+                <!-- ── LEFT: FORM ── -->
+                <div style="overflow-y:auto; padding:28px 32px; background:#161820; border-right:1px solid #1e2130;" class="custom-scrollbar">
+                    <form id="menu-form">
+                        <input type="hidden" id="menu-item-id">
+                        <input type="hidden" id="menu-item-storage-path">
 
-                    <!-- Item Name -->
-                    <div>
-                        <label class="block text-[10px] font-black uppercase tracking-widest text-gray-500 mb-2">Item
-                            Name</label>
-                        <input id="menu-name" type="text" placeholder="e.g. Desi Litti"
-                            class="w-full rounded-xl border border-[#252830] bg-[#1a1c23] px-4 py-3 text-sm text-white outline-none focus:border-accent transition-colors">
-                    </div>
-
-                    <!-- Description -->
-                    <div>
-                        <label
-                            class="block text-[10px] font-black uppercase tracking-widest text-gray-500 mb-2">Description</label>
-                        <textarea id="menu-description" rows="3" placeholder="Briefly describe the item..."
-                            class="w-full rounded-xl border border-[#252830] bg-[#1a1c23] px-4 py-3 text-sm text-white outline-none focus:border-accent transition-colors resize-none"></textarea>
-                    </div>
-
-                    <!-- Category + Price -->
-                    <div class="grid grid-cols-2 gap-4">
-                        <div>
-                            <label
-                                class="block text-[10px] font-black uppercase tracking-widest text-gray-500 mb-2">Category</label>
-                            <input id="menu-category" type="text" placeholder="e.g. Breads"
-                                class="w-full rounded-xl border border-[#252830] bg-[#1a1c23] px-4 py-3 text-sm text-white outline-none focus:border-accent transition-colors">
-                        </div>
-                        <div>
-                            <label
-                                class="block text-[10px] font-black uppercase tracking-widest text-gray-500 mb-2">Price
-                                (₹)</label>
-                            <input id="menu-price" type="number" min="0" placeholder="100"
-                                class="w-full rounded-xl border border-[#252830] bg-[#1a1c23] px-4 py-3 text-sm text-white outline-none focus:border-accent transition-colors">
-                        </div>
-                    </div>
-
-                    <!-- Type (Veg/Non-Veg) -->
-                    <div>
-                        <label
-                            class="block text-[10px] font-black uppercase tracking-widest text-gray-500 mb-2">Type</label>
-                        <div class="flex bg-[#1a1c23] border border-[#252830] rounded-xl p-1 gap-1">
-                            <button type="button" id="menu-type-veg"
-                                class="flex-1 py-2 text-[11px] font-bold rounded-lg bg-green-500/20 text-green-400 truncate px-1 text-center transition-colors min-w-0">🟢
-                                Veg</button>
-                            <button type="button" id="menu-type-nonveg"
-                                class="flex-1 py-2 text-[11px] font-bold rounded-lg text-gray-500 truncate px-1 text-center transition-colors min-w-0">🔴
-                                Non-Veg</button>
-                        </div>
-                        <input type="hidden" id="menu-veg-input" value="true">
-                    </div>
-
-                    <!-- Spice Level -->
-                    <div>
-                        <label class="block text-[10px] font-black uppercase tracking-widest text-gray-500 mb-2">Spice
-                            Level</label>
-                        <div class="flex bg-[#1a1c23] border border-[#252830] rounded-xl p-1 gap-1">
-                            <button type="button" data-spice="regular"
-                                class="menu-spice-btn flex-1 py-2 text-[11px] font-bold rounded-lg bg-white/10 text-white truncate px-1 text-center transition-colors min-w-0">🌶
-                                Regular</button>
-                            <button type="button" data-spice="spicy"
-                                class="menu-spice-btn flex-1 py-2 text-[11px] font-bold rounded-lg text-gray-500 truncate px-1 text-center transition-colors min-w-0">🌶🌶
-                                Spicy</button>
-                            <button type="button" data-spice="extra_spicy"
-                                class="menu-spice-btn flex-1 py-2 text-[11px] font-bold rounded-lg text-gray-500 truncate px-1 text-center transition-colors min-w-0">🌶🌶🌶
-                                Extra</button>
-                        </div>
-                        <input type="hidden" id="menu-spice-input" value="regular">
-                    </div>
-
-                    <!-- Prep Time -->
-                    <div>
-                        <label class="block text-[10px] font-black uppercase tracking-widest text-gray-500 mb-2">Prep
-                            Time</label>
-                        <div class="relative">
-                            <input id="menu-prep-time" type="number" min="1" placeholder="~15"
-                                class="w-full rounded-xl border border-[#252830] bg-[#1a1c23] pl-4 pr-12 py-3 text-sm text-white outline-none focus:border-accent transition-colors">
-                            <span
-                                class="absolute right-4 top-1/2 -translate-y-1/2 text-[11px] font-bold text-gray-500">mins</span>
-                        </div>
-                    </div>
-
-                    <!-- Tags -->
-                    <div>
-                        <label
-                            class="block text-[10px] font-black uppercase tracking-widest text-gray-500 mb-2">Tags</label>
-                        <div class="w-full rounded-xl border border-[#252830] bg-[#1a1c23] p-2 min-h-[46px] flex flex-wrap gap-2 items-center focus-within:border-accent transition-colors"
-                            id="menu-tags-container">
-                            <!-- Chips will be injected here -->
-                            <input id="menu-tag-input" type="text" placeholder="Type & press Enter..."
-                                class="bg-transparent border-none outline-none text-sm text-white min-w-[140px] flex-1 px-2 py-1">
-                        </div>
-                        <p class="text-[10px] text-gray-600 mt-1.5 ml-1 font-semibold">Press Enter or comma to add a
-                            tag. Max 8.</p>
-                    </div>
-
-                    <!-- Availability -->
-                    <div>
-                        <label
-                            class="block text-[10px] font-black uppercase tracking-widest text-gray-500 mb-2">Availability</label>
-                        <div class="flex bg-[#1a1c23] border border-[#252830] rounded-xl p-1 gap-1">
-                            <button type="button" id="menu-avail-visible"
-                                class="flex-1 py-2 text-[11px] font-bold rounded-lg bg-blue-500/20 text-blue-400 truncate px-1 text-center transition-colors min-w-0">✅
-                                Visible</button>
-                            <button type="button" id="menu-avail-hidden"
-                                class="flex-1 py-2 text-[11px] font-bold rounded-lg text-gray-500 truncate px-1 text-center transition-colors min-w-0">🚫
-                                Hidden</button>
-                        </div>
-                        <input type="hidden" id="menu-avail-input" value="true">
-                    </div>
-
-                    <!-- Variants — Grouped System -->
-                    <div class="border-t border-[#252830] pt-5">
-                        <div class="flex items-center justify-between mb-3">
-                            <label
-                                class="block text-[10px] font-black uppercase tracking-widest text-gray-500 m-0">Variants</label>
-                            <button id="add-variant-btn" type="button"
-                                class="flex items-center gap-1.5 bg-accent/10 border border-accent/25 text-accent text-[10px] font-black uppercase tracking-widest px-3 py-1.5 rounded-lg hover:bg-accent/20 transition-colors">
-                                <span class="text-sm leading-none">+</span> Add Variant Type
-                            </button>
-                        </div>
-
-                        <!-- Preset quick-add chips -->
-                        <div class="flex flex-wrap gap-2 mb-3" id="variant-presets">
-                            <button type="button" data-preset="Portion" data-options="Quarter,Half,Full"
-                                class="variant-preset-btn text-[10px] font-bold px-3 py-1.5 rounded-lg bg-[#1a1c23] border border-[#252830] text-gray-400 hover:border-accent hover:text-accent transition-colors">
-                                🍽 Portion
-                            </button>
-                            <button type="button" data-preset="Size" data-options="Small,Medium,Large"
-                                class="variant-preset-btn text-[10px] font-bold px-3 py-1.5 rounded-lg bg-[#1a1c23] border border-[#252830] text-gray-400 hover:border-accent hover:text-accent transition-colors">
-                                📏 Size
-                            </button>
-                            <button type="button" data-preset="Piece" data-options="1 Pc,2 Pc,4 Pc"
-                                class="variant-preset-btn text-[10px] font-bold px-3 py-1.5 rounded-lg bg-[#1a1c23] border border-[#252830] text-gray-400 hover:border-accent hover:text-accent transition-colors">
-                                🔢 Piece
-                            </button>
-                        </div>
-
-                        <div id="menu-variants-empty"
-                            class="p-4 bg-[#1a1c23] border border-[#252830] rounded-xl text-center text-[10px] font-bold text-gray-500 uppercase tracking-widest">
-                            No variants — item has a single fixed price
-                        </div>
-                        <!-- Variant groups injected here by JS -->
-                        <div id="menu-variants-list" class="space-y-3"></div>
-                    </div>
-
-                    <div class="pt-4 flex flex-col gap-3">
-                        <button id="save-menu-item-btn" type="submit"
-                            class="w-full py-4 bg-accent text-[#0a0c12] rounded-xl font-black uppercase tracking-widest text-sm hover:brightness-110 transition-all shadow-[0_0_20px_rgba(245,168,0,0.15)]">Save
-                            Changes</button>
-                        <button id="reset-menu-form-btn" type="button"
-                            class="w-full py-3 text-gray-500 hover:text-white text-[11px] font-black uppercase tracking-widest transition-colors">Reset
-                            Form</button>
-                    </div>
-                    <p id="menu-form-message" class="text-center text-xs font-bold"></p>
-                </form>
-            </div>
-
-            <!-- Preview Right -->
-            <div class="bg-[#0e1018] p-7 overflow-y-auto custom-scrollbar flex flex-col relative min-h-0">
-                <p class="text-[10px] font-black uppercase tracking-widest text-gray-500 mb-5 text-center">Live Preview
-                </p>
-
-                <!-- Preview Card -->
-                <div class="bg-[#12141b] rounded-2xl border border-[#252830] overflow-hidden shadow-xl">
-                    <div
-                        class="w-full aspect-[16/9] bg-[#1e2130] flex items-center justify-center overflow-hidden relative border-b border-[#252830]">
-                        <img id="lw-preview-img" src="" alt="Preview" class="w-full h-full object-cover hidden">
-                        <div id="lw-preview-placeholder" class="flex flex-col items-center gap-3 text-gray-600">
-                            <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                stroke-width="1.5">
-                                <rect x="3" y="3" width="18" height="18" rx="3" />
-                                <circle cx="8.5" cy="8.5" r="1.5" />
-                                <path d="m21 15-5-5L5 21" />
-                            </svg>
-                            <span class="text-[10px] font-black uppercase tracking-widest">No Image</span>
-                        </div>
-                    </div>
-
-                    <div class="p-5">
-                        <div class="flex justify-between items-start gap-3 mb-2">
-                            <h4 id="lw-prev-name" class="text-lg font-black text-white m-0 leading-tight">Item Name</h4>
-                            <span id="lw-prev-price" class="text-lg font-black text-accent m-0 shrink-0">₹0</span>
-                        </div>
-                        <p id="lw-prev-desc"
-                            class="text-[11px] text-gray-400 font-semibold leading-relaxed mb-4 line-clamp-3">Item
-                            description will appear here...</p>
-
-                        <div class="space-y-2.5">
-                            <div class="flex justify-between items-center text-xs">
-                                <span
-                                    class="text-gray-500 font-black uppercase tracking-widest text-[9px]">Category</span>
-                                <span id="lw-prev-cat" class="text-white font-bold text-[11px]">—</span>
+                        <!-- IMAGE UPLOAD -->
+                        <div style="margin-bottom:24px;">
+                            <label style="display:block; font-size:10px; font-weight:800; text-transform:uppercase; letter-spacing:2px; color:#6b7280; margin-bottom:10px;">Item Image</label>
+                            <div style="border:2px dashed #2e3140; border-radius:16px; padding:32px 20px; text-align:center; cursor:pointer; background:#1a1c23; transition:border-color 0.2s;"
+                                onclick="document.getElementById('menu-image').click()"
+                                onmouseover="this.style.borderColor='#f59e0b'"
+                                onmouseout="this.style.borderColor='#2e3140'"
+                                id="menu-image-dropzone">
+                                <input id="menu-image" type="file" accept="image/*" style="display:none;">
+                                <div id="menu-image-zone-content" style="display:flex; flex-direction:column; align-items:center; gap:8px; position:relative; z-index:1;">
+                                    <div style="font-size:28px;">📸</div>
+                                    <p style="font-size:12px; color:#9ca3af; font-weight:600; margin:0;" id="menu-image-filename">Click or drag image to upload</p>
+                                </div>
+                                <img id="menu-image-thumbnail" src="" style="display:none; position:absolute; inset:0; width:100%; height:100%; object-fit:cover; border-radius:14px; opacity:0.35;">
                             </div>
-                            <div class="flex justify-between items-center text-xs">
-                                <span class="text-gray-500 font-black uppercase tracking-widest text-[9px]">Type</span>
-                                <span id="lw-prev-veg"
-                                    class="font-bold text-[10px] px-2 py-0.5 rounded-full bg-green-500/10 text-green-400 border border-green-500/20">🟢
-                                    Veg</span>
+                        </div>
+
+                        <!-- ITEM NAME -->
+                        <div style="margin-bottom:20px;">
+                            <label style="display:block; font-size:10px; font-weight:800; text-transform:uppercase; letter-spacing:2px; color:#6b7280; margin-bottom:10px;">Item Name</label>
+                            <input id="menu-name" type="text" placeholder="e.g. Desi Litti"
+                                style="width:100%; background:#1a1c23; border:1.5px solid #2e3140; border-radius:12px; padding:14px 16px; font-size:14px; color:#fff; outline:none; font-family:'DM Sans',sans-serif; box-sizing:border-box; transition:border-color 0.2s;"
+                                onfocus="this.style.borderColor='#f59e0b'"
+                                onblur="this.style.borderColor='#2e3140'">
+                        </div>
+
+                        <!-- DESCRIPTION -->
+                        <div style="margin-bottom:20px;">
+                            <label style="display:block; font-size:10px; font-weight:800; text-transform:uppercase; letter-spacing:2px; color:#6b7280; margin-bottom:10px;">Description</label>
+                            <textarea id="menu-description" rows="3" placeholder="Briefly describe the item..."
+                                style="width:100%; background:#1a1c23; border:1.5px solid #2e3140; border-radius:12px; padding:14px 16px; font-size:14px; color:#fff; outline:none; font-family:'DM Sans',sans-serif; resize:none; box-sizing:border-box; transition:border-color 0.2s;"
+                                onfocus="this.style.borderColor='#f59e0b'"
+                                onblur="this.style.borderColor='#2e3140'"></textarea>
+                        </div>
+
+                        <!-- CATEGORY + PRICE -->
+                        <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:20px;">
+                            <div>
+                                <label style="display:block; font-size:10px; font-weight:800; text-transform:uppercase; letter-spacing:2px; color:#6b7280; margin-bottom:10px;">Category</label>
+                                <input id="menu-category" type="text" placeholder="e.g. Breads"
+                                    style="width:100%; background:#1a1c23; border:1.5px solid #2e3140; border-radius:12px; padding:14px 16px; font-size:14px; color:#fff; outline:none; font-family:'DM Sans',sans-serif; box-sizing:border-box; transition:border-color 0.2s;"
+                                    onfocus="this.style.borderColor='#f59e0b'"
+                                    onblur="this.style.borderColor='#2e3140'">
                             </div>
-                            <div class="flex justify-between items-center text-xs">
-                                <span class="text-gray-500 font-black uppercase tracking-widest text-[9px]">Spice</span>
-                                <span id="lw-prev-spice" class="font-bold text-[10px] text-white">🌶 Regular</span>
+                            <div>
+                                <label style="display:block; font-size:10px; font-weight:800; text-transform:uppercase; letter-spacing:2px; color:#6b7280; margin-bottom:10px;">Price (₹)</label>
+                                <input id="menu-price" type="number" min="0" placeholder="100"
+                                    style="width:100%; background:#1a1c23; border:1.5px solid #2e3140; border-radius:12px; padding:14px 16px; font-size:14px; color:#fff; outline:none; font-family:'DM Sans',sans-serif; box-sizing:border-box; transition:border-color 0.2s;"
+                                    onfocus="this.style.borderColor='#f59e0b'"
+                                    onblur="this.style.borderColor='#2e3140'">
                             </div>
-                            <div class="flex justify-between items-center text-xs">
-                                <span class="text-gray-500 font-black uppercase tracking-widest text-[9px]">Prep
-                                    Time</span>
-                                <span id="lw-prev-prep" class="text-white font-bold text-[11px]">~15 mins</span>
+                        </div>
+
+                        <!-- TYPE: VEG / NON-VEG -->
+                        <div style="margin-bottom:20px;">
+                            <label style="display:block; font-size:10px; font-weight:800; text-transform:uppercase; letter-spacing:2px; color:#6b7280; margin-bottom:10px;">Type</label>
+                            <div style="display:flex; background:#1a1c23; border:1.5px solid #2e3140; border-radius:12px; padding:5px; gap:5px;">
+                                <button type="button" id="menu-type-veg"
+                                    style="flex:1; padding:10px 8px; font-size:12px; font-weight:700; border-radius:9px; border:none; cursor:pointer; background:rgba(34,197,94,0.15); color:#22c55e; transition:all 0.15s;">🟢 Veg</button>
+                                <button type="button" id="menu-type-nonveg"
+                                    style="flex:1; padding:10px 8px; font-size:12px; font-weight:700; border-radius:9px; border:none; cursor:pointer; background:transparent; color:#6b7280; transition:all 0.15s;">🔴 Non-Veg</button>
                             </div>
-                            <div class="flex justify-between items-start text-xs pt-1">
-                                <span
-                                    class="text-gray-500 font-black uppercase tracking-widest text-[9px] pt-1">Tags</span>
-                                <div id="lw-prev-tags" class="flex flex-wrap gap-1 justify-end max-w-[65%]">
-                                    <span class="text-gray-500 text-[10px] font-bold italic">None</span>
+                            <input type="hidden" id="menu-veg-input" value="true">
+                        </div>
+
+                        <!-- SPICE LEVEL -->
+                        <div style="margin-bottom:20px;">
+                            <label style="display:block; font-size:10px; font-weight:800; text-transform:uppercase; letter-spacing:2px; color:#6b7280; margin-bottom:10px;">Spice Level</label>
+                            <div style="display:flex; background:#1a1c23; border:1.5px solid #2e3140; border-radius:12px; padding:5px; gap:5px;">
+                                <button type="button" data-spice="regular"
+                                    style="flex:1; padding:10px 6px; font-size:11px; font-weight:700; border-radius:9px; border:none; cursor:pointer; background:rgba(255,255,255,0.08); color:#fff; transition:all 0.15s;"
+                                    class="menu-spice-btn">🌶 Regular</button>
+                                <button type="button" data-spice="spicy"
+                                    style="flex:1; padding:10px 6px; font-size:11px; font-weight:700; border-radius:9px; border:none; cursor:pointer; background:transparent; color:#6b7280; transition:all 0.15s;"
+                                    class="menu-spice-btn">🌶🌶 Spicy</button>
+                                <button type="button" data-spice="extra_spicy"
+                                    style="flex:1; padding:10px 6px; font-size:11px; font-weight:700; border-radius:9px; border:none; cursor:pointer; background:transparent; color:#6b7280; transition:all 0.15s;"
+                                    class="menu-spice-btn">🌶🌶🌶 Extra</button>
+                            </div>
+                            <input type="hidden" id="menu-spice-input" value="regular">
+                        </div>
+
+                        <!-- PREP TIME -->
+                        <div style="margin-bottom:20px;">
+                            <label style="display:block; font-size:10px; font-weight:800; text-transform:uppercase; letter-spacing:2px; color:#6b7280; margin-bottom:10px;">Prep Time</label>
+                            <div style="position:relative;">
+                                <input id="menu-prep-time" type="number" min="1" placeholder="15"
+                                    style="width:100%; background:#1a1c23; border:1.5px solid #2e3140; border-radius:12px; padding:14px 50px 14px 16px; font-size:14px; color:#fff; outline:none; font-family:'DM Sans',sans-serif; box-sizing:border-box; transition:border-color 0.2s;"
+                                    onfocus="this.style.borderColor='#f59e0b'"
+                                    onblur="this.style.borderColor='#2e3140'">
+                                <span style="position:absolute; right:16px; top:50%; transform:translateY(-50%); font-size:11px; font-weight:700; color:#6b7280; pointer-events:none;">mins</span>
+                            </div>
+                        </div>
+
+                        <!-- TAGS -->
+                        <div style="margin-bottom:20px;">
+                            <label style="display:block; font-size:10px; font-weight:800; text-transform:uppercase; letter-spacing:2px; color:#6b7280; margin-bottom:10px;">Tags</label>
+                            <div id="menu-tags-container"
+                                style="width:100%; background:#1a1c23; border:1.5px solid #2e3140; border-radius:12px; padding:10px 12px; min-height:50px; display:flex; flex-wrap:wrap; gap:8px; align-items:center; box-sizing:border-box; transition:border-color 0.2s;"
+                                onfocusin="this.style.borderColor='#f59e0b'"
+                                onfocusout="this.style.borderColor='#2e3140'">
+                                <input id="menu-tag-input" type="text" placeholder="Type & press Enter..."
+                                    style="background:transparent; border:none; outline:none; font-size:13px; color:#fff; min-width:140px; flex:1; font-family:'DM Sans',sans-serif; padding:2px 4px;">
+                            </div>
+                            <p style="font-size:10px; color:#4b5563; margin:6px 0 0 2px; font-weight:600;">Press Enter or comma to add a tag. Max 8.</p>
+                        </div>
+
+                        <!-- AVAILABILITY -->
+                        <div style="margin-bottom:24px;">
+                            <label style="display:block; font-size:10px; font-weight:800; text-transform:uppercase; letter-spacing:2px; color:#6b7280; margin-bottom:10px;">Availability</label>
+                            <div style="display:flex; background:#1a1c23; border:1.5px solid #2e3140; border-radius:12px; padding:5px; gap:5px;">
+                                <button type="button" id="menu-avail-visible"
+                                    style="flex:1; padding:10px 8px; font-size:12px; font-weight:700; border-radius:9px; border:none; cursor:pointer; background:rgba(59,130,246,0.15); color:#60a5fa; transition:all 0.15s;">✅ Visible</button>
+                                <button type="button" id="menu-avail-hidden"
+                                    style="flex:1; padding:10px 8px; font-size:12px; font-weight:700; border-radius:9px; border:none; cursor:pointer; background:transparent; color:#6b7280; transition:all 0.15s;">🚫 Hidden</button>
+                            </div>
+                            <input type="hidden" id="menu-avail-input" value="true">
+                        </div>
+
+                        <!-- VARIANTS -->
+                        <div style="border-top:1px solid #252830; padding-top:24px; margin-bottom:28px;">
+                            <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:14px;">
+                                <label style="font-size:10px; font-weight:800; text-transform:uppercase; letter-spacing:2px; color:#6b7280; margin:0;">Variants</label>
+                                <button id="add-variant-btn" type="button"
+                                    style="display:flex; align-items:center; gap:6px; background:rgba(245,158,11,0.1); border:1px solid rgba(245,158,11,0.25); color:#f59e0b; font-size:10px; font-weight:800; text-transform:uppercase; letter-spacing:1.5px; padding:8px 14px; border-radius:9px; cursor:pointer; transition:background 0.15s;"
+                                    onmouseover="this.style.background='rgba(245,158,11,0.18)'"
+                                    onmouseout="this.style.background='rgba(245,158,11,0.1)'">
+                                    <span style="font-size:14px; line-height:1;">+</span> Add Variant Type
+                                </button>
+                            </div>
+                            <!-- Preset chips -->
+                            <div style="display:flex; flex-wrap:wrap; gap:8px; margin-bottom:14px;" id="variant-presets">
+                                <button type="button" data-preset="Portion" data-options="Quarter,Half,Full"
+                                    class="variant-preset-btn"
+                                    style="font-size:11px; font-weight:700; padding:8px 14px; border-radius:9px; background:#1a1c23; border:1px solid #2e3140; color:#9ca3af; cursor:pointer; transition:all 0.15s;"
+                                    onmouseover="this.style.borderColor='#f59e0b';this.style.color='#f59e0b'"
+                                    onmouseout="this.style.borderColor='#2e3140';this.style.color='#9ca3af'">🍽 Portion</button>
+                                <button type="button" data-preset="Size" data-options="Small,Medium,Large"
+                                    class="variant-preset-btn"
+                                    style="font-size:11px; font-weight:700; padding:8px 14px; border-radius:9px; background:#1a1c23; border:1px solid #2e3140; color:#9ca3af; cursor:pointer; transition:all 0.15s;"
+                                    onmouseover="this.style.borderColor='#f59e0b';this.style.color='#f59e0b'"
+                                    onmouseout="this.style.borderColor='#2e3140';this.style.color='#9ca3af'">📏 Size</button>
+                                <button type="button" data-preset="Piece" data-options="1 Pc,2 Pc,4 Pc"
+                                    class="variant-preset-btn"
+                                    style="font-size:11px; font-weight:700; padding:8px 14px; border-radius:9px; background:#1a1c23; border:1px solid #2e3140; color:#9ca3af; cursor:pointer; transition:all 0.15s;"
+                                    onmouseover="this.style.borderColor='#f59e0b';this.style.color='#f59e0b'"
+                                    onmouseout="this.style.borderColor='#2e3140';this.style.color='#9ca3af'">🔢 Piece</button>
+                            </div>
+                            <div id="menu-variants-empty"
+                                style="padding:16px; background:#1a1c23; border:1px solid #252830; border-radius:12px; text-align:center; font-size:10px; font-weight:700; color:#4b5563; text-transform:uppercase; letter-spacing:1.5px;">
+                                No variants — item has a single fixed price
+                            </div>
+                            <div id="menu-variants-list" style="display:flex; flex-direction:column; gap:10px;"></div>
+                        </div>
+
+                        <!-- ACTION BUTTONS -->
+                        <div style="display:flex; gap:12px; padding-bottom:4px;">
+                            <button id="reset-menu-form-btn" type="button"
+                                style="flex:1; padding:14px; background:#1a1c23; border:1.5px solid #2e3140; border-radius:12px; color:#9ca3af; font-size:12px; font-weight:800; text-transform:uppercase; letter-spacing:1.5px; cursor:pointer; transition:all 0.15s; font-family:'DM Sans',sans-serif;"
+                                onmouseover="this.style.borderColor='#6b7280';this.style.color='#fff'"
+                                onmouseout="this.style.borderColor='#2e3140';this.style.color='#9ca3af'">Reset</button>
+                            <button id="save-menu-item-btn" type="submit"
+                                style="flex:2; padding:14px; background:#f59e0b; border:none; border-radius:12px; color:#0a0c12; font-size:13px; font-weight:900; text-transform:uppercase; letter-spacing:2px; cursor:pointer; transition:all 0.15s; font-family:'Space Grotesk',sans-serif; box-shadow:0 0 24px rgba(245,158,11,0.2);"
+                                onmouseover="this.style.filter='brightness(1.08)'"
+                                onmouseout="this.style.filter='none'">Create Item</button>
+                        </div>
+                        <p id="menu-form-message" style="text-align:center; font-size:12px; font-weight:700; margin-top:12px;"></p>
+
+                    </form>
+                </div>
+
+                <!-- ── RIGHT: LIVE PREVIEW ── -->
+                <div style="background:#0e1018; padding:28px 28px; overflow-y:auto; display:flex; flex-direction:column;" class="custom-scrollbar">
+                    <p style="font-size:10px; font-weight:800; text-transform:uppercase; letter-spacing:2.5px; color:#6b7280; margin:0 0 20px; text-align:center;">Live Preview</p>
+
+                    <!-- Preview Card -->
+                    <div style="background:#12141b; border-radius:20px; border:1px solid #252830; overflow:hidden; box-shadow:0 8px 32px rgba(0,0,0,0.4);">
+                        <!-- Image -->
+                        <div style="width:100%; aspect-ratio:4/3; background:#1e2130; display:flex; align-items:center; justify-content:center; overflow:hidden; position:relative; border-bottom:1px solid #252830;">
+                            <img id="lw-preview-img" src="" alt="Preview" style="width:100%; height:100%; object-fit:cover; display:none;">
+                            <div id="lw-preview-placeholder" style="display:flex; flex-direction:column; align-items:center; gap:10px; color:#374151;">
+                                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                                    <rect x="3" y="3" width="18" height="18" rx="3"/>
+                                    <circle cx="8.5" cy="8.5" r="1.5"/>
+                                    <path d="m21 15-5-5L5 21"/>
+                                </svg>
+                                <span style="font-size:10px; font-weight:800; text-transform:uppercase; letter-spacing:2px;">No Image</span>
+                            </div>
+                        </div>
+
+                        <!-- Details -->
+                        <div style="padding:20px 22px;">
+                            <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:10px; margin-bottom:8px;">
+                                <h4 id="lw-prev-name" style="font-size:17px; font-weight:900; color:#fff; margin:0; line-height:1.3; font-family:'Space Grotesk',sans-serif;">Item Name</h4>
+                                <span id="lw-prev-price" style="font-size:17px; font-weight:900; color:#f59e0b; white-space:nowrap; font-family:'Space Grotesk',sans-serif;">₹0</span>
+                            </div>
+                            <p id="lw-prev-desc" style="font-size:12px; color:#9ca3af; font-weight:500; line-height:1.6; margin:0 0 16px; display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden;">Item description will appear here...</p>
+
+                            <div style="display:flex; flex-direction:column; gap:10px;">
+                                <div style="display:flex; justify-content:space-between; align-items:center;">
+                                    <span style="font-size:9px; font-weight:800; text-transform:uppercase; letter-spacing:2px; color:#6b7280;">Category</span>
+                                    <span id="lw-prev-cat" style="font-size:12px; font-weight:700; color:#e5e7eb;">—</span>
+                                </div>
+                                <div style="display:flex; justify-content:space-between; align-items:center;">
+                                    <span style="font-size:9px; font-weight:800; text-transform:uppercase; letter-spacing:2px; color:#6b7280;">Type</span>
+                                    <span id="lw-prev-veg" style="font-size:11px; font-weight:700; padding:3px 10px; border-radius:99px; background:rgba(34,197,94,0.1); color:#22c55e; border:1px solid rgba(34,197,94,0.2);">🟢 Veg</span>
+                                </div>
+                                <div style="display:flex; justify-content:space-between; align-items:center;">
+                                    <span style="font-size:9px; font-weight:800; text-transform:uppercase; letter-spacing:2px; color:#6b7280;">Spice</span>
+                                    <span id="lw-prev-spice" style="font-size:12px; font-weight:700; color:#e5e7eb;">🌶 Regular</span>
+                                </div>
+                                <div style="display:flex; justify-content:space-between; align-items:center;">
+                                    <span style="font-size:9px; font-weight:800; text-transform:uppercase; letter-spacing:2px; color:#6b7280;">Prep Time</span>
+                                    <span id="lw-prev-prep" style="font-size:12px; font-weight:700; color:#e5e7eb;">~15 mins</span>
+                                </div>
+                                <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+                                    <span style="font-size:9px; font-weight:800; text-transform:uppercase; letter-spacing:2px; color:#6b7280; padding-top:2px;">Tags</span>
+                                    <div id="lw-prev-tags" style="display:flex; flex-wrap:wrap; gap:5px; justify-content:flex-end; max-width:65%;">
+                                        <span style="font-size:10px; font-weight:700; color:#4b5563; font-style:italic;">None</span>
+                                    </div>
+                                </div>
+                                <div style="display:flex; justify-content:space-between; align-items:center;">
+                                    <span style="font-size:9px; font-weight:800; text-transform:uppercase; letter-spacing:2px; color:#6b7280;">Availability</span>
+                                    <span id="lw-prev-avail" style="font-size:12px; font-weight:700; color:#60a5fa;">Visible ✓</span>
                                 </div>
                             </div>
-                            <div class="flex justify-between items-center text-xs pt-1">
-                                <span
-                                    class="text-gray-500 font-black uppercase tracking-widest text-[9px]">Availability</span>
-                                <span id="lw-prev-avail" class="text-blue-400 font-bold text-[10px]">Visible ✓</span>
-                            </div>
-                        </div>
 
-                        <div class="border-t border-[#252830] pt-4 mt-4">
-                            <span
-                                class="text-gray-500 font-black uppercase tracking-widest text-[9px] block mb-2">Variants</span>
-                            <div id="lw-prev-variants" class="space-y-1.5">
-                                <div class="text-gray-500 text-[10px] font-bold italic">No variants</div>
+                            <div style="border-top:1px solid #252830; padding-top:16px; margin-top:16px;">
+                                <span style="font-size:9px; font-weight:800; text-transform:uppercase; letter-spacing:2px; color:#6b7280; display:block; margin-bottom:10px;">Variants</span>
+                                <div id="lw-prev-variants" style="display:flex; flex-direction:column; gap:6px;">
+                                    <div style="font-size:11px; font-weight:700; color:#4b5563; font-style:italic;">No variants</div>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
-            </div>
-        </div>
-    </div>
+
+            </div><!-- /lw-modal-body -->
+
+        </div><!-- /lw-split-modal -->
+    </div><!-- /menu-form-panel -->
+
+    <!-- Mobile responsive: stack preview below form on small screens -->
+    <style>
+        @media (max-width: 768px) {
+            #lw-modal-body {
+                grid-template-columns: 1fr !important;
+                overflow-y: auto !important;
+                overflow-x: hidden !important;
+            }
+            #lw-modal-body > div:first-child {
+                border-right: none !important;
+                border-bottom: 1px solid #252830;
+                max-height: none !important;
+                overflow-y: visible !important;
+            }
+            #lw-modal-body > div:last-child {
+                overflow-y: visible !important;
+            }
+            #menu-form-panel {
+                align-items: flex-start !important;
+            }
+        }
+    </style>
 
 </body>
 
