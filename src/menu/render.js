@@ -126,12 +126,23 @@ const renderSingleCategory = (container, category, categoryItems, items, append 
 };
 
 // ── ADD TO CART button HTML ──────────────────────────────────────────────────
-const addToCartBtnHTML = (itemId) => `
+const addToCartBtnHTML = (itemId, inStock = true) => {
+    if (!inStock) {
+        return `
+            <button
+                class="btn-primary w-full h-12 rounded-xl flex items-center justify-center gap-2 text-sm font-medium opacity-50 cursor-not-allowed"
+                disabled
+                data-add="${itemId}">
+                OUT OF STOCK
+            </button>`;
+    }
+    return `
     <button
         class="btn-primary w-full h-12 rounded-xl flex items-center justify-center gap-2 text-sm font-medium"
         data-add="${itemId}">
         ADD TO CART 🛒
     </button>`;
+};
 
 // ── INLINE QUANTITY SELECTOR HTML ───────────────────────────────────────────
 const qtySelectorHTML = (itemId, qty) => `
@@ -152,9 +163,11 @@ export const refreshAllCardCTAs = (items) => {
     const ctaZones = document.querySelectorAll('.card-cta-zone');
     ctaZones.forEach(zone => {
         const itemId = zone.dataset.itemId;
+        const item = items.find(i => i.id === itemId);
+        const inStock = item?.inStock !== false;
         const cartEntry = cart.find(i => i.id === itemId);
         const qty = cartEntry ? cartEntry.quantity : 0;
-        zone.innerHTML = qty > 0 ? qtySelectorHTML(itemId, qty) : addToCartBtnHTML(itemId);
+        zone.innerHTML = qty > 0 ? qtySelectorHTML(itemId, qty) : addToCartBtnHTML(itemId, inStock);
     });
 };
 
@@ -177,6 +190,7 @@ const createItemCard = (item) => {
     const rawDescription = item.description ? item.description : '';
     const description = escapeHtml(rawDescription);
     const initialDetail = description || (hasVariants ? `Selected: ${escapeHtml(defaultVariant.type)}` : '\u00A0');
+    const inStock = item.inStock !== false;
 
     return `
         <div class="menu-card rounded-3xl overflow-hidden flex flex-col h-full group" data-id="${escapeHtml(item.id)}">
@@ -193,6 +207,12 @@ const createItemCard = (item) => {
                 ${item.bestseller ? `
                     <span class="menu-card-badge">
                         Bestseller
+                    </span>
+                ` : ''}
+
+                ${!inStock ? `
+                    <span class="menu-card-badge" style="background:#ef4444;color:#fff;font-weight:700;font-size:12px;padding:6px 12px;">
+                        Out of Stock
                     </span>
                 ` : ''}
 
@@ -222,7 +242,7 @@ const createItemCard = (item) => {
                 ` : ''}
 
                 <div class="card-cta-zone mt-auto" data-item-id="${escapeHtml(item.id)}">
-                    ${addToCartBtnHTML(item.id)}
+                    ${addToCartBtnHTML(item.id, inStock)}
                 </div>
             </div>
         </div>

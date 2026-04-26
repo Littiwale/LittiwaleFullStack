@@ -66,7 +66,6 @@ export const createMenuItem = async (data, imageFile = null) => {
             ? data.variants.map(v => ({ type: String(v.type).trim(), price: Number(v.price) }))
             : [];
 
-        const normalizedStock = Number(data.stockQuantity || 0);
         const hasVariants = variants.length > 0;
 
         const payload = {
@@ -74,8 +73,8 @@ export const createMenuItem = async (data, imageFile = null) => {
             description: String(data.description || '').trim(),
             category: String(data.category || 'Uncategorized').trim(),
             veg: data.veg === true || data.veg === 'true',
-            available: Boolean(data.available) && normalizedStock > 0,
-            stockQuantity: normalizedStock,
+            available: data.available !== false,
+            inStock: data.inStock !== false,
             hasVariants,
             variants,
             image: imageUrl || null,
@@ -107,11 +106,11 @@ export const updateMenuItem = async (id, data, imageFile = null, currentStorageP
             description: String(data.description || '').trim(),
             category: String(data.category || 'Uncategorized').trim(),
             veg: data.veg === true || data.veg === 'true',
-            stockQuantity: Number(data.stockQuantity || 0),
             updatedAt: serverTimestamp()
         };
 
-        updates.available = Boolean(data.available) && Number(updates.stockQuantity) > 0;
+        updates.available = data.available !== false;
+        updates.inStock = data.inStock !== false;
 
         const variants = Array.isArray(data.variants)
             ? data.variants.map(v => ({ type: String(v.type).trim(), price: Number(v.price) }))

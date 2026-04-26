@@ -55,10 +55,9 @@ export const validateCoupon = async (code, cartTotal, cartItems = []) => {
             case 'percentage':
                 const percentDiscount = (cartTotal * coupon.discountPercent) / 100;
                 const maxDiscount = coupon.maxDiscount || percentDiscount;
-                const minGuaranteed = coupon.minGuaranteedDiscount || 0;
-                discount = Math.max(minGuaranteed, Math.min(percentDiscount, maxDiscount));
+                discount = Math.round(Math.min(percentDiscount, maxDiscount));
                 message = `${coupon.discountPercent}% off applied! Save ₹${discount} 🎉`;
-                details = { percent: coupon.discountPercent, maxDiscount, minGuaranteed };
+                details = { percent: coupon.discountPercent, maxDiscount };
                 break;
 
             case 'flat':
@@ -70,41 +69,53 @@ export const validateCoupon = async (code, cartTotal, cartItems = []) => {
                 details = { flatAmount: coupon.discountAmount };
                 break;
 
+            case 'flat_percent':
+                const flatPercentDiscount = (cartTotal * coupon.discountPercent) / 100;
+                discount = Math.round(flatPercentDiscount);
+                message = `${coupon.discountPercent}% off applied! Save ₹${discount} 🎉`;
+                details = { percent: coupon.discountPercent };
+                break;
+
             case 'freebie':
                 // Freebie coupons don't provide monetary discount
                 // They unlock free items which are handled separately
                 discount = 0;
-                message = `Free ${coupon.freeItemName} unlocked! 🎁`;
-                details = { freeItem: coupon.freeItemName, quantity: coupon.freeItemQuantity };
+                const freebies = coupon.freebieItems || (coupon.freeItemName ? [{ name: coupon.freeItemName, quantity: coupon.freeItemQuantity || 1 }] : []);
+                message = `Free items unlocked! 🎁`;
+                details = { freebieItems: freebies };
                 break;
 
             case 'special_price':
                 // Special price coupons modify item prices
                 // Check if cart contains the required product
-                const hasSpecialProduct = cartItems.some(item =>
-                    coupon.productName && item.name.toLowerCase().includes(coupon.productName.toLowerCase())
-                );
+                const specialItems = coupon.specialItems || (coupon.productName ? [{ name: coupon.productName, price: coupon.offerPrice || 0 }] : []);
+                let specialDiscount = 0;
+                let foundMatch = false;
 
-                if (!hasSpecialProduct) {
-                    return { valid: false, message: `This coupon requires ${coupon.productName} in your cart.` };
+                cartItems.forEach(cartItem => {
+                    const matchedSpecial = specialItems.find(si => cartItem.name.toLowerCase().includes(si.name.toLowerCase()));
+                    if (matchedSpecial) {
+                        foundMatch = true;
+                        const regularPrice = cartItem.price * cartItem.quantity;
+                        const offerTotal = matchedSpecial.price * cartItem.quantity;
+                        specialDiscount += Math.max(0, regularPrice - offerTotal);
+                    }
+                });
+
+                if (!foundMatch) {
+                    return { valid: false, message: `This coupon requires specific products in your cart.` };
                 }
 
-                // Calculate discount based on special pricing
-                const specialItem = cartItems.find(item =>
-                    coupon.productName && item.name.toLowerCase().includes(coupon.productName.toLowerCase())
-                );
-                const regularPrice = specialItem ? specialItem.price * specialItem.quantity : 0;
-                const specialPrice = coupon.offerPrice * specialItem.quantity;
-                discount = Math.max(0, regularPrice - specialPrice);
-
-                message = `${coupon.productName} @ ₹${coupon.offerPrice} unlocked! Save ₹${discount} 🎯`;
-                details = { product: coupon.productName, offerPrice: coupon.offerPrice, savings: discount };
+                discount = specialDiscount;
+                message = `Special pricing applied! Save ₹${discount} 🎯`;
+                details = { specialItems, savings: discount };
                 break;
 
             case 'combo_upgrade':
                 discount = 0; // Upgrade pricing handled separately
-                message = `${coupon.upgradeDescription} available! ⬆️`;
-                details = { upgrade: coupon.upgradeDescription, upgradePrice: coupon.upgradePrice };
+                const comboItems = coupon.comboItems || (coupon.upgradeDescription ? [{ description: coupon.upgradeDescription, price: coupon.upgradePrice || 0 }] : []);
+                message = `Combo upgrades available! ⬆️`;
+                details = { comboItems };
                 break;
 
             default:
@@ -203,47 +214,47 @@ export const createCoupon = async (couponData) => {
             case 'percentage':
                 couponDoc.discountPercent = couponData.discountPercent || 0;
                 couponDoc.maxDiscount = couponData.maxDiscount || 0;
-                couponDoc.minGuaranteedDiscount = couponData.minGuaranteedDiscount || 0;
                 break;
 
             case 'flat':
                 couponDoc.discountAmount = couponData.discountAmount || 0;
                 break;
 
+            case 'flat_percent':
+                couponDoc.discountPercent = couponData.discountPercent || 0;
+                break;
+
             case 'freebie':
-                couponDoc.freeItemName = couponData.freeItemName || '';
-                couponDoc.freeItemQuantity = couponData.freeItemQuantity || 1;
-                // Add reward item structure
-                couponDoc.rewardItems = [{
-                    name: couponData.freeItemName || '',
+                couponDoc.freebieItems = couponData.freebieItems || [];
+                // Add reward item structure for compatibility
+                couponDoc.rewardItems = couponDoc.freebieItems.map(item => ({
+                    name: item.name || '',
                     price: 0, // Free
-                    quantity: couponData.freeItemQuantity || 1,
+                    quantity: item.quantity || 1,
                     type: 'free'
-                }];
+                }));
                 break;
 
             case 'special_price':
-                couponDoc.productName = couponData.productName || '';
-                couponDoc.offerPrice = couponData.offerPrice || 0;
-                // Add reward item structure
-                couponDoc.rewardItems = [{
-                    name: couponData.productName || '',
-                    price: couponData.offerPrice || 0,
+                couponDoc.specialItems = couponData.specialItems || [];
+                // Add reward item structure for compatibility
+                couponDoc.rewardItems = couponDoc.specialItems.map(item => ({
+                    name: item.name || '',
+                    price: item.price || 0,
                     quantity: 1,
                     type: 'special'
-                }];
+                }));
                 break;
 
             case 'combo_upgrade':
-                couponDoc.upgradeDescription = couponData.upgradeDescription || '';
-                couponDoc.upgradePrice = couponData.upgradePrice || 0;
-                // Add reward item structure
-                couponDoc.rewardItems = [{
-                    name: couponData.upgradeDescription || '',
-                    price: couponData.upgradePrice || 0,
+                couponDoc.comboItems = couponData.comboItems || [];
+                // Add reward item structure for compatibility
+                couponDoc.rewardItems = couponDoc.comboItems.map(item => ({
+                    name: item.description || '',
+                    price: item.price || 0,
                     quantity: 1,
                     type: 'upgrade'
-                }];
+                }));
                 break;
 
             default:
@@ -286,7 +297,7 @@ export const updateCoupon = async (couponData) => {
             case 'percentage':
                 updateData.discountPercent = couponData.discountPercent || 0;
                 updateData.maxDiscount = couponData.maxDiscount || 0;
-                updateData.minGuaranteedDiscount = couponData.minGuaranteedDiscount || 0;
+                updateData.minGuaranteedDiscount = deleteField();
                 updateData.discountAmount = deleteField();
                 updateData.freeItemName = deleteField();
                 updateData.freeItemQuantity = deleteField();
@@ -294,6 +305,9 @@ export const updateCoupon = async (couponData) => {
                 updateData.offerPrice = deleteField();
                 updateData.upgradeDescription = deleteField();
                 updateData.upgradePrice = deleteField();
+                updateData.freebieItems = deleteField();
+                updateData.specialItems = deleteField();
+                updateData.comboItems = deleteField();
                 break;
 
             case 'flat':
@@ -307,11 +321,31 @@ export const updateCoupon = async (couponData) => {
                 updateData.offerPrice = deleteField();
                 updateData.upgradeDescription = deleteField();
                 updateData.upgradePrice = deleteField();
+                updateData.freebieItems = deleteField();
+                updateData.specialItems = deleteField();
+                updateData.comboItems = deleteField();
+                break;
+
+            case 'flat_percent':
+                updateData.discountPercent = couponData.discountPercent || 0;
+                updateData.discountAmount = deleteField();
+                updateData.maxDiscount = deleteField();
+                updateData.minGuaranteedDiscount = deleteField();
+                updateData.freeItemName = deleteField();
+                updateData.freeItemQuantity = deleteField();
+                updateData.productName = deleteField();
+                updateData.offerPrice = deleteField();
+                updateData.upgradeDescription = deleteField();
+                updateData.upgradePrice = deleteField();
+                updateData.freebieItems = deleteField();
+                updateData.specialItems = deleteField();
+                updateData.comboItems = deleteField();
                 break;
 
             case 'freebie':
-                updateData.freeItemName = couponData.freeItemName || '';
-                updateData.freeItemQuantity = couponData.freeItemQuantity || 1;
+                updateData.freebieItems = couponData.freebieItems || [];
+                updateData.freeItemName = deleteField();
+                updateData.freeItemQuantity = deleteField();
                 updateData.discountPercent = deleteField();
                 updateData.maxDiscount = deleteField();
                 updateData.minGuaranteedDiscount = deleteField();
@@ -320,11 +354,14 @@ export const updateCoupon = async (couponData) => {
                 updateData.offerPrice = deleteField();
                 updateData.upgradeDescription = deleteField();
                 updateData.upgradePrice = deleteField();
+                updateData.specialItems = deleteField();
+                updateData.comboItems = deleteField();
                 break;
 
             case 'special_price':
-                updateData.productName = couponData.productName || '';
-                updateData.offerPrice = couponData.offerPrice || 0;
+                updateData.specialItems = couponData.specialItems || [];
+                updateData.productName = deleteField();
+                updateData.offerPrice = deleteField();
                 updateData.discountPercent = deleteField();
                 updateData.maxDiscount = deleteField();
                 updateData.minGuaranteedDiscount = deleteField();
@@ -333,11 +370,14 @@ export const updateCoupon = async (couponData) => {
                 updateData.freeItemQuantity = deleteField();
                 updateData.upgradeDescription = deleteField();
                 updateData.upgradePrice = deleteField();
+                updateData.freebieItems = deleteField();
+                updateData.comboItems = deleteField();
                 break;
 
             case 'combo_upgrade':
-                updateData.upgradeDescription = couponData.upgradeDescription || '';
-                updateData.upgradePrice = couponData.upgradePrice || 0;
+                updateData.comboItems = couponData.comboItems || [];
+                updateData.upgradeDescription = deleteField();
+                updateData.upgradePrice = deleteField();
                 updateData.discountPercent = deleteField();
                 updateData.maxDiscount = deleteField();
                 updateData.minGuaranteedDiscount = deleteField();
@@ -346,6 +386,8 @@ export const updateCoupon = async (couponData) => {
                 updateData.freeItemQuantity = deleteField();
                 updateData.productName = deleteField();
                 updateData.offerPrice = deleteField();
+                updateData.freebieItems = deleteField();
+                updateData.specialItems = deleteField();
                 break;
         }
 

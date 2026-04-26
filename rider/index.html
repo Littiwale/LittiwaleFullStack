@@ -4,18 +4,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Rider Dashboard - Littiwale</title>
-    
-    <!-- Open Graph Meta Tags (Task 10.1) -->
     <meta property="og:title" content="Littiwale Rider Panel">
     <meta property="og:description" content="Littiwale delivery partner panel for managing deliveries and earnings.">
     <meta property="og:image" content="https://firebasestorage.googleapis.com/v0/b/littiwale-ordering-system.appspot.com/o/images%2Flogo.png?alt=media">
     <meta property="og:type" content="website">
-    
     <link rel="manifest" href="/manifest.json">
-    <meta name="theme-color" content="#0d0d0d">
+    <meta name="theme-color" content="#080b12">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&family=Playfair+Display:wght@700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&family=Space+Mono:wght@700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/src/style.css">
     <link rel="stylesheet" href="/src/rider.css">
     <link rel="stylesheet" href="/src/panel-tokens.css">
@@ -32,10 +29,8 @@
             </div>
         </div>
 
-        <!-- Delivery Count Display -->
-        <div id="rider-today-count" style="font-size:12px;color:#F5A800;font-weight:700;"></div>
+        <div id="rider-today-count" style="font-size:11px;color:#F5A800;font-weight:900;font-family:'Space Mono',monospace;letter-spacing:1px;"></div>
 
-        <!-- Avatar Dropdown (role-aware, wired by rider.js) -->
         <button id="theme-toggle" type="button" data-theme-toggle class="theme-toggle-btn" aria-label="Toggle dark mode">🌙</button>
         <div class="lw-profile-wrap">
             <button class="lw-avatar-btn" id="rider-avatar-trigger" aria-haspopup="true" aria-expanded="false">R</button>
@@ -44,7 +39,6 @@
                     <p id="rider-dd-name">Rider</p>
                     <span id="rider-dd-role">Delivery Partner</span>
                 </div>
-                <!-- Nav items injected dynamically by rider.js based on role -->
                 <button class="lw-dropdown-item" id="rider-dd-storefront">🛒 Go to Storefront</button>
                 <div class="lw-dropdown-divider"></div>
                 <button class="lw-dropdown-item danger" id="rider-dd-logout">🚪 Logout</button>
@@ -52,28 +46,29 @@
         </div>
     </header>
 
-    <!-- MAIN CONTENT -->
+    <!-- MAIN -->
     <main class="rider-main">
 
-        <!-- STATUS TOGGLE & EARNINGS (Phase 4) -->
-        <div style="background:#13161e; border:1px solid #252830; border-radius:12px; padding:16px; margin-bottom:24px; display:flex; justify-content:space-between; align-items:center;">
+        <!-- EARNINGS + ONLINE TOGGLE -->
+        <div class="nd-status-bar">
+            <div class="nd-status-bar-glow"></div>
             <div>
-                <p style="font-size:11px; font-weight:800; color:#7a8098; text-transform:uppercase;">Today's Earnings</p>
-                <p style="font-size:20px; font-weight:900; color:#10B981;" id="rider-earnings">₹0</p>
-                <p style="font-size:11px; color:#9ca3af;" id="rider-deliveries">0 deliveries</p>
+                <div class="nd-earn-label">Today's Earnings</div>
+                <div class="nd-earn-val" id="rider-earnings">₹0</div>
+                <div class="nd-earn-meta" id="rider-deliveries">0 deliveries</div>
             </div>
-            <div style="text-align:right;">
-                <p style="font-size:11px; font-weight:800; color:#7a8098; text-transform:uppercase; margin-bottom:6px;" id="rider-status-text">Offline</p>
-                <label style="position:relative; display:inline-block; width:52px; height:28px;">
-                    <input type="checkbox" id="rider-status-toggle" style="opacity:0; width:0; height:0;">
-                    <span style="position:absolute; cursor:pointer; top:0; left:0; right:0; bottom:0; background-color:#ef4444; transition:.4s; border-radius:34px;" id="rider-toggle-slider">
-                        <span style="position:absolute; content:''; height:20px; width:20px; left:4px; bottom:4px; background-color:white; transition:.4s; border-radius:50%;" id="rider-toggle-knob"></span>
+            <div class="nd-toggle-wrap">
+                <div class="nd-online-tag offline" id="rider-status-text">● OFFLINE</div>
+                <label style="position:relative;display:inline-block;width:52px;height:28px;margin-top:8px;">
+                    <input type="checkbox" id="rider-status-toggle" style="opacity:0;width:0;height:0;">
+                    <span id="rider-toggle-slider" style="position:absolute;cursor:pointer;top:0;left:0;right:0;bottom:0;background:#ef4444;transition:.4s;border-radius:34px;">
+                        <span id="rider-toggle-knob" style="position:absolute;height:20px;width:20px;left:4px;bottom:4px;background:white;transition:.4s;border-radius:50%;"></span>
                     </span>
                 </label>
             </div>
         </div>
 
-        <!-- SECTION 1: PENDING PICKUPS -->
+        <!-- PENDING PICKUPS -->
         <div class="section-gap">
             <div class="rider-section-title">
                 Pending Pickups 📦
@@ -87,7 +82,7 @@
             </div>
         </div>
 
-        <!-- SECTION 2: CURRENT DELIVERY -->
+        <!-- CURRENT DELIVERY -->
         <div class="section-gap">
             <div class="rider-section-title">
                 Current Delivery 🛵
@@ -114,7 +109,6 @@
         </div>
     </nav>
 
-    <!-- Notification Sound -->
     <audio id="notif-sound" src="https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3" preload="auto"></audio>
 
     <script type="module" src="/src/theme.js"></script>

@@ -266,13 +266,16 @@ const updateCheckoutTotal = () => {
         let couponDisplay = appliedCouponCode;
 
         if (appliedCouponType === 'freebie') {
-            savingsText = `Free ${appliedCouponDetails.freeItem}`;
+            const items = appliedCouponDetails.freebieItems || [];
+            savingsText = `Free ${items.map(i => i.name).join(', ')}`;
             couponDisplay = appliedCouponCode;
         } else if (appliedCouponType === 'special_price') {
-            savingsText = `${appliedCouponDetails.product} @ ₹${appliedCouponDetails.offerPrice}`;
+            const items = appliedCouponDetails.specialItems || [];
+            savingsText = `${items.length} items @ Special Price`;
             couponDisplay = appliedCouponCode;
         } else if (appliedCouponType === 'combo_upgrade') {
-            savingsText = appliedCouponDetails.upgrade;
+            const items = appliedCouponDetails.comboItems || [];
+            savingsText = items.map(i => i.description).join(', ');
             couponDisplay = appliedCouponCode;
         } else if (appliedDiscount > 0) {
             savingsText = `You save ₹${appliedDiscount}`;
@@ -312,45 +315,54 @@ const handleSpecialCouponTypes = (result) => {
 
     switch (result.type) {
         case 'freebie':
-            benefitsHTML = `
-                <div style="background: rgba(196, 127, 23, 0.1); border: 1px solid #C47F17; border-radius: 8px; padding: 12px; margin-top: 12px;">
-                    <div style="display: flex; align-items: center; gap: 8px;">
-                        <span style="font-size: 16px;">🎁</span>
-                        <div>
-                            <div style="font-size: 14px; font-weight: 700; color: #C47F17;">Free Item Unlocked!</div>
-                            <div style="font-size: 12px; color: #C47F17; opacity: 0.9;">${result.details.freeItem} x${result.details.quantity}</div>
+            const fItems = result.details.freebieItems || [];
+            if (fItems.length > 0) {
+                benefitsHTML = `
+                    <div style="background: rgba(196, 127, 23, 0.1); border: 1px solid #C47F17; border-radius: 8px; padding: 12px; margin-top: 12px;">
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <span style="font-size: 16px;">🎁</span>
+                            <div>
+                                <div style="font-size: 14px; font-weight: 700; color: #C47F17;">Free Items Unlocked!</div>
+                                <div style="font-size: 12px; color: #C47F17; opacity: 0.9;">${fItems.map(i => `${i.name} (x${i.quantity})`).join(', ')}</div>
+                            </div>
                         </div>
                     </div>
-                </div>
-            `;
+                `;
+            }
             break;
 
         case 'special_price':
-            benefitsHTML = `
-                <div style="background: rgba(196, 127, 23, 0.1); border: 1px solid #C47F17; border-radius: 8px; padding: 12px; margin-top: 12px;">
-                    <div style="display: flex; align-items: center; gap: 8px;">
-                        <span style="font-size: 16px;">🎯</span>
-                        <div>
-                            <div style="font-size: 14px; font-weight: 700; color: #C47F17;">Special Price Unlocked!</div>
-                            <div style="font-size: 12px; color: #C47F17; opacity: 0.9;">${result.details.product} @ ₹${result.details.offerPrice}</div>
+            const sItems = result.details.specialItems || [];
+            if (sItems.length > 0) {
+                benefitsHTML = `
+                    <div style="background: rgba(196, 127, 23, 0.1); border: 1px solid #C47F17; border-radius: 8px; padding: 12px; margin-top: 12px;">
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <span style="font-size: 16px;">🎯</span>
+                            <div>
+                                <div style="font-size: 14px; font-weight: 700; color: #C47F17;">Special Price Unlocked!</div>
+                                <div style="font-size: 12px; color: #C47F17; opacity: 0.9;">${sItems.map(i => `${i.name} @ ₹${i.price}`).join('<br>')}</div>
+                            </div>
                         </div>
                     </div>
-                </div>
-            `;
+                `;
+            }
             break;
 
         case 'combo_upgrade':
-            benefitsHTML = `
-                <div style="background: rgba(196, 127, 23, 0.1); border: 1px solid #C47F17; border-radius: 8px; padding: 12px; margin-top: 12px;">
-                    <div style="display: flex; align-items: center; gap: 8px;">
-                        <span style="font-size: 16px;">⬆️</span>
-                        <div>
-                            <div style="font-size: 14px; font-weight: 700; color: #C47F17;">Combo Upgrade Available!</div>
-                            <div style="font-size: 12px; color: #C47F17; opacity: 0.9;">${result.details.upgrade} for ₹${result.details.upgradePrice}</div>
+            const cItems = result.details.comboItems || [];
+            if (cItems.length > 0) {
+                benefitsHTML = `
+                    <div style="background: rgba(196, 127, 23, 0.1); border: 1px solid #C47F17; border-radius: 8px; padding: 12px; margin-top: 12px;">
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <span style="font-size: 16px;">⬆️</span>
+                            <div>
+                                <div style="font-size: 14px; font-weight: 700; color: #C47F17;">Combo Upgrade Available!</div>
+                                <div style="font-size: 12px; color: #C47F17; opacity: 0.9;">${cItems.map(i => `${i.description} for ₹${i.price}`).join('<br>')}</div>
+                            </div>
                         </div>
                     </div>
-                </div>
-            `;
+                `;
+            }
             break;
     }
 
@@ -427,17 +439,22 @@ const calculateEligibilityScore = (coupon, cartItems, cartTotal) => {
             // Flat discounts are good for any order
             score = 80;
             break;
+        case 'flat_percent':
+            score = Math.min(cartTotal / 500, 1) * 100;
+            break;
         case 'freebie':
             // Freebie coupons depend on specific items
-            const hasRequiredItem = cartItems.some(item =>
-                coupon.freeItemName && item.name.toLowerCase().includes(coupon.freeItemName.toLowerCase())
+            const requiredFreebieItems = coupon.freebieItems || (coupon.freeItemName ? [{ name: coupon.freeItemName }] : []);
+            const hasRequiredItem = cartItems.some(cartItem =>
+                requiredFreebieItems.some(i => cartItem.name.toLowerCase().includes(i.name.toLowerCase()))
             );
             score = hasRequiredItem ? 95 : 30;
             break;
         case 'special_price':
             // Special price depends on specific products
-            const hasSpecialProduct = cartItems.some(item =>
-                coupon.productName && item.name.toLowerCase().includes(coupon.productName.toLowerCase())
+            const requiredSpecialItems = coupon.specialItems || (coupon.productName ? [{ name: coupon.productName }] : []);
+            const hasSpecialProduct = cartItems.some(cartItem =>
+                requiredSpecialItems.some(i => cartItem.name.toLowerCase().includes(i.name.toLowerCase()))
             );
             score = hasSpecialProduct ? 100 : 20;
             break;
@@ -508,23 +525,31 @@ const showEnhancedCouponSuggestions = (topCoupons, cartTotal) => {
                 icon = '💰';
                 bgColor = 'rgba(16, 185, 129, 0.1)';
                 break;
+            case 'flat_percent':
+                benefitText = `${coupon.discountPercent}% OFF`;
+                icon = '💰';
+                bgColor = 'rgba(16, 185, 129, 0.1)';
+                break;
             case 'flat':
                 benefitText = `₹${coupon.discountAmount} OFF`;
                 icon = '💵';
                 bgColor = 'rgba(59, 130, 246, 0.1)';
                 break;
             case 'freebie':
-                benefitText = `Free ${details.freeItem}`;
+                const fItems = details.freebieItems || [];
+                benefitText = `Free ${fItems.map(i => i.name).join(', ')}`;
                 icon = '🎁';
                 bgColor = 'rgba(245, 158, 11, 0.1)';
                 break;
             case 'special_price':
-                benefitText = `${details.product} @ ₹${details.offerPrice}`;
+                const sItems = details.specialItems || [];
+                benefitText = `${sItems.length} items @ Special Price`;
                 icon = '🎯';
                 bgColor = 'rgba(139, 92, 246, 0.1)';
                 break;
             case 'combo_upgrade':
-                benefitText = details.upgrade;
+                const cItems = details.comboItems || [];
+                benefitText = `${cItems.length} upgrades available`;
                 icon = '⬆️';
                 bgColor = 'rgba(236, 72, 153, 0.1)';
                 break;

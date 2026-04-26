@@ -1,25 +1,33 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Littiwale Admin Console</title>
-    
+
     <!-- Open Graph Meta Tags (Task 10.1) -->
     <meta property="og:title" content="Littiwale Admin Dashboard">
-    <meta property="og:description" content="Littiwale restaurant admin panel for managing orders, menu, and operations.">
-    <meta property="og:image" content="https://firebasestorage.googleapis.com/v0/b/littiwale-ordering-system.appspot.com/o/images%2Flogo.png?alt=media">
+    <meta property="og:description"
+        content="Littiwale restaurant admin panel for managing orders, menu, and operations.">
+    <meta property="og:image"
+        content="https://firebasestorage.googleapis.com/v0/b/littiwale-ordering-system.appspot.com/o/images%2Flogo.png?alt=media">
     <meta property="og:type" content="website">
-    
+
     <link rel="manifest" href="/manifest.json">
     <meta name="theme-color" content="#0d0d0d">
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&family=Playfair+Display:wght@700;900&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&family=Playfair+Display:wght@700;900&family=Sora:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@500;600;700;800&display=swap"
+        rel="stylesheet">
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
     <link rel="stylesheet" href="/src/style.css">
     <link rel="stylesheet" href="/src/panel-tokens.css">
 </head>
+
 <body class="admin-body">
     <div id="app" class="admin-wrapper admin-app">
         <!-- 1. SIDEBAR -->
@@ -29,53 +37,55 @@
                     <img src="/images/logo.png" alt="Littiwale">
                     <span>LITTIWALE</span>
                 </div>
+                <p class="sidebar-section-label">Main Menu</p>
                 <nav class="sidebar-nav">
                     <button type="button" class="nav-item active" data-view="dashboard">
-                        <span class="nav-icon">🏠</span>
+                        <span class="nav-icon"><i data-lucide="layout-dashboard"
+                                style="width:17px;height:17px;"></i></span>
                         <span class="nav-text">Dashboard</span>
                     </button>
                     <button type="button" class="nav-item" data-view="orders">
-                        <span class="nav-icon">📦</span>
+                        <span class="nav-icon"><i data-lucide="shopping-bag" style="width:17px;height:17px;"></i></span>
                         <span class="nav-text">Orders</span>
                         <span id="order-badge" class="nav-badge hidden">0</span>
                     </button>
                     <button type="button" class="nav-item" data-view="tickets">
-                        <span class="nav-icon">🎫</span>
+                        <span class="nav-icon"><i data-lucide="ticket" style="width:17px;height:17px;"></i></span>
                         <span class="nav-text">Tickets</span>
                     </button>
                     <button type="button" class="nav-item" data-view="customers">
-                        <span class="nav-icon">👥</span>
+                        <span class="nav-icon"><i data-lucide="users" style="width:17px;height:17px;"></i></span>
                         <span class="nav-text">Customers</span>
                     </button>
                     <button type="button" class="nav-item" data-view="menu">
-                        <span class="nav-icon">🍽️</span>
+                        <span class="nav-icon"><i data-lucide="utensils" style="width:17px;height:17px;"></i></span>
                         <span class="nav-text">Menu</span>
                     </button>
                     <button type="button" class="nav-item" data-view="analytics">
-                        <span class="nav-icon">📊</span>
+                        <span class="nav-icon"><i data-lucide="bar-chart-2" style="width:17px;height:17px;"></i></span>
                         <span class="nav-text">Analytics</span>
                     </button>
                     <button type="button" class="nav-item" data-view="riders">
-                        <span class="nav-icon">🛵</span>
+                        <span class="nav-icon"><i data-lucide="bike" style="width:17px;height:17px;"></i></span>
                         <span class="nav-text">Riders</span>
                     </button>
                     <button type="button" class="nav-item" data-view="coupons">
-                        <span class="nav-icon">🎟️</span>
+                        <span class="nav-icon"><i data-lucide="tag" style="width:17px;height:17px;"></i></span>
                         <span class="nav-text">Coupons</span>
                     </button>
                     <button type="button" class="nav-item" data-view="announcements">
-                        <span class="nav-icon">📢</span>
+                        <span class="nav-icon"><i data-lucide="megaphone" style="width:17px;height:17px;"></i></span>
                         <span class="nav-text">Announcements</span>
                     </button>
                     <button type="button" class="nav-item" data-view="settings">
-                        <span class="nav-icon">⚙️</span>
+                        <span class="nav-icon"><i data-lucide="settings" style="width:17px;height:17px;"></i></span>
                         <span class="nav-text">Settings</span>
                     </button>
                 </nav>
             </div>
             <div class="sidebar-bottom">
                 <button id="admin-logout-btn" class="nav-item text-red-400">
-                    <span class="nav-icon">⚙️</span>
+                    <span class="nav-icon"><i data-lucide="log-out" style="width:17px;height:17px;"></i></span>
                     <span class="nav-text">Logout</span>
                 </button>
                 <div class="sidebar-profile">
@@ -94,8 +104,10 @@
             <header class="admin-header">
                 <h2 id="page-title" class="text-xl font-black uppercase tracking-widest text-accent">Dashboard</h2>
                 <div class="header-right">
-                    <button id="theme-toggle" type="button" data-theme-toggle class="theme-toggle-btn" aria-label="Toggle dark mode">🌙</button>
-                    <div id="new-order-toast" class="hidden absolute top-20 right-8 bg-accent text-black px-6 py-3 rounded-2xl font-black shadow-2xl flex items-center gap-3 animate-slide-in">
+                    <button id="theme-toggle" type="button" data-theme-toggle class="theme-toggle-btn"
+                        aria-label="Toggle dark mode">🌙</button>
+                    <div id="new-order-toast"
+                        class="hidden absolute top-20 right-8 bg-accent text-black px-6 py-3 rounded-2xl font-black shadow-2xl flex items-center gap-3 animate-slide-in">
                         <span>🚀</span> NEW ORDER RECEIVED!
                     </div>
                     <div class="notification-bell">
@@ -104,22 +116,28 @@
                     </div>
                     <!-- Profile Dropdown -->
                     <div class="lw-profile-wrap" id="admin-profile-wrap">
-                        <button class="lw-avatar-btn" id="admin-avatar-trigger" aria-haspopup="true" aria-expanded="false">A</button>
+                        <button class="lw-avatar-btn" id="admin-avatar-trigger" aria-haspopup="true"
+                            aria-expanded="false">A</button>
                         <div class="lw-dropdown" id="admin-profile-dropdown" role="menu">
                             <div class="lw-dropdown-header">
                                 <p id="admin-dd-name">Admin</p>
                                 <span id="admin-dd-email">Loading…</span>
                             </div>
-                            <button type="button" class="lw-dropdown-item" id="admin-dd-storefront">🛒 Go to Storefront</button>
-                            <button type="button" class="lw-dropdown-item" id="admin-dd-rider">🛵 Go to Rider Panel</button>
+                            <button type="button" class="lw-dropdown-item" id="admin-dd-storefront">🛒 Go to
+                                Storefront</button>
+                            <button type="button" class="lw-dropdown-item" id="admin-dd-rider">🛵 Go to Rider
+                                Panel</button>
                             <div class="lw-dropdown-divider"></div>
-                            <button type="button" class="lw-dropdown-item danger" id="admin-dd-logout">🚪 Logout</button>
+                            <button type="button" class="lw-dropdown-item danger" id="admin-dd-logout">🚪
+                                Logout</button>
                         </div>
                     </div>
                 </div>
 
                 <div class="header-left">
-                    <h1 id="view-title" class="uppercase" style="font-family: var(--font-futuristic); font-size: 18px; letter-spacing: 6px; font-weight: 700; color: #fff;">Dashboard</h1>
+                    <h1 id="view-title" class="uppercase"
+                        style="font-family: var(--font-futuristic); font-size: 18px; letter-spacing: 6px; font-weight: 700; color: #fff;">
+                        Dashboard</h1>
                 </div>
             </header>
 
@@ -130,12 +148,19 @@
                     <!-- 👑 Premium Greeting -->
                     <div class="mb-12 animate-slide-in">
                         <div class="flex items-center gap-4 mb-4">
-                            <span class="px-3 py-1 bg-accent/10 text-accent text-[10px] font-black uppercase tracking-widest border border-accent/20 rounded-full">Owner Dashboard</span>
+                            <span
+                                class="px-3 py-1 bg-accent/10 text-accent text-[10px] font-black uppercase tracking-widest border border-accent/20 rounded-full">Owner
+                                Dashboard</span>
                             <span class="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse"></span>
-                            <span class="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Live System Status</span>
+                            <span class="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Live System
+                                Status</span>
                         </div>
-                        <h2 class="text-7xl font-black text-white tracking-tighter mb-3" style="font-family: var(--font-heading); text-shadow: 0 10px 30px rgba(0,0,0,0.5);">Welcome Back, <span class="text-accent">Admin</span></h2>
-                        <p class="text-gray-500 font-bold uppercase text-[11px] tracking-[4px] opacity-80">Command center for <span class="text-white border-b border-accent/30">Littiwale Premium</span> Operations</p>
+                        <h2 class="text-7xl font-black text-white tracking-tighter mb-3"
+                            style="font-family: var(--font-heading); font-size: 36px !important; text-shadow: 0 4px 16px rgba(0,0,0,0.4);">
+                            Welcome Back, <span class="text-accent">Admin</span></h2>
+                        <p class="text-gray-500 font-bold uppercase text-[11px] tracking-[4px] opacity-80">Command
+                            center for <span class="text-white border-b border-accent/30">Littiwale Premium</span>
+                            Operations</p>
                     </div>
 
                     <!-- KPI Cards -->
@@ -210,12 +235,17 @@
 
                 <!-- VIEW: MENU ANALYTICS -->
                 <section id="view-analytics" class="content-view">
-                    <div class="admin-card mb-8 p-10 relative overflow-hidden" style="background: linear-gradient(135deg, #1e2130, #11141d); border: 1px solid var(--admin-accent);">
+                    <div class="admin-card mb-8 p-10 relative overflow-hidden"
+                        style="background: linear-gradient(135deg, #1e2130, #11141d); border: 1px solid var(--admin-accent);">
                         <div class="relative z-10">
-                            <h1 class="text-4xl font-black uppercase tracking-tighter text-white mb-2">Menu Analytics Dashboard</h1>
-                            <p class="text-admin-accent font-bold tracking-widest uppercase text-xs">Performance & Insights Engine</p>
+                            <h1 class="text-4xl font-black uppercase tracking-tighter text-white mb-2">Menu Analytics
+                                Dashboard</h1>
+                            <p class="text-admin-accent font-bold tracking-widest uppercase text-xs">Performance &
+                                Insights Engine</p>
                         </div>
-                        <div class="absolute -right-20 -top-20 w-64 h-64 bg-admin-accent opacity-5 blur-[100px] rounded-full"></div>
+                        <div
+                            class="absolute -right-20 -top-20 w-64 h-64 bg-admin-accent opacity-5 blur-[100px] rounded-full">
+                        </div>
                     </div>
 
                     <!-- Analytics Cards -->
@@ -321,27 +351,33 @@
                         <div class="admin-toolbar">
                             <div>
                                 <h3 class="font-bold text-3xl mb-2">Menu</h3>
-                                <p class="text-gray-400">Manage all menu items in a structured table. Add or edit items using the separate item form.</p>
+                                <p class="text-gray-400">Manage all menu items in a structured table. Add or edit items
+                                    using the separate item form.</p>
                             </div>
                             <div class="toolbar-actions">
-                                <button id="show-menu-list-btn" type="button" class="btn btn-outline active">Menu</button>
-                                <button id="show-menu-add-btn" type="button" class="btn btn-primary">Add New Item</button>
+                                <button id="show-menu-list-btn" type="button"
+                                    class="btn btn-outline active">Menu</button>
+                                <button id="show-menu-add-btn" type="button" class="btn btn-primary">Add New
+                                    Item</button>
                             </div>
                         </div>
                         <div class="admin-toolbar admin-toolbar--secondary">
                             <div class="input-group">
-                                <input id="menu-search" type="search" placeholder="Search menu items..." class="admin-search-input" />
+                                <input id="menu-search" type="search" placeholder="Search menu items..."
+                                    class="admin-search-input" />
                             </div>
                             <div class="toolbar-filters">
                                 <div class="filter-row">
                                     <div class="filter-group">
-                                        <label class="text-xs uppercase tracking-widest text-gray-500 mb-2 block">Category</label>
+                                        <label
+                                            class="text-xs uppercase tracking-widest text-gray-500 mb-2 block">Category</label>
                                         <select id="menu-category-filter" class="admin-select">
                                             <option value="all">All Categories</option>
                                         </select>
                                     </div>
                                     <div class="filter-group">
-                                        <label class="text-xs uppercase tracking-widest text-gray-500 mb-2 block">Status</label>
+                                        <label
+                                            class="text-xs uppercase tracking-widest text-gray-500 mb-2 block">Status</label>
                                         <select id="menu-status-filter" class="admin-select">
                                             <option value="all">All Status</option>
                                             <option value="visible">Visible</option>
@@ -349,7 +385,8 @@
                                         </select>
                                     </div>
                                     <div class="filter-group">
-                                        <label class="text-xs uppercase tracking-widest text-gray-500 mb-2 block">Type</label>
+                                        <label
+                                            class="text-xs uppercase tracking-widest text-gray-500 mb-2 block">Type</label>
                                         <select id="menu-type-filter" class="admin-select">
                                             <option value="all">All Types</option>
                                             <option value="veg">Vegetarian</option>
@@ -357,7 +394,8 @@
                                         </select>
                                     </div>
                                     <div class="filter-group">
-                                        <label class="text-xs uppercase tracking-widest text-gray-500 mb-2 block">Stock</label>
+                                        <label
+                                            class="text-xs uppercase tracking-widest text-gray-500 mb-2 block">Stock</label>
                                         <select id="menu-stock-filter" class="admin-select">
                                             <option value="all">All Stock</option>
                                             <option value="in-stock">In Stock</option>
@@ -366,98 +404,119 @@
                                     </div>
                                 </div>
                             </div>
-                        <div class="toolbar-actions">
-                            <button id="menu-bulk-select-all" type="button" class="btn btn-outline btn-sm">Select All</button>
-                            <button id="menu-bulk-edit" type="button" class="btn btn-secondary btn-sm" disabled>Bulk Edit</button>
-                            <button id="menu-bulk-delete" type="button" class="btn btn-outline btn-sm" disabled>Bulk Delete</button>
-                        </div>
-                        <div class="toolbar-meta text-sm text-gray-400">
-                            <span id="menu-selected-count" class="text-accent font-bold">0</span> selected
-                        </div>
+                            <div class="toolbar-actions">
+                                <button id="menu-bulk-select-all" type="button" class="btn btn-outline btn-sm">Select
+                                    All</button>
+                                <button id="menu-bulk-edit" type="button" class="btn btn-secondary btn-sm" disabled>Bulk
+                                    Edit</button>
+                                <button id="menu-bulk-delete" type="button" class="btn btn-outline btn-sm" disabled>Bulk
+                                    Delete</button>
+                            </div>
+                            <div class="toolbar-meta text-sm text-gray-400">
+                                <span id="menu-selected-count" class="text-accent font-bold">0</span> selected
+                            </div>
                         </div>
                     </div>
 
                     <div id="menu-list-card" class="admin-card overflow-hidden mb-8">
                         <div id="menu-list-container" class="overflow-x-auto p-6">
-                            <p class="text-gray-500">Loading menu items...</p>
+                            <!-- Skeleton shimmer — JS replaces when Firestore data arrives -->
+                            <style>
+                                @keyframes skelShimmer {
+                                    0% {
+                                        background-position: -700px 0;
+                                    }
+
+                                    100% {
+                                        background-position: 700px 0;
+                                    }
+                                }
+
+                                .menu-skel {
+                                    background: linear-gradient(90deg, #1a1c23 25%, #2a2d38 50%, #1a1c23 75%);
+                                    background-size: 700px 100%;
+                                    animation: skelShimmer 1.5s infinite linear;
+                                    border-radius: 8px;
+                                }
+                            </style>
+                            <div
+                                style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:16px;">
+                                <div
+                                    style="background:#1a1c23;border:1px solid #252830;border-radius:16px;overflow:hidden;">
+                                    <div class="menu-skel" style="height:150px;"></div>
+                                    <div style="padding:12px 14px;">
+                                        <div class="menu-skel" style="height:13px;width:65%;margin-bottom:8px;"></div>
+                                        <div class="menu-skel" style="height:11px;width:35%;margin-bottom:12px;"></div>
+                                        <div class="menu-skel" style="height:28px;"></div>
+                                    </div>
+                                </div>
+                                <div
+                                    style="background:#1a1c23;border:1px solid #252830;border-radius:16px;overflow:hidden;">
+                                    <div class="menu-skel" style="height:150px;"></div>
+                                    <div style="padding:12px 14px;">
+                                        <div class="menu-skel" style="height:13px;width:65%;margin-bottom:8px;"></div>
+                                        <div class="menu-skel" style="height:11px;width:35%;margin-bottom:12px;"></div>
+                                        <div class="menu-skel" style="height:28px;"></div>
+                                    </div>
+                                </div>
+                                <div
+                                    style="background:#1a1c23;border:1px solid #252830;border-radius:16px;overflow:hidden;">
+                                    <div class="menu-skel" style="height:150px;"></div>
+                                    <div style="padding:12px 14px;">
+                                        <div class="menu-skel" style="height:13px;width:65%;margin-bottom:8px;"></div>
+                                        <div class="menu-skel" style="height:11px;width:35%;margin-bottom:12px;"></div>
+                                        <div class="menu-skel" style="height:28px;"></div>
+                                    </div>
+                                </div>
+                                <div
+                                    style="background:#1a1c23;border:1px solid #252830;border-radius:16px;overflow:hidden;">
+                                    <div class="menu-skel" style="height:150px;"></div>
+                                    <div style="padding:12px 14px;">
+                                        <div class="menu-skel" style="height:13px;width:65%;margin-bottom:8px;"></div>
+                                        <div class="menu-skel" style="height:11px;width:35%;margin-bottom:12px;"></div>
+                                        <div class="menu-skel" style="height:28px;"></div>
+                                    </div>
+                                </div>
+                                <div
+                                    style="background:#1a1c23;border:1px solid #252830;border-radius:16px;overflow:hidden;">
+                                    <div class="menu-skel" style="height:150px;"></div>
+                                    <div style="padding:12px 14px;">
+                                        <div class="menu-skel" style="height:13px;width:65%;margin-bottom:8px;"></div>
+                                        <div class="menu-skel" style="height:11px;width:35%;margin-bottom:12px;"></div>
+                                        <div class="menu-skel" style="height:28px;"></div>
+                                    </div>
+                                </div>
+                                <div
+                                    style="background:#1a1c23;border:1px solid #252830;border-radius:16px;overflow:hidden;">
+                                    <div class="menu-skel" style="height:150px;"></div>
+                                    <div style="padding:12px 14px;">
+                                        <div class="menu-skel" style="height:13px;width:65%;margin-bottom:8px;"></div>
+                                        <div class="menu-skel" style="height:11px;width:35%;margin-bottom:12px;"></div>
+                                        <div class="menu-skel" style="height:28px;"></div>
+                                    </div>
+                                </div>
+                                <div
+                                    style="background:#1a1c23;border:1px solid #252830;border-radius:16px;overflow:hidden;">
+                                    <div class="menu-skel" style="height:150px;"></div>
+                                    <div style="padding:12px 14px;">
+                                        <div class="menu-skel" style="height:13px;width:65%;margin-bottom:8px;"></div>
+                                        <div class="menu-skel" style="height:11px;width:35%;margin-bottom:12px;"></div>
+                                        <div class="menu-skel" style="height:28px;"></div>
+                                    </div>
+                                </div>
+                                <div
+                                    style="background:#1a1c23;border:1px solid #252830;border-radius:16px;overflow:hidden;">
+                                    <div class="menu-skel" style="height:150px;"></div>
+                                    <div style="padding:12px 14px;">
+                                        <div class="menu-skel" style="height:13px;width:65%;margin-bottom:8px;"></div>
+                                        <div class="menu-skel" style="height:11px;width:35%;margin-bottom:12px;"></div>
+                                        <div class="menu-skel" style="height:28px;"></div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
-                    <div id="menu-form-panel" class="admin-card overflow-hidden p-6 hidden">
-                        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
-                            <div>
-                                <h3 id="menu-form-title" class="font-bold text-2xl">Create New Item</h3>
-                                <p class="text-gray-400 text-sm">Use this form to add or update menu items in the catalog.</p>
-                            </div>
-                            <button id="close-menu-form-btn" type="button" class="btn btn-outline">Back to Menu</button>
-                        </div>
-                        <form id="menu-form" class="space-y-4">
-                            <input type="hidden" id="menu-item-id">
-                            <input type="hidden" id="menu-item-storage-path">
-                            <div>
-                                <label class="block text-xs uppercase tracking-widest text-gray-500 mb-2">Name</label>
-                                <input id="menu-name" type="text" placeholder="Item name" class="w-full rounded-xl border border-gray-700 bg-black/50 px-4 py-3 text-sm outline-none">
-                            </div>
-                            <div>
-                                <label class="block text-xs uppercase tracking-widest text-gray-500 mb-2">Description</label>
-                                <textarea id="menu-description" rows="3" placeholder="Short description" class="w-full rounded-xl border border-gray-700 bg-black/50 px-4 py-3 text-sm outline-none"></textarea>
-                            </div>
-                            <div class="grid grid-cols-2 gap-4">
-                                <div>
-                                    <label class="block text-xs uppercase tracking-widest text-gray-500 mb-2">Category</label>
-                                    <input id="menu-category" type="text" placeholder="e.g. Starters" class="w-full rounded-xl border border-gray-700 bg-black/50 px-4 py-3 text-sm outline-none">
-                                </div>
-                                <div>
-                                    <label class="block text-xs uppercase tracking-widest text-gray-500 mb-2">Price</label>
-                                    <input id="menu-price" type="number" min="0" placeholder="₹" class="w-full rounded-xl border border-gray-700 bg-black/50 px-4 py-3 text-sm outline-none">
-                                </div>
-                            </div>
-                            <div class="grid grid-cols-2 gap-4">
-                                <div>
-                                    <label class="block text-xs uppercase tracking-widest text-gray-500 mb-2">Veg / Non-Veg</label>
-                                    <select id="menu-veg" class="w-full rounded-xl border border-gray-700 bg-black/50 px-4 py-3 text-sm outline-none">
-                                        <option value="true">Veg</option>
-                                        <option value="false">Non-Veg</option>
-                                    </select>
-                                </div>
-                                <div>
-                                    <label class="block text-xs uppercase tracking-widest text-gray-500 mb-2">Stock Quantity</label>
-                                    <input id="menu-stock" type="number" min="0" placeholder="0" class="w-full rounded-xl border border-gray-700 bg-black/50 px-4 py-3 text-sm outline-none">
-                                </div>
-                            </div>
-                            <div class="grid grid-cols-2 gap-4 items-end">
-                                <div>
-                                    <label class="block text-xs uppercase tracking-widest text-gray-500 mb-2">Availability</label>
-                                    <select id="menu-available" class="w-full rounded-xl border border-gray-700 bg-black/50 px-4 py-3 text-sm outline-none">
-                                        <option value="true">Visible to customers</option>
-                                        <option value="false">Hidden</option>
-                                    </select>
-                                </div>
-                                <div>
-                                    <label class="block text-xs uppercase tracking-widest text-gray-500 mb-2">Item Image</label>
-                                    <input id="menu-image" type="file" accept="image/*" class="w-full rounded-xl border border-gray-700 bg-black/50 px-4 py-3 text-sm text-gray-300 outline-none">
-                                </div>
-                            </div>
-                            <div id="menu-image-preview" class="rounded-3xl overflow-hidden bg-black/30 border border-gray-700 h-44 hidden">
-                                <img src="" alt="Preview" class="w-full h-full object-cover">
-                            </div>
-                            <div>
-                                <div class="flex items-center justify-between mb-3">
-                                    <div>
-                                        <label class="block text-xs uppercase tracking-widest text-gray-500">Variants</label>
-                                        <p class="text-[11px] text-gray-500">Add half/full prices or multiple options.</p>
-                                    </div>
-                                    <button id="add-variant-btn" type="button" class="px-4 py-2 rounded-xl bg-accent text-black text-xs font-black uppercase tracking-widest">Add Variant</button>
-                                </div>
-                                <div id="menu-variants-list" class="space-y-3"></div>
-                            </div>
-                            <div class="flex flex-col sm:flex-row gap-3">
-                                <button id="save-menu-item-btn" type="submit" class="btn btn-primary w-full py-4 rounded-2xl font-black uppercase tracking-widest">Create Item</button>
-                                <button id="reset-menu-form-btn" type="button" class="btn btn-secondary w-full py-4 rounded-2xl font-black uppercase tracking-widest">Reset</button>
-                            </div>
-                            <p id="menu-form-message" class="text-sm font-semibold"></p>
-                        </form>
-                    </div>
                 </section>
 
                 <!-- VIEW: ANALYTICS -->
@@ -549,7 +608,8 @@
                                 </thead>
                                 <tbody id="coupon-analytics-table-body">
                                     <tr>
-                                        <td colspan="8" class="text-center py-8 text-gray-500">Loading coupon analytics...</td>
+                                        <td colspan="8" class="text-center py-8 text-gray-500">Loading coupon
+                                            analytics...</td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -584,10 +644,12 @@
                         <div class="admin-toolbar admin-toolbar--secondary p-6">
                             <div>
                                 <h3 class="font-bold">Customer Directory</h3>
-                                <p class="text-gray-400 text-sm">Search and manage customer accounts from one central table.</p>
+                                <p class="text-gray-400 text-sm">Search and manage customer accounts from one central
+                                    table.</p>
                             </div>
                             <div class="input-group w-full max-w-sm">
-                                <input type="text" id="customer-search" placeholder="Search by name or phone..." class="admin-search-input w-full" />
+                                <input type="text" id="customer-search" placeholder="Search by name or phone..."
+                                    class="admin-search-input w-full" />
                             </div>
                         </div>
                         <div class="overflow-x-auto p-6">
@@ -616,56 +678,90 @@
                 </section>
 
                 <!-- RIDER CONTACT MODAL -->
-                <div id="rider-contact-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.8);z-index:1000;align-items:center;justify-content:center;padding:16px;">
-                    <div style="background:#0d0f14;border:1px solid #252830;border-radius:16px;width:100%;max-width:500px;max-height:80vh;display:flex;flex-direction:column;color:#fff;">
-                        <div style="padding:20px;border-bottom:1px solid #252830;display:flex;justify-content:space-between;align-items:center;">
+                <div id="rider-contact-modal"
+                    style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.8);z-index:1000;align-items:center;justify-content:center;padding:16px;">
+                    <div
+                        style="background:#0d0f14;border:1px solid #252830;border-radius:16px;width:100%;max-width:500px;max-height:80vh;display:flex;flex-direction:column;color:#fff;">
+                        <div
+                            style="padding:20px;border-bottom:1px solid #252830;display:flex;justify-content:space-between;align-items:center;">
                             <h3 style="font-size:18px;font-weight:800;margin:0;">Contact Rider</h3>
-                            <button onclick="document.getElementById('rider-contact-modal').style.display='none'" style="background:none;border:none;color:#fff;font-size:24px;cursor:pointer;">&times;</button>
+                            <button onclick="document.getElementById('rider-contact-modal').style.display='none'"
+                                style="background:none;border:none;color:#fff;font-size:24px;cursor:pointer;">&times;</button>
                         </div>
                         <div style="padding:20px;flex:1;overflow-y:auto;">
-                            <div id="rider-contact-header" style="margin-bottom:16px;padding:12px;background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.3);border-radius:8px;">
-                                <div style="font-weight:700;color:#F5A800;margin-bottom:4px;" id="rider-contact-name">Rider Name</div>
+                            <div id="rider-contact-header"
+                                style="margin-bottom:16px;padding:12px;background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.3);border-radius:8px;">
+                                <div style="font-weight:700;color:#F5A800;margin-bottom:4px;" id="rider-contact-name">
+                                    Rider Name</div>
                                 <div style="font-size:12px;color:#9ca3af;" id="rider-contact-phone">Phone</div>
                             </div>
-                            <div id="rider-contact-messages" style="display:flex;flex-direction:column;gap:8px;margin-bottom:16px;max-height:300px;overflow-y:auto;">
+                            <div id="rider-contact-messages"
+                                style="display:flex;flex-direction:column;gap:8px;margin-bottom:16px;max-height:300px;overflow-y:auto;">
                                 <!-- Messages will be injected here -->
                             </div>
                         </div>
                         <div style="padding:16px;border-top:1px solid #252830;display:flex;gap:8px;">
-                            <input id="rider-contact-input" type="text" placeholder="Type message..." style="flex:1;padding:10px 12px;background:#1a1c23;border:1px solid #252830;border-radius:8px;color:#fff;font-size:13px;outline:none;" />
-                            <button onclick="sendRiderContactMessage()" style="padding:10px 16px;background:#F5A800;color:#000;border:none;border-radius:8px;font-weight:700;font-size:13px;cursor:pointer;">💮 Send</button>
+                            <input id="rider-contact-input" type="text" placeholder="Type message..."
+                                style="flex:1;padding:10px 12px;background:#1a1c23;border:1px solid #252830;border-radius:8px;color:#fff;font-size:13px;outline:none;" />
+                            <button onclick="sendRiderContactMessage()"
+                                style="padding:10px 16px;background:#F5A800;color:#000;border:none;border-radius:8px;font-weight:700;font-size:13px;cursor:pointer;">💮
+                                Send</button>
                         </div>
                     </div>
                 </div>
 
                 <!-- RIDER ANALYTICS MODAL -->
-                <div id="rider-analytics-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.8);z-index:1000;align-items:center;justify-content:center;padding:16px;overflow-y:auto;">
-                    <div style="background:#0d0f14;border:1px solid #252830;border-radius:16px;width:100%;max-width:600px;color:#fff;margin:auto;">
-                        <div style="padding:20px;border-bottom:1px solid #252830;display:flex;justify-content:space-between;align-items:center;">
+                <div id="rider-analytics-modal"
+                    style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.8);z-index:1000;align-items:center;justify-content:center;padding:16px;overflow-y:auto;">
+                    <div
+                        style="background:#0d0f14;border:1px solid #252830;border-radius:16px;width:100%;max-width:600px;color:#fff;margin:auto;">
+                        <div
+                            style="padding:20px;border-bottom:1px solid #252830;display:flex;justify-content:space-between;align-items:center;">
                             <h3 style="font-size:18px;font-weight:800;margin:0;">Rider Analytics</h3>
-                            <button onclick="document.getElementById('rider-analytics-modal').style.display='none'" style="background:none;border:none;color:#fff;font-size:24px;cursor:pointer;">&times;</button>
+                            <button onclick="document.getElementById('rider-analytics-modal').style.display='none'"
+                                style="background:none;border:none;color:#fff;font-size:24px;cursor:pointer;">&times;</button>
                         </div>
-                        <div style="padding:20px;display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;">
-                            <div style="background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.3);padding:12px;border-radius:8px;text-align:center;">
-                                <div style="font-size:24px;font-weight:900;color:#F5A800;" id="analytics-total-deliveries">0</div>
-                                <div style="font-size:11px;color:#F5A800;font-weight:600;margin-top:4px;text-transform:uppercase;">Total Deliveries</div>
+                        <div
+                            style="padding:20px;display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;">
+                            <div
+                                style="background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.3);padding:12px;border-radius:8px;text-align:center;">
+                                <div style="font-size:24px;font-weight:900;color:#F5A800;"
+                                    id="analytics-total-deliveries">0</div>
+                                <div
+                                    style="font-size:11px;color:#F5A800;font-weight:600;margin-top:4px;text-transform:uppercase;">
+                                    Total Deliveries</div>
                             </div>
-                            <div style="background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.3);padding:12px;border-radius:8px;text-align:center;">
-                                <div style="font-size:24px;font-weight:900;color:#10B981;" id="analytics-avg-time">-</div>
-                                <div style="font-size:11px;color:#10B981;font-weight:600;margin-top:4px;text-transform:uppercase;">Avg Delivery Time</div>
+                            <div
+                                style="background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.3);padding:12px;border-radius:8px;text-align:center;">
+                                <div style="font-size:24px;font-weight:900;color:#10B981;" id="analytics-avg-time">-
+                                </div>
+                                <div
+                                    style="font-size:11px;color:#10B981;font-weight:600;margin-top:4px;text-transform:uppercase;">
+                                    Avg Delivery Time</div>
                             </div>
-                            <div style="background:rgba(59,130,246,0.1);border:1px solid rgba(59,130,246,0.3);padding:12px;border-radius:8px;text-align:center;">
-                                <div style="font-size:24px;font-weight:900;color:#3b82f6;" id="analytics-ontime-rate">-</div>
-                                <div style="font-size:11px;color:#3b82f6;font-weight:600;margin-top:4px;text-transform:uppercase;">On-Time Rate</div>
+                            <div
+                                style="background:rgba(59,130,246,0.1);border:1px solid rgba(59,130,246,0.3);padding:12px;border-radius:8px;text-align:center;">
+                                <div style="font-size:24px;font-weight:900;color:#3b82f6;" id="analytics-ontime-rate">-
+                                </div>
+                                <div
+                                    style="font-size:11px;color:#3b82f6;font-weight:600;margin-top:4px;text-transform:uppercase;">
+                                    On-Time Rate</div>
                             </div>
-                            <div style="background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);padding:12px;border-radius:8px;text-align:center;">
-                                <div style="font-size:24px;font-weight:900;color:#ef4444;" id="analytics-active-orders">0</div>
-                                <div style="font-size:11px;color:#ef4444;font-weight:600;margin-top:4px;text-transform:uppercase;">Active Orders</div>
+                            <div
+                                style="background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);padding:12px;border-radius:8px;text-align:center;">
+                                <div style="font-size:24px;font-weight:900;color:#ef4444;" id="analytics-active-orders">
+                                    0</div>
+                                <div
+                                    style="font-size:11px;color:#ef4444;font-weight:600;margin-top:4px;text-transform:uppercase;">
+                                    Active Orders</div>
                             </div>
                         </div>
                         <div style="padding:20px;border-top:1px solid #252830;">
-                            <h4 style="font-size:13px;font-weight:800;color:#fff;margin:0 0 12px 0;text-transform:uppercase;">Recent Deliveries</h4>
-                            <div id="analytics-recent-deliveries" style="display:flex;flex-direction:column;gap:8px;max-height:300px;overflow-y:auto;">
+                            <h4
+                                style="font-size:13px;font-weight:800;color:#fff;margin:0 0 12px 0;text-transform:uppercase;">
+                                Recent Deliveries</h4>
+                            <div id="analytics-recent-deliveries"
+                                style="display:flex;flex-direction:column;gap:8px;max-height:300px;overflow-y:auto;">
                                 <!-- Recent deliveries will be injected here -->
                             </div>
                         </div>
@@ -674,96 +770,317 @@
 
                 <!-- VIEW: COUPONS (Item 6) -->
                 <section id="view-coupons" class="content-view">
-                    <div class="admin-card p-8 mb-8">
-                        <h3 class="font-bold text-lg mb-6">🎟️ Create New Coupon</h3>
 
-                        <!-- Coupon Type Selector -->
-                        <div style="margin-bottom:16px;">
-                            <label style="font-size:11px;font-weight:800;color:#7a8098;text-transform:uppercase;display:block;margin-bottom:6px;">Coupon Type</label>
-                            <select id="new-coupon-type" style="width:100%;padding:10px 14px;background:#1a1c23;border:1px solid #252830;border-radius:10px;color:#fff;font-size:14px;outline:none;">
-                                <option value="flat">Flat Discount (₹50 OFF)</option>
-                                <option value="percentage">Percentage Discount (15% OFF)</option>
-                                <option value="freebie">Free Item (Free Coke)</option>
-                                <option value="special_price">Special Price (Pizza @ ₹99)</option>
-                                <option value="combo_upgrade">Combo Upgrade (Upgrade drink for ₹29)</option>
-                            </select>
+                    <!-- KPI Stats Row -->
+                    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:24px;">
+                        <div style="background:#12141b;border:1px solid #252830;border-radius:16px;padding:20px 24px;">
+                            <p
+                                style="font-size:11px;font-weight:800;color:#7a8098;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px;">
+                                Active Coupons</p>
+                            <p id="coupon-active-count" style="font-size:28px;font-weight:900;color:#10B981;">0</p>
                         </div>
-
-                        <!-- Common Fields -->
-                        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;margin-bottom:16px;">
-                            <div>
-                                <label style="font-size:11px;font-weight:800;color:#7a8098;text-transform:uppercase;display:block;margin-bottom:6px;">Coupon Code</label>
-                                <input id="new-coupon-code" type="text" placeholder="e.g. SAVE50" style="width:100%;padding:10px 14px;background:#1a1c23;border:1px solid #252830;border-radius:10px;color:#fff;font-size:14px;outline:none;">
-                            </div>
-
-                            <div>
-                                <label style="font-size:11px;font-weight:800;color:#7a8098;text-transform:uppercase;display:block;margin-bottom:6px;">Min Order Value (₹)</label>
-                                <input id="new-coupon-min" type="number" placeholder="e.g. 200" min="0" style="width:100%;padding:10px 14px;background:#1a1c23;border:1px solid #252830;border-radius:10px;color:#fff;font-size:14px;outline:none;">
-                            </div>
-                            <div>
-                                <label style="font-size:11px;font-weight:800;color:#7a8098;text-transform:uppercase;display:block;margin-bottom:6px;">Max Uses (0 = unlimited)</label>
-                                <input id="new-coupon-max-uses" type="number" placeholder="e.g. 1000" min="0" style="width:100%;padding:10px 14px;background:#1a1c23;border:1px solid #252830;border-radius:10px;color:#fff;font-size:14px;outline:none;">
-                            </div>
-                            <div>
-                                <label style="font-size:11px;font-weight:800;color:#7a8098;text-transform:uppercase;display:block;margin-bottom:6px;">Expiry Date</label>
-                                <input id="new-coupon-expiry" type="datetime-local" style="width:100%;padding:10px 14px;background:#1a1c23;border:1px solid #252830;border-radius:10px;color:#fff;font-size:14px;outline:none;">
-                            </div>
-                            <div style="display:flex;gap:12px;align-items:center;margin-top:24px;">
-                                <label style="display:flex;align-items:center;gap:8px;font-size:14px;color:#fff;cursor:pointer;">
-                                    <input id="new-coupon-auto-apply" type="checkbox" style="width:16px;height:16px;">
-                                    Auto Apply
-                                </label>
-                                <label style="display:flex;align-items:center;gap:8px;font-size:14px;color:#fff;cursor:pointer;">
-                                    <input id="new-coupon-stackable" type="checkbox" style="width:16px;height:16px;">
-                                    Stackable
-                                </label>
-                            </div>
+                        <div style="background:#12141b;border:1px solid #252830;border-radius:16px;padding:20px 24px;">
+                            <p
+                                style="font-size:11px;font-weight:800;color:#7a8098;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px;">
+                                Expired</p>
+                            <p id="coupon-expired-count" style="font-size:28px;font-weight:900;color:#ef4444;">0</p>
                         </div>
-
-                        <!-- Type-Specific Fields Container -->
-                        <div id="coupon-type-fields" style="margin-bottom:16px;">
-                            <!-- Fields will be dynamically added here based on type selection -->
+                        <div style="background:#12141b;border:1px solid #252830;border-radius:16px;padding:20px 24px;">
+                            <p
+                                style="font-size:11px;font-weight:800;color:#7a8098;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px;">
+                                Total Uses</p>
+                            <p id="coupon-total-uses" style="font-size:28px;font-weight:900;color:#F5A800;">0</p>
                         </div>
-
-                        <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:center;">
-                            <button id="create-coupon-btn" style="padding:12px 28px;background:#F5A800;color:#000;border:none;border-radius:10px;font-weight:900;font-size:14px;cursor:pointer;">Create Coupon</button>
-                            <button id="cancel-coupon-edit-btn" type="button" style="padding:12px 28px;background:#374151;color:#fff;border:none;border-radius:10px;font-weight:900;font-size:14px;cursor:pointer;display:none;">Cancel Edit</button>
-                        </div>
-                        <p id="coupon-create-msg" style="margin-top:10px;font-size:13px;font-weight:600;"></p>
                     </div>
+
+                    <!-- Coupon Type Cards -->
+                    <div class="admin-card p-8 mb-8">
+                        <h3 class="font-bold text-lg mb-2">🎟️ Create New Coupon</h3>
+                        <p style="font-size:13px;color:#7a8098;margin-bottom:20px;">Choose a coupon type to get started
+                        </p>
+
+                        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px;">
+
+                            <!-- Flat Discount Card -->
+                            <button onclick="window.openCouponDrawer('flat')"
+                                style="background:#12141b;border:2px solid #252830;border-radius:16px;padding:22px 18px 40px 18px;text-align:left;cursor:pointer;transition:all 0.2s;position:relative;overflow:hidden;"
+                                onmouseover="this.style.borderColor='#F5A800';this.style.background='#1a1c23';this.style.transform='translateY(-2px)'"
+                                onmouseout="this.style.borderColor='#252830';this.style.background='#12141b';this.style.transform='translateY(0)'">
+                                <div
+                                    style="width:44px;height:44px;background:#F5A80020;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;margin-bottom:12px;">
+                                    🏷️</div>
+                                <p style="font-size:14px;font-weight:800;color:#fff;margin-bottom:4px;">Flat Discount
+                                </p>
+                                <p style="font-size:11px;color:#7a8098;font-weight:600;">Fixed ₹ amount off</p>
+                                <div
+                                    style="position:absolute;bottom:0;left:0;right:0;height:3px;background:#F5A800;border-radius:0 0 16px 16px;">
+                                </div>
+                                <div
+                                    style="position:absolute;bottom:12px;right:12px;background:#F5A80020;color:#F5A800;font-size:10px;font-weight:800;padding:4px 8px;border-radius:8px;">
+                                    + Create</div>
+                            </button>
+
+                            <!-- Flat Percentage Card -->
+                            <button onclick="window.openCouponDrawer('flat_percent')"
+                                style="background:#12141b;border:2px solid #252830;border-radius:16px;padding:22px 18px 40px 18px;text-align:left;cursor:pointer;transition:all 0.2s;position:relative;overflow:hidden;"
+                                onmouseover="this.style.borderColor='#F5A800';this.style.background='#1a1c23';this.style.transform='translateY(-2px)'"
+                                onmouseout="this.style.borderColor='#252830';this.style.background='#12141b';this.style.transform='translateY(0)'">
+                                <div
+                                    style="width:44px;height:44px;background:#F5A80020;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;margin-bottom:12px;">
+                                    🏷️</div>
+                                <p style="font-size:14px;font-weight:800;color:#fff;margin-bottom:4px;">Flat Percent</p>
+                                <p style="font-size:11px;color:#7a8098;font-weight:600;">% off with no cap</p>
+                                <div
+                                    style="position:absolute;bottom:0;left:0;right:0;height:3px;background:#F5A800;border-radius:0 0 16px 16px;">
+                                </div>
+                                <div
+                                    style="position:absolute;bottom:12px;right:12px;background:#F5A80020;color:#F5A800;font-size:10px;font-weight:800;padding:4px 8px;border-radius:8px;">
+                                    + Create</div>
+                            </button>
+
+                            <!-- Percentage Card -->
+                            <button onclick="window.openCouponDrawer('percentage')"
+                                style="background:#12141b;border:2px solid #252830;border-radius:16px;padding:22px 18px 40px 18px;text-align:left;cursor:pointer;transition:all 0.2s;position:relative;overflow:hidden;"
+                                onmouseover="this.style.borderColor='#3B82F6';this.style.background='#1a1c23';this.style.transform='translateY(-2px)'"
+                                onmouseout="this.style.borderColor='#252830';this.style.background='#12141b';this.style.transform='translateY(0)'">
+                                <div
+                                    style="width:44px;height:44px;background:#3B82F620;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;margin-bottom:12px;">
+                                    💸</div>
+                                <p style="font-size:14px;font-weight:800;color:#fff;margin-bottom:4px;">% Discount</p>
+                                <p style="font-size:11px;color:#7a8098;font-weight:600;">% off with optional cap</p>
+                                <div
+                                    style="position:absolute;bottom:0;left:0;right:0;height:3px;background:#3B82F6;border-radius:0 0 16px 16px;">
+                                </div>
+                                <div
+                                    style="position:absolute;bottom:12px;right:12px;background:#3B82F620;color:#3B82F6;font-size:10px;font-weight:800;padding:4px 8px;border-radius:8px;">
+                                    + Create</div>
+                            </button>
+
+                            <!-- Free Item Card -->
+                            <button onclick="window.openCouponDrawer('freebie')"
+                                style="background:#12141b;border:2px solid #252830;border-radius:16px;padding:22px 18px 40px 18px;text-align:left;cursor:pointer;transition:all 0.2s;position:relative;overflow:hidden;"
+                                onmouseover="this.style.borderColor='#10B981';this.style.background='#1a1c23';this.style.transform='translateY(-2px)'"
+                                onmouseout="this.style.borderColor='#252830';this.style.background='#12141b';this.style.transform='translateY(0)'">
+                                <div
+                                    style="width:44px;height:44px;background:#10B98120;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;margin-bottom:12px;">
+                                    🎁</div>
+                                <p style="font-size:14px;font-weight:800;color:#fff;margin-bottom:4px;">Free Item</p>
+                                <p style="font-size:11px;color:#7a8098;font-weight:600;">Gift a free dish</p>
+                                <div
+                                    style="position:absolute;bottom:0;left:0;right:0;height:3px;background:#10B981;border-radius:0 0 16px 16px;">
+                                </div>
+                                <div
+                                    style="position:absolute;bottom:12px;right:12px;background:#10B98120;color:#10B981;font-size:10px;font-weight:800;padding:4px 8px;border-radius:8px;">
+                                    + Create</div>
+                            </button>
+
+                            <!-- Special Price Card -->
+                            <button onclick="window.openCouponDrawer('special_price')"
+                                style="background:#12141b;border:2px solid #252830;border-radius:16px;padding:22px 18px 40px 18px;text-align:left;cursor:pointer;transition:all 0.2s;position:relative;overflow:hidden;"
+                                onmouseover="this.style.borderColor='#8B5CF6';this.style.background='#1a1c23';this.style.transform='translateY(-2px)'"
+                                onmouseout="this.style.borderColor='#252830';this.style.background='#12141b';this.style.transform='translateY(0)'">
+                                <div
+                                    style="width:44px;height:44px;background:#8B5CF620;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;margin-bottom:12px;">
+                                    ⚡</div>
+                                <p style="font-size:14px;font-weight:800;color:#fff;margin-bottom:4px;">Special Price
+                                </p>
+                                <p style="font-size:11px;color:#7a8098;font-weight:600;">Item at offer price</p>
+                                <div
+                                    style="position:absolute;bottom:0;left:0;right:0;height:3px;background:#8B5CF6;border-radius:0 0 16px 16px;">
+                                </div>
+                                <div
+                                    style="position:absolute;bottom:12px;right:12px;background:#8B5CF620;color:#8B5CF6;font-size:10px;font-weight:800;padding:4px 8px;border-radius:8px;">
+                                    + Create</div>
+                            </button>
+
+                            <!-- Combo Upgrade Card -->
+                            <button onclick="window.openCouponDrawer('combo_upgrade')"
+                                style="background:#12141b;border:2px solid #252830;border-radius:16px;padding:22px 18px 40px 18px;text-align:left;cursor:pointer;transition:all 0.2s;position:relative;overflow:hidden;"
+                                onmouseover="this.style.borderColor='#EC4899';this.style.background='#1a1c23';this.style.transform='translateY(-2px)'"
+                                onmouseout="this.style.borderColor='#252830';this.style.background='#12141b';this.style.transform='translateY(0)'">
+                                <div
+                                    style="width:44px;height:44px;background:#EC489920;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;margin-bottom:12px;">
+                                    🔄</div>
+                                <p style="font-size:14px;font-weight:800;color:#fff;margin-bottom:4px;">Combo Upgrade
+                                </p>
+                                <p style="font-size:11px;color:#7a8098;font-weight:600;">Upgrade for small charge</p>
+                                <div
+                                    style="position:absolute;bottom:0;left:0;right:0;height:3px;background:#EC4899;border-radius:0 0 16px 16px;">
+                                </div>
+                                <div
+                                    style="position:absolute;bottom:12px;right:12px;background:#EC489920;color:#EC4899;font-size:10px;font-weight:800;padding:4px 8px;border-radius:8px;">
+                                    + Create</div>
+                            </button>
+
+                        </div>
+                    </div>
+
+                    <!-- Active Coupons List -->
                     <div class="admin-card p-6">
-                        <h3 class="font-bold text-lg mb-4">Active Coupons</h3>
+                        <div
+                            style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;flex-wrap:wrap;gap:12px;">
+                            <h3 class="font-bold text-lg">Manage Coupons</h3>
+                            <div style="display:flex;gap:8px;">
+                                <button id="coupon-filter-all" onclick="window.filterCoupons('all')"
+                                    style="padding:7px 16px;background:#F5A800;color:#000;border:none;border-radius:8px;font-size:12px;font-weight:800;cursor:pointer;">All</button>
+                                <button id="coupon-filter-active" onclick="window.filterCoupons('active')"
+                                    style="padding:7px 16px;background:transparent;color:#9ca3af;border:1px solid #374151;border-radius:8px;font-size:12px;font-weight:800;cursor:pointer;">Active</button>
+                                <button id="coupon-filter-expired" onclick="window.filterCoupons('expired')"
+                                    style="padding:7px 16px;background:transparent;color:#9ca3af;border:1px solid #374151;border-radius:8px;font-size:12px;font-weight:800;cursor:pointer;">Expired</button>
+                            </div>
+                        </div>
                         <div id="coupons-list" style="display:flex;flex-direction:column;gap:12px;">
                             <p style="color:#7a8098;">Loading...</p>
                         </div>
                     </div>
                 </section>
 
+                <!-- COUPON DRAWER OVERLAY -->
+                <div id="coupon-drawer-overlay"
+                    style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:1000;backdrop-filter:blur(4px);"
+                    onclick="window.closeCouponDrawer()"></div>
+
+                <!-- COUPON DRAWER PANEL -->
+                <div id="coupon-drawer-panel"
+                    style="position:fixed;top:0;right:-520px;width:500px;max-width:95vw;height:100vh;background:#0d0f14;border-left:1px solid #252830;z-index:1001;overflow-y:auto;transition:right 0.3s cubic-bezier(0.4,0,0.2,1);padding:0;">
+
+                    <!-- Drawer Header -->
+                    <div
+                        style="padding:24px 28px 20px;border-bottom:1px solid #252830;display:flex;align-items:flex-start;gap:16px;position:sticky;top:0;background:#0d0f14;z-index:10;">
+                        <div id="coupon-drawer-icon"
+                            style="width:52px;height:52px;background:#F5A80020;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:26px;flex-shrink:0;">
+                            🏷️</div>
+                        <div style="flex:1;">
+                            <h3 id="coupon-drawer-title"
+                                style="font-size:18px;font-weight:900;color:#fff;margin-bottom:4px;">Create Flat
+                                Discount</h3>
+                            <p id="coupon-drawer-subtitle" style="font-size:12px;color:#7a8098;font-weight:600;">Fixed ₹
+                                amount off every order</p>
+                        </div>
+                        <button onclick="window.closeCouponDrawer()"
+                            style="width:36px;height:36px;background:#1a1c23;border:1px solid #252830;border-radius:10px;color:#9ca3af;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;">✕</button>
+                    </div>
+
+                    <!-- Drawer Body -->
+                    <div style="padding:24px 28px;">
+
+                        <!-- Hidden type select (JS reads this) -->
+                        <select id="new-coupon-type" style="display:none;">
+                            <option value="flat">flat</option>
+                            <option value="flat_percent">flat_percent</option>
+                            <option value="percentage">percentage</option>
+                            <option value="freebie">freebie</option>
+                            <option value="special_price">special_price</option>
+                            <option value="combo_upgrade">combo_upgrade</option>
+                        </select>
+
+                        <!-- Common Fields -->
+                        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:16px;">
+                            <div style="grid-column:1/-1;">
+                                <label
+                                    style="font-size:11px;font-weight:800;color:#7a8098;text-transform:uppercase;display:block;margin-bottom:6px;letter-spacing:0.5px;">Coupon
+                                    Code</label>
+                                <input id="new-coupon-code" type="text" placeholder="e.g. SAVE50"
+                                    style="width:100%;padding:11px 14px;background:#1a1c23;border:1px solid #252830;border-radius:10px;color:#fff;font-size:14px;outline:none;box-sizing:border-box;font-weight:700;letter-spacing:1px;">
+                            </div>
+                            <div>
+                                <label
+                                    style="font-size:11px;font-weight:800;color:#7a8098;text-transform:uppercase;display:block;margin-bottom:6px;letter-spacing:0.5px;">Min
+                                    Order (₹)</label>
+                                <input id="new-coupon-min" type="number" placeholder="e.g. 200" min="0"
+                                    style="width:100%;padding:11px 14px;background:#1a1c23;border:1px solid #252830;border-radius:10px;color:#fff;font-size:14px;outline:none;box-sizing:border-box;">
+                            </div>
+                            <div>
+                                <label
+                                    style="font-size:11px;font-weight:800;color:#7a8098;text-transform:uppercase;display:block;margin-bottom:6px;letter-spacing:0.5px;">Max
+                                    Uses (0=∞)</label>
+                                <input id="new-coupon-max-uses" type="number" placeholder="e.g. 1000" min="0"
+                                    style="width:100%;padding:11px 14px;background:#1a1c23;border:1px solid #252830;border-radius:10px;color:#fff;font-size:14px;outline:none;box-sizing:border-box;">
+                            </div>
+                            <div style="grid-column:1/-1;">
+                                <label
+                                    style="font-size:11px;font-weight:800;color:#7a8098;text-transform:uppercase;display:block;margin-bottom:6px;letter-spacing:0.5px;">Expiry
+                                    Date &amp; Time</label>
+                                <input id="new-coupon-expiry" type="datetime-local"
+                                    style="width:100%;padding:11px 14px;background:#1a1c23;border:1px solid #252830;border-radius:10px;color:#fff;font-size:14px;outline:none;box-sizing:border-box;">
+                            </div>
+                            <div style="grid-column:1/-1;display:flex;gap:20px;">
+                                <label
+                                    style="display:flex;align-items:center;gap:8px;font-size:13px;color:#fff;cursor:pointer;font-weight:600;">
+                                    <input id="new-coupon-auto-apply" type="checkbox"
+                                        style="width:16px;height:16px;accent-color:#F5A800;">
+                                    Auto Apply
+                                </label>
+                                <label
+                                    style="display:flex;align-items:center;gap:8px;font-size:13px;color:#fff;cursor:pointer;font-weight:600;">
+                                    <input id="new-coupon-stackable" type="checkbox"
+                                        style="width:16px;height:16px;accent-color:#F5A800;">
+                                    Stackable
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Type-Specific Fields -->
+                        <div id="coupon-type-fields" style="margin-bottom:20px;"></div>
+
+                        <!-- Customer View Preview -->
+                        <div
+                            style="background:rgba(59,130,246,0.05);border:1px dashed rgba(59,130,246,0.3);border-radius:12px;padding:16px;margin-bottom:24px;">
+                            <p
+                                style="font-size:11px;color:#3B82F6;font-weight:800;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;">
+                                👁️ Customer View Preview</p>
+                            <p id="coupon-desc-preview"
+                                style="font-size:14px;color:#fff;font-weight:600;min-height:20px;">(Fill details to see
+                                preview)</p>
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div style="display:flex;gap:10px;flex-wrap:wrap;">
+                            <button id="create-coupon-btn"
+                                style="flex:1;padding:13px 24px;background:#F5A800;color:#000;border:none;border-radius:10px;font-weight:900;font-size:14px;cursor:pointer;min-width:140px;">Create
+                                Coupon</button>
+                            <button id="cancel-coupon-edit-btn" type="button"
+                                style="padding:13px 20px;background:#374151;color:#fff;border:none;border-radius:10px;font-weight:900;font-size:14px;cursor:pointer;display:none;">Cancel</button>
+                        </div>
+                        <p id="coupon-create-msg" style="margin-top:12px;font-size:13px;font-weight:600;"></p>
+                    </div>
+                </div>
+
                 <!-- VIEW: ANNOUNCEMENTS (Item 8) -->
                 <section id="view-announcements" class="content-view">
                     <div class="admin-card p-8 mb-8">
                         <h3 class="font-bold text-lg mb-6">📢 Create Announcement</h3>
-                        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;margin-bottom:16px;">
+                        <div
+                            style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;margin-bottom:16px;">
                             <div>
-                                <label style="font-size:11px;font-weight:800;color:#7a8098;text-transform:uppercase;display:block;margin-bottom:6px;">Title (optional)</label>
+                                <label
+                                    style="font-size:11px;font-weight:800;color:#7a8098;text-transform:uppercase;display:block;margin-bottom:6px;">Title
+                                    (optional)</label>
                                 <input id="ann-title" type="text" placeholder="e.g. Grand Opening Offer!"
                                     style="width:100%;padding:10px 14px;background:#1a1c23;border:1px solid #252830;border-radius:10px;color:#fff;font-size:14px;outline:none;">
                             </div>
                             <div>
-                                <label style="font-size:11px;font-weight:800;color:#7a8098;text-transform:uppercase;display:block;margin-bottom:6px;">Expiry Date &amp; Time</label>
+                                <label
+                                    style="font-size:11px;font-weight:800;color:#7a8098;text-transform:uppercase;display:block;margin-bottom:6px;">Expiry
+                                    Date &amp; Time</label>
                                 <input id="ann-expiry" type="datetime-local"
                                     style="width:100%;padding:10px 14px;background:#1a1c23;border:1px solid #252830;border-radius:10px;color:#fff;font-size:14px;outline:none;">
                             </div>
                             <div>
-                                <label style="font-size:11px;font-weight:800;color:#7a8098;text-transform:uppercase;display:block;margin-bottom:6px;">Banner Image</label>
+                                <label
+                                    style="font-size:11px;font-weight:800;color:#7a8098;text-transform:uppercase;display:block;margin-bottom:6px;">Banner
+                                    Image</label>
                                 <input id="ann-image" type="file" accept="image/*"
                                     style="width:100%;padding:10px 14px;background:#1a1c23;border:1px solid #252830;border-radius:10px;color:#aaa;font-size:13px;outline:none;">
                             </div>
                         </div>
                         <div id="ann-preview" style="margin-bottom:16px;display:none;">
-                            <img id="ann-preview-img" src="" alt="Preview" style="max-height:140px;border-radius:12px;object-fit:cover;">
+                            <img id="ann-preview-img" src="" alt="Preview"
+                                style="max-height:140px;border-radius:12px;object-fit:cover;">
                         </div>
-                        <button id="create-ann-btn" style="padding:12px 28px;background:#F5A800;color:#000;border:none;border-radius:10px;font-weight:900;font-size:14px;cursor:pointer;">Upload &amp; Publish</button>
+                        <button id="create-ann-btn"
+                            style="padding:12px 28px;background:#F5A800;color:#000;border:none;border-radius:10px;font-weight:900;font-size:14px;cursor:pointer;">Upload
+                            &amp; Publish</button>
                         <p id="ann-create-msg" style="margin-top:10px;font-size:13px;font-weight:600;"></p>
                     </div>
                     <div class="admin-card p-6">
@@ -780,24 +1097,28 @@
                         <p style="color: #7a8098; margin-bottom: 32px;">Manage store configuration</p>
 
                         <div style="max-width: 480px;">
-                            <div style="background: #1a1c23; border: 1px solid #252830; border-radius: 16px; padding: 24px;">
-                                <h4 style="color: #F5A800; font-size: 14px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 16px;">Delivery Fee</h4>
-                                <label style="display: block; font-size: 12px; font-weight: 700; color: #7a8098; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px;">Current Delivery Fee (₹)</label>
+                            <div
+                                style="background: #1a1c23; border: 1px solid #252830; border-radius: 16px; padding: 24px;">
+                                <h4
+                                    style="color: #F5A800; font-size: 14px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 16px;">
+                                    Delivery Fee</h4>
+                                <label
+                                    style="display: block; font-size: 12px; font-weight: 700; color: #7a8098; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px;">Current
+                                    Delivery Fee (₹)</label>
                                 <div style="display: flex; gap: 12px; align-items: center;">
-                                    <input
-                                        type="number"
-                                        id="admin-delivery-fee-input"
-                                        min="0"
-                                        max="999"
+                                    <input type="number" id="admin-delivery-fee-input" min="0" max="999"
                                         placeholder="e.g. 30"
-                                        style="flex: 1; padding: 12px 16px; background: #0d0f14; border: 1px solid #252830; border-radius: 10px; color: #fff; font-size: 16px; font-weight: 700; outline: none;"
-                                    >
-                                    <button id="admin-delivery-fee-save" style="background: #F5A800; color: #000; border: none; border-radius: 10px; padding: 12px 24px; font-size: 13px; font-weight: 800; cursor: pointer;">
+                                        style="flex: 1; padding: 12px 16px; background: #0d0f14; border: 1px solid #252830; border-radius: 10px; color: #fff; font-size: 16px; font-weight: 700; outline: none;">
+                                    <button id="admin-delivery-fee-save"
+                                        style="background: #F5A800; color: #000; border: none; border-radius: 10px; padding: 12px 24px; font-size: 13px; font-weight: 800; cursor: pointer;">
                                         Save
                                     </button>
                                 </div>
-                                <p id="admin-delivery-fee-status" style="margin-top: 10px; font-size: 12px; color: #10B981; display: none;">Saved successfully</p>
-                                <p style="margin-top: 12px; font-size: 12px; color: #7a8098;">Change this value anytime to update the delivery fee applied at customer checkout. No code changes needed.</p>
+                                <p id="admin-delivery-fee-status"
+                                    style="margin-top: 10px; font-size: 12px; color: #10B981; display: none;">Saved
+                                    successfully</p>
+                                <p style="margin-top: 12px; font-size: 12px; color: #7a8098;">Change this value anytime
+                                    to update the delivery fee applied at customer checkout. No code changes needed.</p>
                             </div>
                         </div>
                     </div>
@@ -808,9 +1129,295 @@
     </div>
 
     <!-- Notification Sound -->
-    <audio id="notif-sound" src="https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3" preload="auto"></audio>
+    <audio id="notif-sound" src="https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3"
+        preload="auto"></audio>
 
     <script type="module" src="/src/theme.js"></script>
     <script type="module" src="/src/admin.js"></script>
+    <script>
+        // Initialize Lucide icons after DOM is ready
+        document.addEventListener('DOMContentLoaded', function () {
+            if (window.lucide) lucide.createIcons();
+        });
+        // Also run after a short delay to catch any dynamically shown elements
+        setTimeout(function () {
+            if (window.lucide) lucide.createIcons();
+        }, 500);
+    </script>
+
+    <div id="menu-drawer-overlay"
+        class="hidden fixed inset-0 bg-black/75 backdrop-blur-sm z-[9998] transition-opacity duration-300 opacity-0">
+    </div>
+    <div id="menu-form-panel"
+        class="hidden fixed inset-0 z-[9999] flex items-center justify-center p-4 opacity-0 pointer-events-none transition-opacity duration-300">
+        <div
+            class="lw-split-modal bg-[#161820] border border-[#252830] rounded-2xl w-full max-w-[940px] max-h-[92vh] grid grid-cols-2 overflow-hidden shadow-[0_32px_80px_rgba(0,0,0,0.6)] scale-95 transition-transform duration-300">
+            <!-- Header -->
+            <div class="col-span-2 flex items-center justify-between px-7 py-5 border-b border-[#252830] bg-[#12141b]">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 bg-accent/10 rounded-xl flex items-center justify-center text-xl">🍽️</div>
+                    <div>
+                        <h3 id="menu-form-title" class="font-black text-lg text-white m-0 leading-none">Add New Item
+                        </h3>
+                        <p class="text-[11px] text-gray-500 font-bold m-0 mt-1.5 uppercase tracking-widest">Fill in
+                            details below</p>
+                    </div>
+                </div>
+                <button id="close-menu-form-btn" type="button"
+                    class="w-9 h-9 flex items-center justify-center bg-[#1e2130] border border-[#252830] text-gray-400 rounded-lg text-lg hover:bg-white/5 hover:text-white transition-colors">✕</button>
+            </div>
+
+            <!-- Form Left -->
+            <div class="overflow-y-auto p-7 border-r border-[#1e2130] custom-scrollbar bg-[#161820] min-h-0">
+                <form id="menu-form" class="space-y-5">
+                    <input type="hidden" id="menu-item-id">
+                    <input type="hidden" id="menu-item-storage-path">
+
+                    <!-- Image Upload Zone -->
+                    <div class="relative border-2 border-dashed border-[#252830] rounded-2xl p-6 text-center hover:border-accent transition-colors cursor-pointer group bg-[#1a1c23]"
+                        onclick="document.getElementById('menu-image').click()">
+                        <input id="menu-image" type="file" accept="image/*" class="hidden">
+                        <div id="menu-image-zone-content" class="relative z-10 flex flex-col items-center">
+                            <div class="text-3xl mb-2 group-hover:scale-110 transition-transform">📸</div>
+                            <p class="text-xs text-gray-400 font-semibold" id="menu-image-filename">Click or drag image
+                                to upload</p>
+                        </div>
+                        <img id="menu-image-thumbnail" src=""
+                            class="hidden absolute inset-0 w-full h-full object-cover rounded-2xl opacity-40 group-hover:opacity-20 transition-opacity">
+                    </div>
+
+                    <!-- Item Name -->
+                    <div>
+                        <label class="block text-[10px] font-black uppercase tracking-widest text-gray-500 mb-2">Item
+                            Name</label>
+                        <input id="menu-name" type="text" placeholder="e.g. Desi Litti"
+                            class="w-full rounded-xl border border-[#252830] bg-[#1a1c23] px-4 py-3 text-sm text-white outline-none focus:border-accent transition-colors">
+                    </div>
+
+                    <!-- Description -->
+                    <div>
+                        <label
+                            class="block text-[10px] font-black uppercase tracking-widest text-gray-500 mb-2">Description</label>
+                        <textarea id="menu-description" rows="3" placeholder="Briefly describe the item..."
+                            class="w-full rounded-xl border border-[#252830] bg-[#1a1c23] px-4 py-3 text-sm text-white outline-none focus:border-accent transition-colors resize-none"></textarea>
+                    </div>
+
+                    <!-- Category + Price -->
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label
+                                class="block text-[10px] font-black uppercase tracking-widest text-gray-500 mb-2">Category</label>
+                            <input id="menu-category" type="text" placeholder="e.g. Breads"
+                                class="w-full rounded-xl border border-[#252830] bg-[#1a1c23] px-4 py-3 text-sm text-white outline-none focus:border-accent transition-colors">
+                        </div>
+                        <div>
+                            <label
+                                class="block text-[10px] font-black uppercase tracking-widest text-gray-500 mb-2">Price
+                                (₹)</label>
+                            <input id="menu-price" type="number" min="0" placeholder="100"
+                                class="w-full rounded-xl border border-[#252830] bg-[#1a1c23] px-4 py-3 text-sm text-white outline-none focus:border-accent transition-colors">
+                        </div>
+                    </div>
+
+                    <!-- Type (Veg/Non-Veg) -->
+                    <div>
+                        <label
+                            class="block text-[10px] font-black uppercase tracking-widest text-gray-500 mb-2">Type</label>
+                        <div class="flex bg-[#1a1c23] border border-[#252830] rounded-xl p-1 gap-1">
+                            <button type="button" id="menu-type-veg"
+                                class="flex-1 py-2 text-[11px] font-bold rounded-lg bg-green-500/20 text-green-400 truncate px-1 text-center transition-colors min-w-0">🟢
+                                Veg</button>
+                            <button type="button" id="menu-type-nonveg"
+                                class="flex-1 py-2 text-[11px] font-bold rounded-lg text-gray-500 truncate px-1 text-center transition-colors min-w-0">🔴
+                                Non-Veg</button>
+                        </div>
+                        <input type="hidden" id="menu-veg-input" value="true">
+                    </div>
+
+                    <!-- Spice Level -->
+                    <div>
+                        <label class="block text-[10px] font-black uppercase tracking-widest text-gray-500 mb-2">Spice
+                            Level</label>
+                        <div class="flex bg-[#1a1c23] border border-[#252830] rounded-xl p-1 gap-1">
+                            <button type="button" data-spice="regular"
+                                class="menu-spice-btn flex-1 py-2 text-[11px] font-bold rounded-lg bg-white/10 text-white truncate px-1 text-center transition-colors min-w-0">🌶
+                                Regular</button>
+                            <button type="button" data-spice="spicy"
+                                class="menu-spice-btn flex-1 py-2 text-[11px] font-bold rounded-lg text-gray-500 truncate px-1 text-center transition-colors min-w-0">🌶🌶
+                                Spicy</button>
+                            <button type="button" data-spice="extra_spicy"
+                                class="menu-spice-btn flex-1 py-2 text-[11px] font-bold rounded-lg text-gray-500 truncate px-1 text-center transition-colors min-w-0">🌶🌶🌶
+                                Extra</button>
+                        </div>
+                        <input type="hidden" id="menu-spice-input" value="regular">
+                    </div>
+
+                    <!-- Prep Time -->
+                    <div>
+                        <label class="block text-[10px] font-black uppercase tracking-widest text-gray-500 mb-2">Prep
+                            Time</label>
+                        <div class="relative">
+                            <input id="menu-prep-time" type="number" min="1" placeholder="~15"
+                                class="w-full rounded-xl border border-[#252830] bg-[#1a1c23] pl-4 pr-12 py-3 text-sm text-white outline-none focus:border-accent transition-colors">
+                            <span
+                                class="absolute right-4 top-1/2 -translate-y-1/2 text-[11px] font-bold text-gray-500">mins</span>
+                        </div>
+                    </div>
+
+                    <!-- Tags -->
+                    <div>
+                        <label
+                            class="block text-[10px] font-black uppercase tracking-widest text-gray-500 mb-2">Tags</label>
+                        <div class="w-full rounded-xl border border-[#252830] bg-[#1a1c23] p-2 min-h-[46px] flex flex-wrap gap-2 items-center focus-within:border-accent transition-colors"
+                            id="menu-tags-container">
+                            <!-- Chips will be injected here -->
+                            <input id="menu-tag-input" type="text" placeholder="Type & press Enter..."
+                                class="bg-transparent border-none outline-none text-sm text-white min-w-[140px] flex-1 px-2 py-1">
+                        </div>
+                        <p class="text-[10px] text-gray-600 mt-1.5 ml-1 font-semibold">Press Enter or comma to add a
+                            tag. Max 8.</p>
+                    </div>
+
+                    <!-- Availability -->
+                    <div>
+                        <label
+                            class="block text-[10px] font-black uppercase tracking-widest text-gray-500 mb-2">Availability</label>
+                        <div class="flex bg-[#1a1c23] border border-[#252830] rounded-xl p-1 gap-1">
+                            <button type="button" id="menu-avail-visible"
+                                class="flex-1 py-2 text-[11px] font-bold rounded-lg bg-blue-500/20 text-blue-400 truncate px-1 text-center transition-colors min-w-0">✅
+                                Visible</button>
+                            <button type="button" id="menu-avail-hidden"
+                                class="flex-1 py-2 text-[11px] font-bold rounded-lg text-gray-500 truncate px-1 text-center transition-colors min-w-0">🚫
+                                Hidden</button>
+                        </div>
+                        <input type="hidden" id="menu-avail-input" value="true">
+                    </div>
+
+                    <!-- Variants — Grouped System -->
+                    <div class="border-t border-[#252830] pt-5">
+                        <div class="flex items-center justify-between mb-3">
+                            <label
+                                class="block text-[10px] font-black uppercase tracking-widest text-gray-500 m-0">Variants</label>
+                            <button id="add-variant-btn" type="button"
+                                class="flex items-center gap-1.5 bg-accent/10 border border-accent/25 text-accent text-[10px] font-black uppercase tracking-widest px-3 py-1.5 rounded-lg hover:bg-accent/20 transition-colors">
+                                <span class="text-sm leading-none">+</span> Add Variant Type
+                            </button>
+                        </div>
+
+                        <!-- Preset quick-add chips -->
+                        <div class="flex flex-wrap gap-2 mb-3" id="variant-presets">
+                            <button type="button" data-preset="Portion" data-options="Quarter,Half,Full"
+                                class="variant-preset-btn text-[10px] font-bold px-3 py-1.5 rounded-lg bg-[#1a1c23] border border-[#252830] text-gray-400 hover:border-accent hover:text-accent transition-colors">
+                                🍽 Portion
+                            </button>
+                            <button type="button" data-preset="Size" data-options="Small,Medium,Large"
+                                class="variant-preset-btn text-[10px] font-bold px-3 py-1.5 rounded-lg bg-[#1a1c23] border border-[#252830] text-gray-400 hover:border-accent hover:text-accent transition-colors">
+                                📏 Size
+                            </button>
+                            <button type="button" data-preset="Piece" data-options="1 Pc,2 Pc,4 Pc"
+                                class="variant-preset-btn text-[10px] font-bold px-3 py-1.5 rounded-lg bg-[#1a1c23] border border-[#252830] text-gray-400 hover:border-accent hover:text-accent transition-colors">
+                                🔢 Piece
+                            </button>
+                        </div>
+
+                        <div id="menu-variants-empty"
+                            class="p-4 bg-[#1a1c23] border border-[#252830] rounded-xl text-center text-[10px] font-bold text-gray-500 uppercase tracking-widest">
+                            No variants — item has a single fixed price
+                        </div>
+                        <!-- Variant groups injected here by JS -->
+                        <div id="menu-variants-list" class="space-y-3"></div>
+                    </div>
+
+                    <div class="pt-4 flex flex-col gap-3">
+                        <button id="save-menu-item-btn" type="submit"
+                            class="w-full py-4 bg-accent text-[#0a0c12] rounded-xl font-black uppercase tracking-widest text-sm hover:brightness-110 transition-all shadow-[0_0_20px_rgba(245,168,0,0.15)]">Save
+                            Changes</button>
+                        <button id="reset-menu-form-btn" type="button"
+                            class="w-full py-3 text-gray-500 hover:text-white text-[11px] font-black uppercase tracking-widest transition-colors">Reset
+                            Form</button>
+                    </div>
+                    <p id="menu-form-message" class="text-center text-xs font-bold"></p>
+                </form>
+            </div>
+
+            <!-- Preview Right -->
+            <div class="bg-[#0e1018] p-7 overflow-y-auto custom-scrollbar flex flex-col relative min-h-0">
+                <p class="text-[10px] font-black uppercase tracking-widest text-gray-500 mb-5 text-center">Live Preview
+                </p>
+
+                <!-- Preview Card -->
+                <div class="bg-[#12141b] rounded-2xl border border-[#252830] overflow-hidden shadow-xl">
+                    <div
+                        class="w-full aspect-[16/9] bg-[#1e2130] flex items-center justify-center overflow-hidden relative border-b border-[#252830]">
+                        <img id="lw-preview-img" src="" alt="Preview" class="w-full h-full object-cover hidden">
+                        <div id="lw-preview-placeholder" class="flex flex-col items-center gap-3 text-gray-600">
+                            <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="1.5">
+                                <rect x="3" y="3" width="18" height="18" rx="3" />
+                                <circle cx="8.5" cy="8.5" r="1.5" />
+                                <path d="m21 15-5-5L5 21" />
+                            </svg>
+                            <span class="text-[10px] font-black uppercase tracking-widest">No Image</span>
+                        </div>
+                    </div>
+
+                    <div class="p-5">
+                        <div class="flex justify-between items-start gap-3 mb-2">
+                            <h4 id="lw-prev-name" class="text-lg font-black text-white m-0 leading-tight">Item Name</h4>
+                            <span id="lw-prev-price" class="text-lg font-black text-accent m-0 shrink-0">₹0</span>
+                        </div>
+                        <p id="lw-prev-desc"
+                            class="text-[11px] text-gray-400 font-semibold leading-relaxed mb-4 line-clamp-3">Item
+                            description will appear here...</p>
+
+                        <div class="space-y-2.5">
+                            <div class="flex justify-between items-center text-xs">
+                                <span
+                                    class="text-gray-500 font-black uppercase tracking-widest text-[9px]">Category</span>
+                                <span id="lw-prev-cat" class="text-white font-bold text-[11px]">—</span>
+                            </div>
+                            <div class="flex justify-between items-center text-xs">
+                                <span class="text-gray-500 font-black uppercase tracking-widest text-[9px]">Type</span>
+                                <span id="lw-prev-veg"
+                                    class="font-bold text-[10px] px-2 py-0.5 rounded-full bg-green-500/10 text-green-400 border border-green-500/20">🟢
+                                    Veg</span>
+                            </div>
+                            <div class="flex justify-between items-center text-xs">
+                                <span class="text-gray-500 font-black uppercase tracking-widest text-[9px]">Spice</span>
+                                <span id="lw-prev-spice" class="font-bold text-[10px] text-white">🌶 Regular</span>
+                            </div>
+                            <div class="flex justify-between items-center text-xs">
+                                <span class="text-gray-500 font-black uppercase tracking-widest text-[9px]">Prep
+                                    Time</span>
+                                <span id="lw-prev-prep" class="text-white font-bold text-[11px]">~15 mins</span>
+                            </div>
+                            <div class="flex justify-between items-start text-xs pt-1">
+                                <span
+                                    class="text-gray-500 font-black uppercase tracking-widest text-[9px] pt-1">Tags</span>
+                                <div id="lw-prev-tags" class="flex flex-wrap gap-1 justify-end max-w-[65%]">
+                                    <span class="text-gray-500 text-[10px] font-bold italic">None</span>
+                                </div>
+                            </div>
+                            <div class="flex justify-between items-center text-xs pt-1">
+                                <span
+                                    class="text-gray-500 font-black uppercase tracking-widest text-[9px]">Availability</span>
+                                <span id="lw-prev-avail" class="text-blue-400 font-bold text-[10px]">Visible ✓</span>
+                            </div>
+                        </div>
+
+                        <div class="border-t border-[#252830] pt-4 mt-4">
+                            <span
+                                class="text-gray-500 font-black uppercase tracking-widest text-[9px] block mb-2">Variants</span>
+                            <div id="lw-prev-variants" class="space-y-1.5">
+                                <div class="text-gray-500 text-[10px] font-bold italic">No variants</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
 </body>
+
 </html>
