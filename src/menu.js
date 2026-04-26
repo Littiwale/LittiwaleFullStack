@@ -6,6 +6,7 @@ import { renderMenu, refreshAllCardCTAs } from './menu/render';
 import { createTicket } from './api/tickets';
 import { addItem, getCartTotal, getCartCount } from './store/cart';
 import { fetchOrdersByUser } from './api/orders';
+import { openProfileModal } from './profile-modal';
 import { updateDeliveryEstimate, loadMyOrders, showToast } from './utils';
 
 /**
@@ -64,6 +65,7 @@ const initMenu = async () => {
                             </div>
                             <button class="lw-dropdown-item" id="menu-dd-profile">👤 My Profile</button>
                             <button class="lw-dropdown-item" id="menu-dd-orders">📦 My Orders</button>
+                            <button class="lw-dropdown-item" id="menu-dd-track">🛵 Track Orders</button>
                             <div class="lw-dropdown-divider"></div>
                             <button class="lw-dropdown-item danger" id="menu-dd-logout">🚪 Logout</button>
                         </div>
@@ -84,12 +86,40 @@ const initMenu = async () => {
                 });
 
                 document.getElementById('menu-dd-profile')?.addEventListener('click', () => {
-                    window.location.href = '/customer/index.html#reach';
                     dropdown.classList.remove('open');
+                    openProfileModal({
+                        onMyOrders: () => {
+                            const myOrdersModal = document.querySelector('#my-orders-modal');
+                            if (myOrdersModal) { showModal(myOrdersModal); loadMyOrders(); }
+                        }
+                    });
                 });
                 document.getElementById('menu-dd-orders')?.addEventListener('click', () => {
-                    window.location.href = '/track';
                     dropdown.classList.remove('open');
+                    const myOrdersModal = document.querySelector('#my-orders-modal');
+                    if (myOrdersModal) {
+                        showModal(myOrdersModal);
+                        loadMyOrders();
+                    }
+                });
+                document.getElementById('menu-dd-track')?.addEventListener('click', async () => {
+                    dropdown.classList.remove('open');
+                    try {
+                        const { fetchOrdersByUser } = await import('./api/orders');
+                        const { auth } = await import('./firebase/config');
+                        if (!auth.currentUser) { window.location.href = '/login'; return; }
+                        const orders = await fetchOrdersByUser(auth.currentUser.uid);
+                        const active = orders.find(o => !['DELIVERED','CANCELLED','REJECTED'].includes(o.status));
+                        const target = active || orders[0];
+                        if (target && target.orderId && target.trackingToken) {
+                            window.location.href = `/customer/track.html?id=${target.orderId}&token=${target.trackingToken}`;
+                        } else {
+                            const myOrdersModal = document.querySelector('#my-orders-modal');
+                            if (myOrdersModal) { showModal(myOrdersModal); loadMyOrders(); }
+                        }
+                    } catch(e) {
+                        console.error('Track redirect failed', e);
+                    }
                 });
                 document.getElementById('menu-dd-logout')?.addEventListener('click', async () => {
                     await logoutUser();
@@ -146,6 +176,16 @@ const initMenu = async () => {
 
     window.addEventListener('cartUpdated', syncCartBadges);
     window.addEventListener('cartUpdated', () => refreshAllCardCTAs(menuData));
+
+    // Auto-open My Orders if redirected from index with ?openOrders=1
+    if (new URLSearchParams(window.location.search).get('openOrders') === '1') {
+        setTimeout(() => {
+            const myOrdersModal = document.querySelector('#my-orders-modal');
+            if (myOrdersModal) { showModal(myOrdersModal); loadMyOrders(); }
+            // Clean URL
+            window.history.replaceState({}, '', window.location.pathname);
+        }, 800);
+    }
     syncCartBadges();
 
     // Cart Modal Interactions
@@ -252,6 +292,10 @@ const initMenu = async () => {
             showModal(myOrdersModal);
             loadMyOrders();
         });
+    }
+
+    // Close listeners — always attach regardless of myOrdersBtn
+    if (myOrdersModal) {
         closeMyOrders?.addEventListener('click', () => hideModal(myOrdersModal));
         myOrdersModal.addEventListener('click', (e) => {
             if (e.target === myOrdersModal) hideModal(myOrdersModal);

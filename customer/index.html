@@ -57,11 +57,8 @@
                 <ul class="nav-links" style="font-family: var(--font-body); font-weight: 700; text-transform: uppercase; letter-spacing: 1px; font-size: 13px;">
                     <li><a href="#home">Home</a></li>
                     <li><a href="./menu.html">Menu</a></li>
-                    <li><a href="#why-littiwale">Why Us</a></li>
-                    <li><a href="#membership">Plans</a></li>
                     <li><a href="#about">About</a></li>
                     <li><a href="#reach">Reach Us</a></li>
-                    <li><a href="#" class="btn btn-primary nav-get-deals-btn nav-deals-btn" style="border-radius: 99px; padding: 10px 24px;">🔥 Get Deals</a></li>
                 </ul>
 
                 <div class="nav-right">
@@ -88,13 +85,8 @@
             <div class="mobile-nav-inner">
                 <a href="./index.html" class="mobile-nav-link">Home</a>
                 <a href="./menu.html" class="mobile-nav-link">Menu</a>
-                <a href="./index.html#why-littiwale" class="mobile-nav-link">Why Littiwale</a>
-                <a href="./index.html#how-it-works" class="mobile-nav-link">How It Works</a>
-                <a href="./index.html#membership" class="mobile-nav-link">Membership Plans</a>
                 <a href="./index.html#about" class="mobile-nav-link">About</a>
                 <a href="./index.html#reach" class="mobile-nav-link">Reach Us</a>
-                <a href="./index.html#faq" class="mobile-nav-link">FAQ</a>
-                <a href="#" class="mobile-nav-link mobile-nav-deals">🔥 Get Deals</a>
             </div>
             <div class="mobile-nav-overlay" id="mobile-nav-overlay"></div>
         </div>
@@ -508,67 +500,214 @@
             </div>
         </section>
 
-        <!-- ═══ NEW: MEMBERSHIP PLANS ═══ -->
+        <!-- ═══ MEMBERSHIP PLANS (TOGGLE) ═══ -->
         <section id="membership" class="section-padding" style="background: var(--bg-color);">
+            <style>
+                .mem-header { text-align: center; margin-bottom: 36px; }
+                .mem-toggles { display: flex; flex-direction: column; align-items: center; gap: 16px; margin-bottom: 40px; }
+                .mem-toggle-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; justify-content: center; }
+                .mem-toggle-label { font-size: 13px; font-weight: 600; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 1px; min-width: 64px; text-align: right; }
+                .mem-pill-switch { display: flex; background: rgba(255,255,255,0.06); border: 1.5px solid rgba(244,180,0,0.25); border-radius: 40px; padding: 4px; gap: 4px; }
+                .mem-pill-btn { padding: 8px 22px; border-radius: 32px; border: none; background: transparent; color: var(--text-secondary); font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.22s ease; white-space: nowrap; }
+                .mem-pill-btn.active { background: linear-gradient(135deg, #F5A800, #C47F17); color: #111; box-shadow: 0 2px 12px rgba(245,168,0,0.35); }
+                .mem-pill-btn .pill-discount { display: inline-block; background: #1a1a1a; color: #F5A800; font-size: 10px; font-weight: 700; border-radius: 8px; padding: 1px 6px; margin-left: 6px; vertical-align: middle; }
+                .mem-pill-btn.active .pill-discount { background: rgba(0,0,0,0.25); color: #fff; }
+                .mem-cards-row { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; max-width: 820px; margin: 0 auto 28px; }
+                @media(max-width: 640px) { .mem-cards-row { grid-template-columns: 1fr; } }
+                .mem-card { background: var(--bg-light, rgba(255,255,255,0.04)); border: 1.5px solid rgba(244,180,0,0.18); border-radius: 20px; padding: 28px 24px 24px; position: relative; transition: box-shadow 0.2s, transform 0.2s; }
+                .mem-card:hover { transform: translateY(-3px); box-shadow: 0 8px 32px rgba(245,168,0,0.15); }
+                .mem-card.featured-card { border-color: #F5A800; box-shadow: 0 4px 28px rgba(245,168,0,0.18); }
+                .mem-card-badge { position: absolute; top: -12px; left: 50%; transform: translateX(-50%); background: linear-gradient(135deg, #F5A800, #C47F17); color: #111; font-size: 11px; font-weight: 800; padding: 4px 16px; border-radius: 20px; white-space: nowrap; text-transform: uppercase; letter-spacing: 0.5px; }
+                .mem-card-icon { font-size: 32px; margin-bottom: 10px; }
+                .mem-card-name { font-size: 18px; font-weight: 800; color: var(--text-primary, #fff); margin-bottom: 4px; }
+                .mem-card-tagline { font-size: 12px; color: var(--text-secondary); margin-bottom: 18px; line-height: 1.5; }
+                .mem-price-block { margin-bottom: 16px; }
+                .mem-price-original { font-size: 14px; color: var(--text-secondary); text-decoration: line-through; margin-bottom: 2px; }
+                .mem-price-final { font-size: 30px; font-weight: 800; color: #F5A800; line-height: 1; }
+                .mem-price-final span { font-size: 15px; font-weight: 500; color: var(--text-secondary); }
+                .mem-discount-chip { display: inline-block; background: rgba(34,197,94,0.15); color: #22c55e; font-size: 12px; font-weight: 700; padding: 3px 10px; border-radius: 20px; margin-top: 6px; border: 1px solid rgba(34,197,94,0.3); }
+                .mem-meals-pill { display: inline-flex; align-items: center; gap: 6px; background: rgba(244,180,0,0.08); border: 1px solid rgba(244,180,0,0.2); border-radius: 20px; padding: 5px 12px; font-size: 12px; font-weight: 600; color: #C47F17; margin-bottom: 16px; }
+                .mem-features { list-style: none; padding: 0; margin: 0 0 20px; display: flex; flex-direction: column; gap: 8px; }
+                .mem-features li { font-size: 13px; color: var(--text-secondary); display: flex; align-items: flex-start; gap: 8px; }
+                .mem-features li .fcheck { color: #22c55e; font-size: 14px; flex-shrink: 0; margin-top: 1px; }
+                .mem-cta-btn { display: block; width: 100%; text-align: center; padding: 12px 20px; border-radius: 12px; font-size: 14px; font-weight: 700; text-decoration: none; transition: all 0.2s; border: none; cursor: pointer; }
+                .mem-cta-btn.gold { background: linear-gradient(135deg, #F5A800, #C47F17); color: #111; box-shadow: 0 3px 14px rgba(245,168,0,0.3); }
+                .mem-cta-btn.gold:hover { box-shadow: 0 5px 20px rgba(245,168,0,0.45); transform: translateY(-1px); }
+                .mem-cta-btn.outline-gold { background: transparent; border: 2px solid #F5A800; color: #F5A800; }
+                .mem-cta-btn.outline-gold:hover { background: rgba(245,168,0,0.08); }
+                .mem-note { max-width: 820px; margin: 24px auto 0; padding: 14px 18px; background: rgba(244,180,0,0.06); border-left: 4px solid #F5A800; border-radius: 8px; }
+                .mem-note p { font-size: 13px; color: var(--text-secondary); margin: 0; line-height: 1.8; }
+                .mem-panel { display: none; }
+                .mem-panel.active { display: block; }
+            </style>
+
             <div class="container">
-                <div style="text-align:center;">
+                <div class="mem-header">
                     <span class="lw-section-tag">Save More, Eat More</span>
                     <h2 class="lw-section-title">Membership Plans</h2>
                     <div class="lw-divider center"></div>
-                    <p style="color:var(--text-secondary);max-width:520px;margin:0 auto;font-size:15px;line-height:1.7;">Subscribe and enjoy daily home-cooked meals — Lunch + Dinner — at unbeatable prices. Cancel anytime.</p>
+                    <p style="color:var(--text-secondary);max-width:540px;margin:0 auto;font-size:15px;line-height:1.7;">Subscribe and enjoy daily home-cooked meals — Lunch + Dinner — at unbeatable member prices.</p>
                 </div>
-                <div class="lw-plans-grid">
-                    <!-- WEEKLY -->
-                    <div class="lw-plan-card reveal">
-                        <div class="lw-plan-name">Weekly Plan</div>
-                        <div class="lw-plan-sub">Perfect for trying out</div>
-                        <div class="lw-plan-price" style="margin-top:20px;">₹699 <span>/ week</span></div>
-                        <div class="lw-meals-tag">Includes <strong>7 Days</strong> · Lunch + Dinner</div>
-                        <ul class="lw-plan-features">
-                            <li>Lunch delivered 12–2 PM daily</li>
-                            <li>Dinner delivered 7–9 PM daily</li>
-                            <li>Choice of veg or non-veg thali</li>
-                            <li>Free delivery included</li>
-                            <li>WhatsApp meal updates</li>
-                        </ul>
-                        <a href="https://wa.me/916370680744?text=I'm interested in the Weekly Membership Plan" target="_blank" class="btn btn-outline" style="width:100%;text-align:center;border-radius:12px;">Get Weekly Plan</a>
+
+                <div class="mem-toggles">
+                    <div class="mem-toggle-row">
+                        <span class="mem-toggle-label">Duration</span>
+                        <div class="mem-pill-switch" id="dur-switch">
+                            <button class="mem-pill-btn active" data-dur="weekly" onclick="setDuration('weekly')">Weekly <span class="pill-discount">25% OFF</span></button>
+                            <button class="mem-pill-btn" data-dur="monthly" onclick="setDuration('monthly')">Monthly <span class="pill-discount">13% OFF</span></button>
+                        </div>
+                        <span class="mem-toggle-label"></span>
                     </div>
-                    <!-- MONTHLY FEATURED -->
-                    <div class="lw-plan-card featured reveal reveal-delay-1">
-                        <div class="lw-plan-badge">⭐ Most Popular</div>
-                        <div class="lw-plan-name">Monthly Plan</div>
-                        <div class="lw-plan-sub">Best value for regulars</div>
-                        <div class="lw-plan-price" style="margin-top:20px;">₹2,199 <span>/ month</span></div>
-                        <div class="lw-meals-tag">Includes <strong>30 Days</strong> · Lunch + Dinner · Save ₹800</div>
-                        <ul class="lw-plan-features">
-                            <li>Lunch delivered 12–2 PM daily</li>
-                            <li>Dinner delivered 7–9 PM daily</li>
-                            <li>Choice of veg or non-veg thali</li>
-                            <li>Free delivery included</li>
-                            <li>Priority kitchen prep</li>
-                            <li>1 Free dessert per week 🍮</li>
-                            <li>WhatsApp meal updates</li>
-                        </ul>
-                        <a href="https://wa.me/916370680744?text=I'm interested in the Monthly Membership Plan" target="_blank" class="btn btn-primary" style="width:100%;text-align:center;border-radius:12px;">Get Monthly Plan</a>
-                    </div>
-                    <!-- CUSTOM -->
-                    <div class="lw-plan-card reveal reveal-delay-2">
-                        <div class="lw-plan-name">Custom Plan</div>
-                        <div class="lw-plan-sub">For offices & bulk</div>
-                        <div class="lw-plan-price" style="margin-top:20px;font-size:26px;">Talk to Us</div>
-                        <div class="lw-meals-tag">10+ people · Custom scheduling</div>
-                        <ul class="lw-plan-features">
-                            <li>Office meal packages</li>
-                            <li>Flexible meal timing</li>
-                            <li>Dedicated account manager</li>
-                            <li>Volume discounts apply</li>
-                            <li>Monthly billing</li>
-                        </ul>
-                        <a href="https://wa.me/916370680744?text=I want a Custom Meal Plan for my office" target="_blank" class="btn btn-whatsapp" style="width:100%;text-align:center;border-radius:12px;">💬 WhatsApp Us</a>
+                    <div class="mem-toggle-row">
+                        <span class="mem-toggle-label">Type</span>
+                        <div class="mem-pill-switch" id="type-switch">
+                            <button class="mem-pill-btn active" data-type="veg" onclick="setType('veg')">🥦 Desi Veg Dabba</button>
+                            <button class="mem-pill-btn" data-type="feast" onclick="setType('feast')">🍗 Desi Feast Dabba</button>
+                        </div>
+                        <span class="mem-toggle-label"></span>
                     </div>
                 </div>
-                <p style="text-align:center;color:var(--text-secondary);font-size:12px;margin-top:24px;">* Plans include both Lunch (2 rotis + sabzi + dal + salad) and Dinner (3 rotis + sabzi + dal/curry + dessert on weekends).</p>
+
+                <div class="mem-cards-row">
+                    <!-- VEG WEEKLY -->
+                    <div id="plan-veg-weekly" class="mem-card featured-card mem-panel active">
+                        <div class="mem-card-badge">🌿 Pure Veg</div>
+                        <div class="mem-card-icon">🥗</div>
+                        <div class="mem-card-name">Desi Veg Dabba</div>
+                        <div class="mem-card-tagline">Pure vegetarian. Daily fresh home-style meals.</div>
+                        <div class="mem-price-block">
+                            <div class="mem-price-original">₹1,500</div>
+                            <div class="mem-price-final">₹1,200 <span>/ week</span></div>
+                            <div class="mem-discount-chip">🎉 25% OFF — Save ₹300</div>
+                        </div>
+                        <div class="mem-meals-pill">🍽️ 14 Meals · 7 Days · Lunch + Dinner</div>
+                        <ul class="mem-features">
+                            <li><span class="fcheck">✔</span> Lunch delivered 12–2 PM daily</li>
+                            <li><span class="fcheck">✔</span> Dinner delivered 7–9 PM daily</li>
+                            <li><span class="fcheck">✔</span> All-vegetarian thalis every day</li>
+                            <li><span class="fcheck">✔</span> Free delivery included</li>
+                            <li><span class="fcheck">✔</span> WhatsApp meal updates</li>
+                        </ul>
+                        <a href="https://wa.me/916370680744?text=I'm interested in Desi Veg Dabba - Weekly Plan at ₹1,200" target="_blank" class="mem-cta-btn gold">Get Weekly Veg Plan →</a>
+                    </div>
+
+                    <!-- VEG MONTHLY -->
+                    <div id="plan-veg-monthly" class="mem-card featured-card mem-panel">
+                        <div class="mem-card-badge">🌿 Pure Veg</div>
+                        <div class="mem-card-icon">🥗</div>
+                        <div class="mem-card-name">Desi Veg Dabba</div>
+                        <div class="mem-card-tagline">Pure vegetarian. Best value for daily regulars.</div>
+                        <div class="mem-price-block">
+                            <div class="mem-price-original">₹6,000</div>
+                            <div class="mem-price-final">₹5,500 <span>/ month</span></div>
+                            <div class="mem-discount-chip">🎉 8% OFF — Save ₹500</div>
+                        </div>
+                        <div class="mem-meals-pill">🍽️ 60 Meals · 30 Days · Lunch + Dinner</div>
+                        <ul class="mem-features">
+                            <li><span class="fcheck">✔</span> Lunch delivered 12–2 PM daily</li>
+                            <li><span class="fcheck">✔</span> Dinner delivered 7–9 PM daily</li>
+                            <li><span class="fcheck">✔</span> All-vegetarian thalis every day</li>
+                            <li><span class="fcheck">✔</span> Free delivery included</li>
+                            <li><span class="fcheck">✔</span> Priority kitchen prep</li>
+                            <li><span class="fcheck">✔</span> 1 Free dessert per week 🍮</li>
+                            <li><span class="fcheck">✔</span> WhatsApp meal updates</li>
+                        </ul>
+                        <a href="https://wa.me/916370680744?text=I'm interested in Desi Veg Dabba - Monthly Plan at ₹5,500" target="_blank" class="mem-cta-btn gold">Get Monthly Veg Plan →</a>
+                    </div>
+
+                    <!-- FEAST WEEKLY -->
+                    <div id="plan-feast-weekly" class="mem-card featured-card mem-panel">
+                        <div class="mem-card-badge">⭐ Most Popular</div>
+                        <div class="mem-card-icon">🍗</div>
+                        <div class="mem-card-name">Desi Feast Dabba</div>
+                        <div class="mem-card-tagline">4 days veg + 3 days non-veg (Wed, Fri, Sun).</div>
+                        <div class="mem-price-block">
+                            <div class="mem-price-original">₹2,000</div>
+                            <div class="mem-price-final">₹1,500 <span>/ week</span></div>
+                            <div class="mem-discount-chip">🎉 25% OFF — Save ₹500</div>
+                        </div>
+                        <div class="mem-meals-pill">🍽️ 14 Meals · 7 Days · Lunch + Dinner</div>
+                        <ul class="mem-features">
+                            <li><span class="fcheck">✔</span> Mon, Tue, Thu, Sat — Pure Veg</li>
+                            <li><span class="fcheck">✔</span> Wed, Fri, Sun — Non-Veg special</li>
+                            <li><span class="fcheck">✔</span> Mutton, Chicken, Egg, Fish, Prawn (as per menu)</li>
+                            <li><span class="fcheck">✔</span> Lunch 12–2 PM · Dinner 7–9 PM</li>
+                            <li><span class="fcheck">✔</span> Free delivery included</li>
+                            <li><span class="fcheck">✔</span> WhatsApp meal updates</li>
+                        </ul>
+                        <a href="https://wa.me/916370680744?text=I'm interested in Desi Feast Dabba - Weekly Plan at ₹1,500" target="_blank" class="mem-cta-btn gold">Get Weekly Feast Plan →</a>
+                    </div>
+
+                    <!-- FEAST MONTHLY -->
+                    <div id="plan-feast-monthly" class="mem-card featured-card mem-panel">
+                        <div class="mem-card-badge">⭐ Most Popular</div>
+                        <div class="mem-card-icon">🍗</div>
+                        <div class="mem-card-name">Desi Feast Dabba</div>
+                        <div class="mem-card-tagline">4 days veg + 3 days non-veg (Wed, Fri, Sun).</div>
+                        <div class="mem-price-block">
+                            <div class="mem-price-original">₹7,500</div>
+                            <div class="mem-price-final">₹6,500 <span>/ month</span></div>
+                            <div class="mem-discount-chip">🎉 13% OFF — Save ₹1,000</div>
+                        </div>
+                        <div class="mem-meals-pill">🍽️ 60 Meals · 30 Days · Lunch + Dinner</div>
+                        <ul class="mem-features">
+                            <li><span class="fcheck">✔</span> Mon, Tue, Thu, Sat — Pure Veg</li>
+                            <li><span class="fcheck">✔</span> Wed, Fri, Sun — Non-Veg special</li>
+                            <li><span class="fcheck">✔</span> Mutton, Chicken, Egg, Fish, Prawn (as per menu)</li>
+                            <li><span class="fcheck">✔</span> Lunch 12–2 PM · Dinner 7–9 PM</li>
+                            <li><span class="fcheck">✔</span> Free delivery included</li>
+                            <li><span class="fcheck">✔</span> Priority kitchen prep</li>
+                            <li><span class="fcheck">✔</span> 1 Free dessert per week 🍮</li>
+                            <li><span class="fcheck">✔</span> WhatsApp meal updates</li>
+                        </ul>
+                        <a href="https://wa.me/916370680744?text=I'm interested in Desi Feast Dabba - Monthly Plan at ₹6,500" target="_blank" class="mem-cta-btn gold">Get Monthly Feast Plan →</a>
+                    </div>
+
+                    <!-- CUSTOM (always shown) -->
+                    <div class="mem-card" style="display:flex;flex-direction:column;justify-content:space-between;">
+                        <div>
+                            <div class="mem-card-icon">✏️</div>
+                            <div class="mem-card-name">Custom Plan</div>
+                            <div class="mem-card-tagline">For offices, bulk orders &amp; special requirements.</div>
+                            <div class="mem-price-final" style="margin-bottom:8px;font-size:22px;">Talk to Us</div>
+                            <div class="mem-meals-pill">🏢 10+ people · Flexible scheduling</div>
+                            <ul class="mem-features">
+                                <li><span class="fcheck">✔</span> Office meal packages available</li>
+                                <li><span class="fcheck">✔</span> Flexible meal timing</li>
+                                <li><span class="fcheck">✔</span> Volume discounts apply</li>
+                                <li><span class="fcheck">✔</span> Dedicated account manager</li>
+                                <li><span class="fcheck">✔</span> Monthly billing options</li>
+                            </ul>
+                        </div>
+                        <a href="https://wa.me/916370680744?text=I want a Custom Meal Plan" target="_blank" class="mem-cta-btn outline-gold" style="margin-top:12px;">💬 WhatsApp Us</a>
+                    </div>
+                </div>
+
+                <div class="mem-note">
+                    <p><strong style="color:#F5A800;">📋 Note:</strong> All plans include Lunch (Choice of rice with dal or 5rotis + sabzi + bhujia + papad + salad) and Dinner (Choice of rice with dal or 5rotis + sabzi + bhujia + papad + salad). If you need anything extra or have special requests, those items will be available and charged as per menu rates. Non-vegetarian options on Wed, Fri &amp; Sun include Mutton, Chicken, Egg, Fish, and Prawn — prepared as per the day's menu. Special items and deserts will be provided on some ocassions without any extra charge</p>
+                </div>
             </div>
+
+            <script>
+                (function() {
+                    var dur = 'weekly', type = 'veg';
+                    function showPlan() {
+                        document.querySelectorAll('.mem-panel').forEach(function(el){ el.classList.remove('active'); });
+                        var el = document.getElementById('plan-' + type + '-' + dur);
+                        if (el) el.classList.add('active');
+                    }
+                    window.setDuration = function(d) {
+                        dur = d;
+                        document.querySelectorAll('#dur-switch .mem-pill-btn').forEach(function(btn){ btn.classList.toggle('active', btn.dataset.dur === d); });
+                        showPlan();
+                    };
+                    window.setType = function(t) {
+                        type = t;
+                        document.querySelectorAll('#type-switch .mem-pill-btn').forEach(function(btn){ btn.classList.toggle('active', btn.dataset.type === t); });
+                        showPlan();
+                    };
+                })();
+            </script>
         </section>
 
 

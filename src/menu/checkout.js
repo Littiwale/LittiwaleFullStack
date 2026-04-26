@@ -139,7 +139,7 @@ export const initCheckout = () => {
     if (!checkoutModal || !closeCheckout) return;
 
     // Listen to custom event from cart-ui
-    window.addEventListener('openCheckout', () => {
+    window.addEventListener('openCheckout', async () => {
         const cart = getCart();
         if (cart.length === 0) return;
 
@@ -164,6 +164,20 @@ export const initCheckout = () => {
         updateCheckoutTotal();
         loadSavedAddresses();
         loadActiveCoupons();
+
+        // ── AUTOFILL name + phone from Firebase profile ──
+        if (auth?.currentUser && !auth.currentUser.isAnonymous) {
+            try {
+                const snap = await getDoc(doc(db, 'users', auth.currentUser.uid));
+                if (snap.exists()) {
+                    const p = snap.data();
+                    const nameEl = document.querySelector('#cust-name');
+                    const phoneEl = document.querySelector('#cust-phone');
+                    if (nameEl && !nameEl.value && p.name) nameEl.value = p.name;
+                    if (phoneEl && !phoneEl.value && p.phone) phoneEl.value = p.phone;
+                }
+            } catch(e) { console.warn('Profile autofill failed', e); }
+        }
         suggestBestCoupon();
 
         // Wire promo-toggle-btn every time checkout opens — works regardless of coupon count

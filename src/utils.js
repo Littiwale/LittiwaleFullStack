@@ -55,32 +55,52 @@ export const loadMyOrders = async () => {
         list.innerHTML = orders.map(order => {
             const date = order.createdAt?.toDate ? order.createdAt.toDate().toLocaleDateString('en-IN', { day:'numeric', month:'short', year:'numeric' }) : 'Recently';
             const items = order.items?.map(i => `${i.name} × ${i.quantity}`).join(', ') || '—';
-            const statusColor = {
-                'DELIVERED': '#10B981',
-                'PLACED': '#3B82F6',
-                'CANCELLED': '#ef4444',
-                'PREPARING': '#F59E0B',
-                'ASSIGNED': '#8B5CF6'
-            }[order.status] || '#7a8098';
+
+            const statusConfig = {
+                'DELIVERED':  { color: '#10B981', bg: 'rgba(16,185,129,0.12)',  emoji: '✅', label: 'Delivered' },
+                'PLACED':     { color: '#F59E0B', bg: 'rgba(245,158,11,0.12)', emoji: '📋', label: 'Order Placed' },
+                'ACCEPTED':   { color: '#F59E0B', bg: 'rgba(245,158,11,0.12)', emoji: '✅', label: 'Accepted' },
+                'PREPARING':  { color: '#F4B400', bg: 'rgba(244,180,0,0.12)',  emoji: '👨‍🍳', label: 'Preparing' },
+                'READY':      { color: '#F4B400', bg: 'rgba(244,180,0,0.12)',  emoji: '🎉', label: 'Ready' },
+                'ASSIGNED':   { color: '#8B5CF6', bg: 'rgba(139,92,246,0.12)', emoji: '🛵', label: 'Out for Delivery' },
+                'CANCELLED':  { color: '#EF4444', bg: 'rgba(239,68,68,0.12)', emoji: '❌', label: 'Cancelled' },
+                'REJECTED':   { color: '#EF4444', bg: 'rgba(239,68,68,0.12)', emoji: '❌', label: 'Rejected' },
+            };
+            const sc = statusConfig[order.status] || { color: '#9CA3AF', bg: 'rgba(107,114,128,0.1)', emoji: '📦', label: order.status?.replace(/_/g,' ') };
+
+            const canTrack = order.orderId && order.trackingToken && !['CANCELLED','REJECTED','DELIVERED'].includes(order.status);
+            const trackUrl = `/customer/track.html?id=${order.orderId}&token=${order.trackingToken}`;
 
             return `
-                <div style="padding:16px;border-bottom:1px solid var(--card-border);">
-                    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px;">
+                <div style="margin:10px 12px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);border-radius:16px;overflow:hidden;">
+                    <!-- Header row -->
+                    <div style="display:flex;justify-content:space-between;align-items:center;padding:14px 16px 10px;">
                         <div>
-                            <p style="font-size:10px;color:var(--text-muted);font-weight:800;letter-spacing:1px;text-transform:uppercase;">${order.orderId || order.docId?.slice(0,8)}</p>
-                            <p style="font-size:12px;color:var(--text-muted);margin-top:2px;">${date}</p>
+                            <p style="font-size:9px;color:#9CA3AF;font-weight:800;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:3px;">Order #${order.orderId || order.docId?.slice(0,8)}</p>
+                            <p style="font-size:11px;color:#6B7280;">${date}</p>
                         </div>
                         <div style="text-align:right;">
-                            <p style="font-size:18px;font-weight:900;color:var(--primary);">₹${order.total}</p>
-                            <span style="font-size:9px;font-weight:900;color:${statusColor};text-transform:uppercase;letter-spacing:1px;">${order.status?.replace(/_/g,' ')}</span>
+                            <p style="font-size:20px;font-weight:900;color:#F5A800;line-height:1;">₹${order.total}</p>
+                            <span style="display:inline-block;margin-top:4px;font-size:9px;font-weight:900;color:${sc.color};background:${sc.bg};padding:2px 8px;border-radius:20px;text-transform:uppercase;letter-spacing:1px;">${sc.emoji} ${sc.label}</span>
                         </div>
                     </div>
-                    <p style="font-size:12px;color:var(--text-muted);margin-bottom:12px;line-height:1.5;">${items}</p>
-                    <button
-                        onclick="window.reorderItems(${JSON.stringify(order.items).replace(/"/g, '&quot;')})"
-                        style="width:100%;padding:10px;background:transparent;border:1px solid var(--primary);border-radius:10px;color:var(--primary);font-size:12px;font-weight:800;letter-spacing:1px;cursor:pointer;text-transform:uppercase;">
-                        🔄 Reorder
-                    </button>
+                    <!-- Items -->
+                    <div style="padding:0 16px 12px;border-bottom:1px solid rgba(255,255,255,0.06);">
+                        <p style="font-size:12px;color:#9CA3AF;line-height:1.6;">${items}</p>
+                    </div>
+                    <!-- Action buttons -->
+                    <div style="display:flex;gap:8px;padding:12px 16px;">
+                        ${canTrack ? `
+                        <a href="${trackUrl}"
+                            style="flex:1;display:block;padding:10px 0;background:rgba(245,168,0,0.12);border:1px solid rgba(245,168,0,0.4);border-radius:10px;color:#F5A800;font-size:11px;font-weight:900;letter-spacing:1px;cursor:pointer;text-transform:uppercase;text-align:center;text-decoration:none;">
+                            🛵 Track Order
+                        </a>` : ''}
+                        <button
+                            onclick="window.reorderItems(${JSON.stringify(order.items).replace(/"/g, '&quot;')})"
+                            style="flex:1;padding:10px 0;background:transparent;border:1px solid rgba(255,255,255,0.15);border-radius:10px;color:#D1D5DB;font-size:11px;font-weight:900;letter-spacing:1px;cursor:pointer;text-transform:uppercase;">
+                            🔄 Reorder
+                        </button>
+                    </div>
                 </div>
             `;
         }).join('');

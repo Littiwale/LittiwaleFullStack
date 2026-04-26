@@ -1,7 +1,9 @@
 import { fetchMenuItems } from './api/menu';
+import { openProfileModal } from './profile-modal';
 import { updateCartUI } from './menu/cart-ui';
 import { initCheckout } from './menu/checkout';
 import { onAuthChange, logoutUser } from './api/auth';
+import { auth } from './firebase/config';
 import { fetchAnnouncements } from './api/announcements';
 import { createTicket } from './api/tickets';
 import { initScrollReveal } from './scroll-reveal.js';
@@ -62,7 +64,9 @@ const init = async () => {
                 } else {
                     // customer (and any unknown role)
                     menuItems = `
+                        <button type="button" class="lw-dropdown-item" id="dd-nav-profile">👤 My Profile</button>
                         <button type="button" class="lw-dropdown-item" id="dd-nav-orders">📦 My Orders</button>
+                        <button type="button" class="lw-dropdown-item" id="dd-nav-track">🛵 Track Orders</button>
                     `;
                 }
 
@@ -124,10 +128,35 @@ const init = async () => {
                     closeDropdown();
                     window.location.href = '/rider/index.html';
                 });
+                document.getElementById('dd-nav-profile')?.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    closeDropdown();
+                    openProfileModal({
+                        onMyOrders: () => {
+                            // On index page, redirect to menu for orders
+                            window.location.href = '/customer/menu.html';
+                        }
+                    });
+                });
                 document.getElementById('dd-nav-orders')?.addEventListener('click', function(e) {
                     e.stopPropagation();
                     closeDropdown();
-                    window.location.href = '/customer/track.html';
+                    window.location.href = '/customer/menu.html?openOrders=1';
+                });
+                document.getElementById('dd-nav-track')?.addEventListener('click', async function(e) {
+                    e.stopPropagation();
+                    closeDropdown();
+                    try {
+                        const { fetchOrdersByUser } = await import('./api/orders');
+                        const orders = await fetchOrdersByUser(auth.currentUser.uid);
+                        const active = orders.find(o => !['DELIVERED','CANCELLED','REJECTED'].includes(o.status));
+                        const target = active || orders[0];
+                        if (target?.orderId && target?.trackingToken) {
+                            window.location.href = `/customer/track.html?id=${target.orderId}&token=${target.trackingToken}`;
+                        } else {
+                            window.location.href = '/customer/menu.html';
+                        }
+                    } catch(e) { console.error(e); }
                 });
                 document.getElementById('dd-nav-logout')?.addEventListener('click', async function(e) {
                     e.stopPropagation();
