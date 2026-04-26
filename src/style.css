@@ -147,6 +147,20 @@ body {
   transform: scale(1.05);
 }
 
+.logo-link {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  text-decoration: none;
+  flex-shrink: 0;
+  white-space: nowrap;
+  max-width: 300px;
+}
+
+.logo-link span {
+  transition: font-size 0.3s ease, letter-spacing 0.3s ease;
+}
+
 .nav-links {
   display: none;
   list-style: none;
@@ -498,6 +512,16 @@ html[data-theme='light'] .mobile-nav-link {
     height: 18px;
     font-size: 10px;
   }
+
+  /* Logo optimization for tablet */
+  .nav-logo {
+    max-height: 40px;
+  }
+
+  .logo-link span {
+    font-size: 14px !important;
+    letter-spacing: 2px !important;
+  }
 }
 
 @media (max-width: 600px) {
@@ -558,6 +582,20 @@ html[data-theme='light'] .mobile-nav-link {
 
   .nav-container {
     gap: 6px !important;
+  }
+
+  /* Logo optimization for mobile */
+  .nav-logo {
+    max-height: 36px;
+  }
+
+  .logo-link span {
+    display: none;
+  }
+
+  .logo-link {
+    flex-shrink: 0 !important;
+    gap: 0 !important;
   }
 }
 

@@ -8,14 +8,21 @@
   background: #0a0a0a;
   border-top: 1px solid rgba(244,180,0,0.15);
   padding: 64px 0 0;
+  width: 100%;
+  overflow-x: hidden;
 }
 
 /* 4-column grid — WareX style */
 .footer-grid {
   display: grid;
-  grid-template-columns: 1.6fr 1fr 1fr 1fr;
+  grid-template-columns: 1.5fr 1fr 1fr 1fr;
   gap: 40px;
-  padding-bottom: 52px;
+  padding: 0 40px 52px 40px;
+  width: 100%;
+  max-width: 1400px;
+  margin: 0 auto;
+  box-sizing: border-box;
+  overflow-x: auto;
 }
 
 /* Brand column */
@@ -111,12 +118,16 @@
 /* ─── FOOTER BOTTOM — WareX style ────────────────────────────── */
 .footer-bottom {
   border-top: 1px solid rgba(255,255,255,0.06);
-  padding: 20px 0;
+  padding: 20px 40px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   flex-wrap: wrap;
   gap: 12px;
+  width: 100%;
+  max-width: 1400px;
+  margin: 0 auto;
+  box-sizing: border-box;
 }
 
 .footer-bottom p,
@@ -154,16 +165,58 @@
 .footer-brandnest-link i { font-size: 9px; }
 
 /* ─── RESPONSIVE ─────────────────────────────────────────────── */
-@media (max-width: 900px) {
-  .footer-grid { grid-template-columns: 1fr 1fr; gap: 32px; }
+@media (max-width: 1200px) {
+  .footer-grid { 
+    grid-template-columns: 1.2fr 1fr 1fr 1fr; 
+    gap: 32px;
+    padding: 0 32px 48px 32px;
+  }
+
+  .footer-bottom {
+    padding: 20px 32px;
+  }
 }
 
-@media (max-width: 480px) {
-  .footer-grid { grid-template-columns: 1fr; }
+@media (max-width: 900px) {
+  .footer-grid { 
+    grid-template-columns: 1fr 1fr; 
+    gap: 28px;
+    padding: 0 28px 40px 28px;
+  }
+
   .footer-bottom {
+    padding: 16px 28px;
+  }
+}
+
+@media (max-width: 600px) {
+  .site-footer {
+    padding: 48px 0 0;
+  }
+
+  .footer-grid { 
+    grid-template-columns: 1fr;
+    gap: 24px;
+    padding: 0 16px 32px 16px;
+  }
+
+  .footer-bottom {
+    padding: 16px;
     flex-direction: column;
     align-items: flex-start;
     gap: 10px;
+  }
+}
+
+@media (max-width: 480px) {
+  .footer-grid { 
+    grid-template-columns: 1fr;
+    gap: 20px;
+    padding: 0 12px 24px 12px;
+  }
+
+  .footer-bottom {
+    padding: 12px;
   }
 }
 

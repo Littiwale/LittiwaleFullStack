@@ -36,6 +36,40 @@
             0%, 100% { transform: translateY(0px); }
             50% { transform: translateY(-20px); }
         }
+
+        /* Track Page Layout Fix */
+        body {
+            background: #0d0d0d;
+        }
+
+        main {
+            width: 100%;
+            max-width: 900px;
+            margin-left: auto;
+            margin-right: auto;
+            padding: 0 16px;
+        }
+
+        @media (min-width: 768px) {
+            main {
+                padding: 0 32px;
+            }
+        }
+
+        /* Hide cart modal on track page */
+        #cart-modal {
+            display: none !important;
+        }
+
+        /* Ensure tracking content centers properly */
+        #tracking-content {
+            width: 100%;
+        }
+
+        /* Error section full width centered */
+        #tracking-error {
+            width: 100%;
+        }
     </style>
 </head>
 <body class="bg-primary text-white font-sans">
