@@ -1,4 +1,4 @@
-const { onDocumentUpdated } = require('firebase-functions/v2/firestore');
+const { onDocumentUpdated, onDocumentCreated } = require('firebase-functions/v2/firestore');
 const { onCall, onRequest } = require('firebase-functions/v2/https');
 const admin = require('firebase-admin');
 
@@ -72,5 +72,64 @@ exports.onOrderUpdate = onDocumentUpdated('orders/{orderId}', async (event) => {
         } catch (error) {
             console.error('Error sending notification:', error);
         }
+    }
+});
+
+/**
+ * 🛵 Firestore Trigger: Send push notification to rider when assigned a delivery
+ */
+exports.onRiderNotificationCreated = onDocumentCreated('riderNotifications/{notifId}', async (event) => {
+    const notifData = event.data.data();
+    
+    try {
+        // Fetch rider's FCM token from users collection
+        const riderRef = db.collection('users').doc(notifData.riderId);
+        const riderSnap = await riderRef.get();
+        
+        if (!riderSnap.exists()) {
+            console.warn(`Rider ${notifData.riderId} not found`);
+            return;
+        }
+        
+        const riderData = riderSnap.data();
+        const fcmToken = riderData.fcmToken;
+        
+        if (!fcmToken) {
+            console.warn(`No FCM token for rider ${notifData.riderId}`);
+            return;
+        }
+        
+        const payload = {
+            token: fcmToken,
+            notification: {
+                title: notifData.title || '🛵 New Delivery Assigned!',
+                body: notifData.message || 'You have a new delivery to complete',
+                imageUrl: 'https://firebasestorage.googleapis.com/v0/b/littiwale-ordering-system.appspot.com/o/images%2Flogo.png?alt=media'
+            },
+            data: {
+                orderId: notifData.orderId,
+                type: 'NEW_ASSIGNMENT',
+                customerId: notifData.orderData?.customerId || '',
+                customerName: notifData.orderData?.customerName || '',
+                customerAddress: notifData.orderData?.customerAddress || '',
+                total: notifData.orderData?.total?.toString() || '0'
+            },
+            webpush: {
+                fcmOptions: {
+                    link: '/rider/index.html'
+                },
+                notification: {
+                    icon: 'https://firebasestorage.googleapis.com/v0/b/littiwale-ordering-system.appspot.com/o/images%2Flogo.png?alt=media',
+                    badge: 'https://firebasestorage.googleapis.com/v0/b/littiwale-ordering-system.appspot.com/o/images%2Flogo.png?alt=media',
+                    tag: `order_${notifData.orderId}`
+                }
+            }
+        };
+        
+        await admin.messaging().send(payload);
+        console.log(`✅ Push notification sent to rider ${notifData.riderId} for order ${notifData.orderId}`);
+        
+    } catch (error) {
+        console.error('Error sending rider notification:', error);
     }
 });

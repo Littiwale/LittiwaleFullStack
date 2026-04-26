@@ -81,11 +81,11 @@ service cloud.firestore {
       // Admin / Manager — full control
       allow read, write: if isAdminOrManager();
 
-      // Rider — read and update only their assigned order (status + deliveredAt only)
+      // Rider — read and update only their assigned order
       allow read: if isRider() && resource.data.riderId == request.auth.uid;
       allow update: if isRider() &&
         resource.data.riderId == request.auth.uid &&
-        request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status', 'deliveredAt', 'updatedAt']);
+        request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status', 'deliveredAt', 'updatedAt', 'riderStatus', 'riderAcceptedAt', 'riderRejectedAt', 'paymentStatus']);
 
       // Customer may only update fcmToken on their own order after creation
       allow update: if request.auth != null && request.auth.uid == resource.data.userId &&
@@ -134,6 +134,15 @@ service cloud.firestore {
     match /coupons/{couponId} {
       allow read: if request.auth != null;
       allow write: if isAdminOrManager();
+    }
+
+    // ── RIDER NOTIFICATIONS ──
+    // Riders can read their own notifications, admin/manager can read all
+    match /riderNotifications/{notificationId} {
+      allow read: if isRider() && resource.data.riderId == request.auth.uid;
+      allow read, write: if isAdminOrManager();
+      allow create: if isAdminOrManager();
+      allow update: if isRider() && resource.data.riderId == request.auth.uid;
     }
 
   }

@@ -401,8 +401,23 @@ const clearSpecialCouponUI = () => {
 };
 
 const suggestBestCoupon = async () => {
+    const suggestionEl = document.querySelector('#coupon-suggestion');
+    if (!suggestionEl) return;
+
     const cartTotal = getCartTotal();
     const cartItems = getCart();
+
+    // Hide suggestions if coupon already applied
+    if (appliedCouponCode) {
+        suggestionEl.innerHTML = `
+            <div style="margin-top: 16px; padding: 12px 14px; background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 10px; text-align: center;">
+                <p style="margin: 0; font-size: 12px; color: #10B981; font-weight: 700;">✓ Coupon Applied: <strong>${appliedCouponCode}</strong></p>
+                <p style="margin: 4px 0 0; font-size: 11px; color: #10B981; opacity: 0.8;">Clear to view other coupons</p>
+            </div>
+        `;
+        suggestionEl.style.display = 'block';
+        return;
+    }
 
     if (cartTotal < 100) return; // Don't suggest coupons for small orders
 
@@ -957,21 +972,52 @@ const handleCheckoutSubmit = async (e) => {
         const formData = new FormData(checkoutForm);
         const paymentMethod = formData.get('payment-method') || 'COD';
         
-        const customerDetails = {
-            name: document.querySelector('#cust-name').value.trim(),
-            phone: sanitizePhone(document.querySelector('#cust-phone').value),
-            address: document.querySelector('#cust-address').value.trim(),
-            pincode: document.querySelector('#checkout-pincode')?.value.trim() || '',
-            instructions: document.querySelector('#checkout-instructions')?.value.trim() || '',
-            paymentMethod: paymentMethod
-        };
+        const nameInput = document.querySelector('#cust-name').value.trim();
+        const phoneInput = document.querySelector('#cust-phone').value;
+        const addressInput = document.querySelector('#cust-address').value.trim();
+        const pincodeInput = document.querySelector('#checkout-pincode')?.value.trim() || '';
+        
+        // Validate name
+        if (!nameInput) {
+            showError('Please enter your full name.');
+            placeOrderBtn.disabled = false;
+            placeOrderBtn.innerHTML = originalBtnText;
+            return;
+        }
 
-        if (customerDetails.phone.length !== 10) {
+        // Validate phone
+        const sanitizedPhone = sanitizePhone(phoneInput);
+        if (sanitizedPhone.length !== 10) {
             showError('Please enter a valid 10-digit phone number.');
             placeOrderBtn.disabled = false;
             placeOrderBtn.innerHTML = originalBtnText;
             return;
         }
+
+        // Validate address
+        if (!addressInput) {
+            showError('Please enter your delivery address.');
+            placeOrderBtn.disabled = false;
+            placeOrderBtn.innerHTML = originalBtnText;
+            return;
+        }
+
+        // Validate pincode if provided
+        if (pincodeInput && (pincodeInput.length < 5 || pincodeInput.length > 6 || !/^[0-9]+$/.test(pincodeInput))) {
+            showError('Please enter a valid pincode (5-6 digits).');
+            placeOrderBtn.disabled = false;
+            placeOrderBtn.innerHTML = originalBtnText;
+            return;
+        }
+        
+        const customerDetails = {
+            name: nameInput,
+            phone: sanitizedPhone,
+            address: addressInput,
+            pincode: pincodeInput,
+            instructions: document.querySelector('#checkout-instructions')?.value.trim() || '',
+            paymentMethod: paymentMethod
+        };
 
         const cart = getCart();
         const rawTotal = getCartTotal();

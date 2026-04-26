@@ -11,7 +11,8 @@ import { createMenuItem, updateMenuItem, deleteMenuItem } from './api/menu';
 import Chart from 'chart.js/auto';
 import toast from './ui/toast';
 import ImageUploader from './ui/image-uploader';
-import { initializeAdminUIEnhancements, showToast } from './admin-ui-enhancements';
+import { initializeAdminUIEnhancements, showToast, showCustomModal } from './admin-ui-enhancements';
+import { showPersistentNotification } from './utils/notification-manager';
 
 /**
  * 👑 LITTIWALE ADMIN PANEL CORE (PREMIUM REDESIGN)
@@ -215,6 +216,7 @@ const initAdmin = () => {
         setupOrderFiltering();
         setupDashboardCardHandlers();
 
+        // Load riders FIRST, then start order listener
         Promise.all([
             fetchUsersByRole('rider'),
             loadCustomers(),
@@ -222,9 +224,14 @@ const initAdmin = () => {
         ]).then(([riders]) => {
             ridersList = riders;
             renderRiders(riders);
+            
+            // Start order listener AFTER riders are loaded
+            startOrderListener();
+            
+            // Re-render orders to show rider dropdowns
+            renderOrders();
         });
 
-        startOrderListener();
         setupLogout();
         setupAnnouncementAdmin();
         setupNotificationBell();
@@ -1841,9 +1848,11 @@ const startOrderListener = () => {
         activeOrders = [];
         completedOrders = [];
 
-        let newDetected = false;
+        let newOrder = null;
         snapshot.docChanges().forEach(change => {
-            if (change.type === 'added' && !isInitialLoad) newDetected = true;
+            if (change.type === 'added' && !isInitialLoad) {
+                newOrder = { id: change.doc.id, ...change.doc.data() };
+            }
         });
 
         snapshot.docs.forEach(doc => {
@@ -1861,7 +1870,7 @@ const startOrderListener = () => {
             }
         });
 
-        if (newDetected) triggerNewOrderAlert();
+        if (newOrder) triggerNewOrderAlert(newOrder);
 
         updateKPIs();
         renderOrders();
@@ -2103,11 +2112,44 @@ const createOrderCard = (order) => {
             .lw-progress-label.active { color:#F5A800; }
             .lw-progress-label.done   { color:#F5A800; }
             .lw-rider-select {
-                width:100%; padding:10px 14px; background:#161820; border:1px solid #252830;
-                border-radius:10px; color:#e5e7eb; font-size:12px; outline:none; cursor:pointer;
-                font-family:inherit; font-weight:600;
+                width:100%; padding:12px 14px; background:#1a1f2e; border:2px solid #F5A800;
+                border-radius:10px; color:#fff; font-size:13px; outline:none; cursor:pointer;
+                font-family:inherit; font-weight:600; appearance:none; -webkit-appearance:none;
+                background-image:url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23F5A800' stroke-width='2'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+                background-repeat:no-repeat; background-position:right 10px center; background-size:20px;
+                padding-right:40px; box-shadow:0 4px 12px rgba(245, 168, 0, 0.15);
+                transition:all 0.3s ease;
             }
-            .lw-rider-select:focus { border-color:#F5A800; }
+            .lw-rider-select:hover { 
+                border-color:#ffc940; background-color:#1f2437; box-shadow:0 6px 16px rgba(245, 168, 0, 0.25);
+            }
+            .lw-rider-select:focus { 
+                border-color:#ffc940; box-shadow:0 0 0 3px rgba(245, 168, 0, 0.1); background-color:#1f2437;
+            }
+            .lw-rider-assign-btn:hover {
+                filter:brightness(1.1);
+                box-shadow:0 6px 20px rgba(245,168,0,0.4) !important;
+                transform:translateY(-2px);
+            }
+            .lw-rider-assign-btn:active {
+                transform:translateY(0);
+                filter:brightness(0.95);
+            }
+            /* Responsive design for mobile */
+            @media (max-width: 768px) {
+                .lw-rider-select-container {
+                    display:grid !important;
+                    grid-template-columns:1fr !important;
+                    gap:10px !important;
+                }
+                .lw-rider-select {
+                    width:100% !important;
+                }
+                .lw-rider-assign-btn {
+                    width:100% !important;
+                    min-height:44px !important;
+                }
+            }
         `;
         document.head.appendChild(s);
     }
@@ -2175,11 +2217,20 @@ const createOrderCard = (order) => {
             break;
         case ORDER_STATUS.READY:
             actionsHTML = `
-                <p style="font-size:10px;color:#F5A800;font-weight:700;margin-bottom:8px;text-transform:uppercase;letter-spacing:.04em;">Assign rider to dispatch</p>
-                <select onchange="handleRiderAssignment('${order.id}', this.value)" class="lw-rider-select">
-                    <option value="">🛵 Choose Rider</option>
-                    ${ridersList.map(r => `<option value="${r.uid}" ${order.riderId === r.uid ? 'selected' : ''}>${r.name}</option>`).join('')}
-                </select>`;
+                <div style="background:linear-gradient(135deg, rgba(245,168,0,0.1) 0%, rgba(245,168,0,0.05) 100%); padding:16px; border-radius:12px; border:1px solid rgba(245,168,0,0.3);">
+                    <p style="font-size:12px;color:#F5A800;font-weight:800;margin:0 0 12px 0;text-transform:uppercase;letter-spacing:.1em;">🛵 SELECT RIDER & ASSIGN</p>
+                    <div class="lw-rider-select-container" style="display:grid;grid-template-columns:1fr auto;gap:10px;align-items:center;width:100%;">
+                        <select id="rider-select-${order.id}" class="lw-rider-select" style="width:100%;padding:12px 14px;background:#1a1f2e;border:2px solid #F5A800;border-radius:10px;color:#fff;font-size:13px;outline:none;cursor:pointer;font-family:inherit;font-weight:600;appearance:none;-webkit-appearance:none;background-image:url(&quot;data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23F5A800' stroke-width='2'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e&quot;);background-repeat:no-repeat;background-position:right 10px center;background-size:20px;padding-right:40px;box-shadow:0 4px 12px rgba(245, 168, 0, 0.15);transition:all 0.3s ease;">
+                            <option value="">🛵 Choose Rider from List</option>
+                            ${ridersList.map(r => {
+                                const riderName = r.profile?.name || r.name || r.email || 'Unknown Rider';
+                                const riderDisplay = `${riderName}${r.isOnline ? ' 🟢' : ' 🔴'}`;
+                                return `<option value="${r.id}" ${order.riderId === r.id ? 'selected' : ''}>${riderDisplay}</option>`;
+                            }).join('')}
+                        </select>
+                        <button onclick="handleRiderAssignment('${order.id}')" class="lw-order-btn lw-rider-assign-btn" style="background:linear-gradient(135deg, #F5A800, #ffc940);color:#000;font-weight:800;padding:12px 20px;white-space:nowrap;border-radius:10px;font-size:13px;text-transform:uppercase;letter-spacing:.05em;box-shadow:0 4px 12px rgba(245,168,0,0.3);transition:all 0.3s ease;border:none;cursor:pointer;height:44px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">✓ ASSIGN NOW</button>
+                    </div>
+                </div>`;
             break;
         case ORDER_STATUS.ASSIGNED:
             actionsHTML = `<button onclick="updateOrderStatus('${order.id}', '${ORDER_STATUS.DELIVERED}')" class="lw-order-btn lw-btn-deliver">🎉 Mark Delivered</button>`;
@@ -2225,6 +2276,17 @@ const createOrderCard = (order) => {
                         <span style="font-size:12px;flex-shrink:0;">📍</span>
                         <span style="font-size:11px;color:#9ca3af;font-weight:500;line-height:1.4;">${order.customer.address}</span>
                     </div>` : ''}
+                ${order.riderId ? `
+                    <div style="display:flex;align-items:center;gap:8px;margin-top:12px;background:rgba(245,168,0,0.1);padding:10px 12px;border-radius:10px;border:1px solid rgba(245,168,0,0.2);">
+                        <span style="font-size:14px;">🛵</span>
+                        <div style="flex:1;min-width:0;">
+                            <div style="font-size:10px;color:#6b7280;font-weight:600;text-transform:uppercase;letter-spacing:.05em;margin-bottom:2px;">Assigned Rider</div>
+                            <div style="font-size:13px;color:#F5A800;font-weight:800;">${order.riderName || 'Unknown'}</div>
+                            ${order.riderStatus ? `<div style="font-size:10px;color:#9ca3af;margin-top:2px;">Status: ${order.riderStatus}</div>` : ''}
+                            ${order.riderAcceptedAt ? `<div style="font-size:10px;color:#10B981;margin-top:2px;">✓ Accepted ${new Date(order.riderAcceptedAt.seconds ? order.riderAcceptedAt.seconds * 1000 : order.riderAcceptedAt).toLocaleTimeString()}</div>` : ''}
+                            ${order.riderRejectedAt ? `<div style="font-size:10px;color:#ef4444;margin-top:2px;">✗ Rejected ${new Date(order.riderRejectedAt.seconds ? order.riderRejectedAt.seconds * 1000 : order.riderRejectedAt).toLocaleTimeString()}</div>` : ''}
+                        </div>
+                    </div>` : ''}
             </div>
             <div class="lw-order-card-footer">
                 ${actionsHTML}
@@ -2248,19 +2310,35 @@ window.updateOrderStatus = async (docId, newStatus) => {
     } catch (e) { console.error('Status Update Failed:', e); }
 };
 
-window.handleRiderAssignment = async (orderId, riderId) => {
-    if (!riderId) return;
-    const rider = ridersList.find(r => r.uid === riderId);
+window.handleRiderAssignment = async (orderId) => {
+    const dropdown = document.getElementById(`rider-select-${orderId}`);
+    if (!dropdown) return;
+    const riderId = dropdown.value;
+    if (!riderId) {
+        alert('🛵 Please select a rider first!');
+        return;
+    }
+    const rider = ridersList.find(r => r.id === riderId);
     if (!rider) return;
+    const riderDisplayName = rider.profile?.name || rider.name || rider.email || 'Unknown Rider';
     const confirmed = await showCustomModal({
         title: '🛵 Assign Rider?',
-        html: `Assign <strong style="color:#F5A800;">${rider.name}</strong> to this order?`,
+        html: `Assign <strong style="color:#F5A800;">${riderDisplayName}</strong> to this order?`,
         buttons: [
             { label: 'Cancel', value: false, style: 'background:#252830;color:#fff;' },
             { label: 'Assign', value: true, style: 'background:#F5A800;color:#000;' },
         ]
     });
-    if (confirmed) await assignRiderToOrder(orderId, riderId, rider.name);
+    if (confirmed) {
+        try {
+            console.log('[ADMIN] Assigning rider:', { orderId, riderId, riderDisplayName });
+            await assignRiderToOrder(orderId, riderId, riderDisplayName);
+            showToast(`✅ Order assigned to ${riderDisplayName}!`, 'success');
+        } catch (e) {
+            console.error('Assignment failed:', e);
+            showToast('❌ Failed to assign rider', 'error');
+        }
+    }
 };
 
 /**
@@ -2569,10 +2647,13 @@ const renderRiders = async (riders) => {
         // Sort by online status first, then by name
         const sorted = ridersWithStats.sort((a, b) => {
             if (a.isOnline !== b.isOnline) return b.isOnline ? 1 : -1;
-            return (a.name || '').localeCompare(b.name || '');
+            const nameA = a.profile?.name || a.name || a.email || '';
+            const nameB = b.profile?.name || b.name || b.email || '';
+            return nameA.localeCompare(nameB);
         });
 
         ridersContainer.innerHTML = sorted.map(r => {
+            const riderName = r.profile?.name || r.name || r.email || 'Unknown Rider';
             const status = r.isOnline ? 'Online' : 'Offline';
             const statusColor = r.isOnline ? '#10B981' : '#ef4444';
             const statusBg = r.isOnline ? 'rgba(16, 185, 129, 0.1)' : 'rgba(239, 68, 68, 0.1)';
@@ -2594,7 +2675,7 @@ const renderRiders = async (riders) => {
                     <div style="display: flex; align-items: center; gap: 12px;">
                         <div style="width: 48px; height: 48px; background: linear-gradient(135deg, #F5A800, #c47f17); border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 24px; flex-shrink: 0; box-shadow: 0 8px 16px rgba(245, 168, 0, 0.2);">🛵</div>
                         <div style="flex: 1; min-width: 0;">
-                            <div style="font-size: 16px; font-weight: 900; color: #fff; margin-bottom: 2px;">${r.name || 'Unknown'}</div>
+                            <div style="font-size: 16px; font-weight: 900; color: #fff; margin-bottom: 2px;">${riderName}</div>
                             <div style="font-size: 12px; color: #9ca3af; word-break: break-all;">${phone}</div>
                         </div>
                     </div>
@@ -2795,15 +2876,40 @@ const renderPremiumChart = (id, labels, data, color, label, trend) => {
 /**
  * 🔔 Notifications
  */
-const triggerNewOrderAlert = () => {
+const triggerNewOrderAlert = (order) => {
+    // Play notification sound
     const audio = document.querySelector('#notif-sound');
     if (audio) { audio.currentTime = 0; audio.play().catch(console.warn); }
 
+    // Vibrate if supported
+    if ('vibrate' in navigator) {
+        navigator.vibrate([100, 50, 100]);
+    }
+
+    // Show toast notification with order details
     if (newOrderToast) {
+        const orderSummary = order ? 
+            `${order.orderId || order.id.slice(0, 8)} - ₹${order.total}` :
+            'New Order Received!';
+        
+        newOrderToast.innerHTML = `<strong>📦 NEW ORDER:</strong> ${orderSummary}`;
+        newOrderToast.style.cursor = 'pointer';
         newOrderToast.classList.remove('hidden');
-        setTimeout(() => newOrderToast.classList.add('hidden'), 5000);
+        
+        // Click to navigate to orders view
+        const clickHandler = () => {
+            document.querySelector('[data-view="orders"]').click();
+            newOrderToast.removeEventListener('click', clickHandler);
+        };
+        newOrderToast.addEventListener('click', clickHandler);
+        
+        setTimeout(() => {
+            newOrderToast.classList.add('hidden');
+            newOrderToast.removeEventListener('click', clickHandler);
+        }, 6000);
     }
 };
+
 
 const setupLogout = () => {
     document.querySelector('#admin-logout-btn')?.addEventListener('click', async () => {

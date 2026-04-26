@@ -70,6 +70,187 @@
         #tracking-error {
             width: 100%;
         }
+
+        /* ===== ORDER PROGRESS STEPPER ===== */
+        .order-progress-bar {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            position: relative;
+            padding: 32px 0 24px;
+            margin-bottom: 8px;
+        }
+
+        .order-progress-bar::before {
+            content: '';
+            position: absolute;
+            top: 48px;
+            left: 12.5%;
+            right: 12.5%;
+            height: 3px;
+            background: #1e1e1e;
+            border-radius: 99px;
+            z-index: 0;
+        }
+
+        .progress-line-fill {
+            position: absolute;
+            top: 48px;
+            left: 12.5%;
+            height: 3px;
+            background: #F4B400;
+            border-radius: 99px;
+            z-index: 1;
+            transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+            width: 0%;
+        }
+
+        .progress-step {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+            flex: 1;
+            position: relative;
+            z-index: 2;
+        }
+
+        .step-circle {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            border: 3px solid #2a2a2a;
+            background: #0d0d0d;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            transition: all 0.4s ease;
+            box-shadow: 0 0 0 0 rgba(244, 180, 0, 0);
+        }
+
+        .step-circle.done {
+            border-color: #F4B400;
+            background: #F4B400;
+        }
+
+        .step-circle.active {
+            border-color: #F4B400;
+            background: #1a1400;
+            animation: pulse-ring 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse-ring {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(244, 180, 0, 0.4); }
+            50% { box-shadow: 0 0 0 10px rgba(244, 180, 0, 0); }
+        }
+
+        .step-label {
+            font-size: 10px;
+            font-weight: 800;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: #4b5563;
+            text-align: center;
+            line-height: 1.4;
+            transition: color 0.4s ease;
+        }
+
+        .step-label.done { color: #F4B400; }
+        .step-label.active { color: #F4B400; }
+
+        /* ===== ESTIMATED ARRIVAL CARD ===== */
+        .eta-card {
+            background: linear-gradient(135deg, #1a1400 0%, #2a1f00 100%);
+            border: 1px solid rgba(244, 180, 0, 0.25);
+            border-radius: 20px;
+            padding: 28px 24px;
+            text-align: center;
+            margin-bottom: 4px;
+        }
+
+        .eta-label {
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            color: rgba(244, 180, 0, 0.6);
+            margin-bottom: 10px;
+        }
+
+        .eta-time {
+            font-family: 'Playfair Display', serif;
+            font-size: 52px;
+            font-weight: 700;
+            color: #F4B400;
+            line-height: 1;
+            margin-bottom: 8px;
+            letter-spacing: -1px;
+        }
+
+        .eta-sub {
+            font-size: 13px;
+            color: rgba(255,255,255,0.4);
+            font-weight: 500;
+        }
+
+        /* ===== RIDER CARD UPGRADED ===== */
+        #rider-info-v2 {
+            display: none;
+            align-items: center;
+            justify-content: space-between;
+            background: #111318;
+            border: 1px solid rgba(255,255,255,0.07);
+            border-radius: 20px;
+            padding: 20px 24px;
+        }
+
+        .rider-avatar {
+            width: 52px;
+            height: 52px;
+            border-radius: 50%;
+            background: #F4B400;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            flex-shrink: 0;
+        }
+
+        .rider-details { flex: 1; margin-left: 16px; }
+
+        .rider-name {
+            font-size: 18px;
+            font-weight: 800;
+            color: #fff;
+            font-style: italic;
+        }
+
+        .rider-meta {
+            font-size: 12px;
+            color: #6b7280;
+            margin-top: 3px;
+        }
+
+        .rider-call-btn-v2 {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: #F4B400;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            font-size: 18px;
+            flex-shrink: 0;
+            transition: transform 0.2s, box-shadow 0.2s;
+            box-shadow: 0 4px 20px rgba(244, 180, 0, 0.3);
+        }
+
+        .rider-call-btn-v2:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 28px rgba(244, 180, 0, 0.5);
+        }
     </style>
 </head>
 <body class="bg-primary text-white font-sans">
@@ -104,58 +285,92 @@
                     </div>
                 </div>
 
-                <div id="tracking-result" class="hidden space-y-10">
-                    <div class="text-center">
+                <div id="tracking-result" class="hidden space-y-6">
+                    <!-- ORDER ID + STATUS BADGE -->
+                    <div class="text-center pt-2">
                         <p class="text-[10px] font-black uppercase tracking-widest text-gray-500 mb-2">Order Tracking</p>
-                        <h2 id="order-id-display" class="text-4xl font-black text-white mb-6"></h2>
+                        <h2 id="order-id-display" class="text-3xl font-black text-white mb-4"></h2>
                         <div id="order-status-badge" class="inline-block px-8 py-2.5 rounded-full text-[10px] font-black uppercase tracking-widest shadow-lg">
                             LOADING...
                         </div>
-                        <div id="delivery-estimate" class="text-sm font-bold text-[#C47F17] mt-4 tracking-wide"></div>
-                        
-                        <!-- Share & Actions Row -->
-                        <div class="flex flex-col sm:flex-row gap-3 justify-center mt-6">
-                            <a id="whatsapp-share-btn" href="#" target="_blank" class="flex items-center justify-center gap-2 px-6 py-3 bg-green-900 hover:bg-green-800 text-green-300 rounded-xl font-bold text-sm transition-all active:scale-95 shadow-lg">
-                                📱 Share on WhatsApp
-                            </a>
-                            <button id="copy-tracking-btn" type="button" class="flex items-center justify-center gap-2 px-6 py-3 bg-gray-800 hover:bg-gray-700 text-white rounded-xl font-bold text-sm transition-all active:scale-95 shadow-lg">
-                                🔗 Copy Link
-                            </button>
-                        </div>
                     </div>
 
-                    <!-- Rider Info (Premium Card) -->
-                    <div id="rider-info" class="hidden flex flex-col md:flex-row items-center justify-between bg-accent/5 border border-accent/20 p-6 rounded-3xl w-full">
-                        <div class="flex items-center space-x-5 mb-6 md:mb-0">
-                            <div class="bg-accent text-black h-14 w-14 rounded-2xl flex items-center justify-center text-3xl shadow-lg shadow-accent/20">🛵</div>
-                            <div>
-                                <p class="text-[10px] font-black uppercase tracking-widest text-accent mb-1">On the way with</p>
-                                <p id="rider-name-display" class="font-bold text-xl text-white">Assigning Rider...</p>
+                    <!-- ORDER PROGRESS STEPPER -->
+                    <div style="position:relative;">
+                        <div class="order-progress-bar" id="order-stepper">
+                            <div class="progress-line-fill" id="progress-line-fill"></div>
+                            <div class="progress-step">
+                                <div class="step-circle" id="step-circle-0">✓</div>
+                                <div class="step-label" id="step-label-0">Order<br>Confirmed</div>
+                            </div>
+                            <div class="progress-step">
+                                <div class="step-circle" id="step-circle-1">🍳</div>
+                                <div class="step-label" id="step-label-1">Preparing<br>Your Food</div>
+                            </div>
+                            <div class="progress-step">
+                                <div class="step-circle" id="step-circle-2">🛵</div>
+                                <div class="step-label" id="step-label-2">Out For<br>Delivery</div>
+                            </div>
+                            <div class="progress-step">
+                                <div class="step-circle" id="step-circle-3">🎉</div>
+                                <div class="step-label" id="step-label-3">Delivered</div>
                             </div>
                         </div>
-                        <a id="rider-call-btn" href="#" class="w-full md:w-auto btn-primary px-8 py-3 rounded-xl text-center text-sm shadow-xl active:scale-95 transition-transform">
-                            Call Partner
-                        </a>
                     </div>
 
-                    <div class="bg-gray-900/50 p-8 rounded-3xl border border-gray-800 space-y-6">
-                        <h3 class="text-lg font-bold border-b border-gray-800 pb-4">Order Summary</h3>
-                        <div id="order-items-list" class="space-y-4"></div>
-                        <div class="flex justify-between items-center text-2xl font-black pt-6 border-t border-gray-800">
-                            <span class="text-gray-400">Total Paid</span>
-                            <span id="order-total-display" class="text-accent"></span>
+                    <!-- ESTIMATED ARRIVAL CARD -->
+                    <div class="eta-card" id="eta-card" style="display:none;">
+                        <div class="eta-label">Estimated Arrival</div>
+                        <div class="eta-time" id="eta-time-display">—</div>
+                        <div class="eta-sub" id="eta-sub-display">Calculating...</div>
+                    </div>
+
+                    <!-- RIDER INFO V2 -->
+                    <div id="rider-info-v2" style="display:none; align-items:center; justify-content:space-between; background:#111318; border:1px solid rgba(255,255,255,0.07); border-radius:20px; padding:20px 24px; gap:12px; flex-wrap:wrap;">
+                        <div style="width:52px;height:52px;border-radius:50%;background:#F4B400;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;">🧑</div>
+                        <div style="flex:1;margin-left:14px;">
+                            <div id="rider-name-v2" style="font-size:18px;font-weight:800;color:#fff;font-style:italic;">Assigning...</div>
+                            <div id="rider-meta-v2" style="font-size:12px;color:#6b7280;margin-top:3px;">⭐ On the way</div>
+                        </div>
+                        <a id="rider-call-btn-v2" href="#" style="width:44px;height:44px;border-radius:50%;background:#F4B400;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;text-decoration:none;box-shadow:0 4px 20px rgba(244,180,0,0.3);">📞</a>
+                    </div>
+
+                    <!-- Hidden stubs for JS compatibility -->
+                    <div id="rider-info" style="display:none!important;position:absolute;visibility:hidden;">
+                        <p id="rider-name-display"></p>
+                        <a id="rider-call-btn" href="#"></a>
+                    </div>
+                    <div id="delivery-estimate" style="display:none;"></div>
+
+                    <!-- Share & Actions Row (hidden - synced to bottom buttons via JS) -->
+                    <div style="display:none;">
+                        <a id="whatsapp-share-btn" href="#" target="_blank"></a>
+                        <button id="copy-tracking-btn" type="button"></button>
+                    </div>
+
+                    <!-- ORDER ITEMS CARD — Image 2 style -->
+                    <div style="background:#111318; border:1px solid rgba(255,255,255,0.07); border-radius:20px; padding:28px 24px;">
+                        <div style="font-family:var(--font-head,'Playfair Display'),serif; font-size:11px; font-weight:900; letter-spacing:0.18em; text-transform:uppercase; color:#F4B400; margin-bottom:20px;">
+                            Order Items
+                        </div>
+                        <div id="order-items-list" style="display:flex; flex-direction:column; gap:14px;"></div>
+                        <div style="height:1px; background:rgba(255,255,255,0.06); margin:20px 0;"></div>
+                        <div style="display:flex; justify-content:space-between; align-items:center;">
+                            <span id="total-paid-label" style="font-size:15px; font-weight:800; color:#fff;">Total Paid</span>
+                            <span id="order-total-display" style="font-size:18px; font-weight:900; color:#F4B400;"></span>
                         </div>
                     </div>
 
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 text-sm pt-4">
-                        <div class="space-y-2">
-                            <p class="text-[10px] font-black uppercase tracking-widest text-gray-500">Customer</p>
-                            <p id="cust-name-display" class="font-bold text-gray-200 text-lg"></p>
-                            <p id="cust-phone-display" class="text-gray-400"></p>
+                    <!-- CUSTOMER + DELIVERY INFO — compact dark cards -->
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:14px;">
+                        <div style="background:#111318; border:1px solid rgba(255,255,255,0.07); border-radius:16px; padding:20px;">
+                            <div style="font-size:10px; font-weight:800; letter-spacing:0.15em; text-transform:uppercase; color:#F4B400; margin-bottom:10px;">Customer</div>
+                            <div id="cust-name-display" style="font-size:16px; font-weight:800; color:#fff; margin-bottom:4px;"></div>
+                            <div id="cust-phone-display" style="font-size:13px; color:#6b7280;"></div>
                         </div>
-                        <div class="space-y-2">
-                            <p class="text-[10px] font-black uppercase tracking-widest text-gray-500">Delivery To</p>
-                            <p id="cust-address-display" class="text-gray-200 leading-relaxed"></p>
+                        <div style="background:#111318; border:1px solid rgba(255,255,255,0.07); border-radius:16px; padding:20px;">
+                            <div style="font-size:10px; font-weight:800; letter-spacing:0.15em; text-transform:uppercase; color:#F4B400; margin-bottom:10px;">Delivery To</div>
+                            <div id="cust-address-display" style="font-size:14px; color:#d1d5db; line-height:1.6;"></div>
                         </div>
                     </div>
 
@@ -175,9 +390,19 @@
                         <div id="order-tickets-list"></div>
                     </div>
 
-                    <div class="pt-6">
-                        <button onclick="window.location.href='./menu.html'" class="w-full bg-gray-800 hover:bg-gray-700 py-5 rounded-2xl font-bold transition-all shadow-lg active:scale-[0.98]">
-                            Back to Menu
+                    <!-- SHARE + BACK BUTTONS — Image 2 style -->
+                    <div style="display:flex; gap:12px; flex-wrap:wrap;">
+                        <a id="whatsapp-share-btn2" href="#" target="_blank" style="flex:1; min-width:160px; display:flex; align-items:center; justify-content:center; gap:8px; background:#1aad4e; color:#fff; border-radius:14px; padding:16px 20px; font-size:13px; font-weight:800; text-decoration:none; letter-spacing:0.05em; transition:opacity 0.2s;">
+                            📱 Share on WhatsApp
+                        </a>
+                        <button id="copy-tracking-btn2" type="button" style="flex:1; min-width:140px; display:flex; align-items:center; justify-content:center; gap:8px; background:#1e2028; color:#d1d5db; border:1px solid rgba(255,255,255,0.08); border-radius:14px; padding:16px 20px; font-size:13px; font-weight:800; cursor:pointer; transition:background 0.2s;">
+                            🔗 Copy Link
+                        </button>
+                    </div>
+
+                    <div>
+                        <button onclick="window.location.href='./menu.html'" style="width:100%; background:#1e2028; border:1px solid rgba(255,255,255,0.06); color:#fff; border-radius:14px; padding:18px; font-size:14px; font-weight:800; cursor:pointer; letter-spacing:0.05em; transition:background 0.2s;">
+                            ← Back to Menu
                         </button>
                     </div>
                 </div>
@@ -445,6 +670,199 @@
     <script type="module" src="/src/pwa.js"></script>
     <script type="module" src="/src/theme.js"></script>
     <script type="module" src="/src/tracking.js"></script>
+
+    <!-- ===== STEPPER + ETA LOGIC ===== -->
+    <script>
+    (function() {
+        // Status => step index using EXACT values from orderStatus.js
+        const STATUS_MAP = {
+            'PLACED':    0,
+            'ACCEPTED':  0,
+            'PREPARING': 1,
+            'READY':     1,
+            'ASSIGNED':  2,
+            'DELIVERED': 3,
+            'CANCELLED': -1,
+            'REJECTED':  -1
+        };
+
+        // ETA ranges per step
+        const ETA_MAP = {
+            0: { text: '~30–45 min', sub: 'Getting your order ready' },
+            1: { text: '~20–35 min', sub: 'Cooking your food fresh 🔥' },
+            2: { text: '~10–20 min', sub: 'Your rider is on the way 🛵' },
+            3: { text: '🎉 Delivered!', sub: 'Enjoy your meal! Thank you 😊' }
+        };
+
+        function setStepperState(stepIndex) {
+            if (stepIndex === -1) return; // cancelled/rejected — don't update stepper
+
+            const circles = document.querySelectorAll('[id^="step-circle-"]');
+            const labels  = document.querySelectorAll('[id^="step-label-"]');
+            const fill    = document.getElementById('progress-line-fill');
+
+            circles.forEach((c, i) => {
+                c.classList.remove('done', 'active');
+                labels[i] && labels[i].classList.remove('done', 'active');
+                if (i < stepIndex) {
+                    c.classList.add('done');
+                    if (labels[i]) labels[i].classList.add('done');
+                } else if (i === stepIndex) {
+                    c.classList.add('active');
+                    if (labels[i]) labels[i].classList.add('active');
+                }
+            });
+
+            // Fill line: step0=0%, step1=33%, step2=67%, step3=100%
+            const pct = stepIndex === 0 ? 0 : Math.round((stepIndex / 3) * 100);
+            if (fill) fill.style.width = pct + '%';
+
+            // ETA card
+            const etaCard = document.getElementById('eta-card');
+            const etaTime = document.getElementById('eta-time-display');
+            const etaSub  = document.getElementById('eta-sub-display');
+            if (etaCard) {
+                const e = ETA_MAP[stepIndex];
+                if (e) {
+                    etaTime.textContent = e.text;
+                    etaSub.textContent  = e.sub;
+                    etaCard.style.display = 'block';
+                }
+            }
+        }
+
+        function syncRiderV2() {
+            const oldName = document.getElementById('rider-name-display');
+            const oldCall = document.getElementById('rider-call-btn');
+            const v2Card  = document.getElementById('rider-info-v2');
+            const v2Name  = document.getElementById('rider-name-v2');
+            const v2Meta  = document.getElementById('rider-meta-v2');
+            const v2Call  = document.getElementById('rider-call-btn-v2');
+
+            if (!v2Card) return;
+
+            const name = oldName?.textContent?.trim();
+            const href = oldCall?.getAttribute('href');
+
+            if (name && name !== '' && name !== 'Assigning Rider...') {
+                v2Name.textContent = name;
+                if (href && href !== '#') {
+                    v2Call.href = href;
+                }
+                v2Card.style.display = 'flex';
+            }
+        }
+
+        function applyStepperFromStatus(rawStatus) {
+            const key = (rawStatus || '').trim().toUpperCase();
+            const stepIndex = STATUS_MAP.hasOwnProperty(key) ? STATUS_MAP[key] : 0;
+            setStepperState(stepIndex);
+            if (stepIndex >= 2) syncRiderV2();
+        }
+
+        function applyStepperFromBadge() {
+            // Try data-status attribute first (most reliable)
+            const badge = document.getElementById('order-status-badge');
+            if (!badge) return;
+            const dataStatus = badge.getAttribute('data-status');
+            if (dataStatus) { applyStepperFromStatus(dataStatus); return; }
+
+            // Fallback: parse from badge text content
+            // badge text format: "🎉 Delivered" or "🛵 Out for Delivery" etc.
+            // Map display labels back to status keys
+            const labelMap = {
+                'order placed':     'PLACED',
+                'accepted':         'ACCEPTED',
+                'preparing':        'PREPARING',
+                'ready for pickup': 'READY',
+                'out for delivery': 'ASSIGNED',
+                'delivered':        'DELIVERED',
+                'cancelled':        'CANCELLED',
+                'rejected':         'REJECTED'
+            };
+            const text = badge.textContent.replace(/[^\w\s]/g, '').trim().toLowerCase();
+            for (const [label, status] of Object.entries(labelMap)) {
+                if (text.includes(label)) { applyStepperFromStatus(status); return; }
+            }
+        }
+
+        // Watch for tracking-result to become visible (JS shows it after data loads)
+        const observer = new MutationObserver(function(mutations) {
+            for (const m of mutations) {
+                // tracking-result becomes visible
+                if (m.target.id === 'tracking-result' && !m.target.classList.contains('hidden')) {
+                    setTimeout(applyStepperFromBadge, 200);
+                    setTimeout(syncRiderV2, 800);
+                }
+                // data-status attribute set on badge (most reliable hook)
+                if (m.type === 'attributes' && m.attributeName === 'data-status' && m.target.id === 'order-status-badge') {
+                    setTimeout(applyStepperFromBadge, 50);
+                }
+                // badge text changes
+                if (m.target.id === 'order-status-badge' && m.type !== 'attributes') {
+                    setTimeout(applyStepperFromBadge, 100);
+                }
+                // rider name
+                if (m.target.id === 'rider-name-display') {
+                    setTimeout(syncRiderV2, 100);
+                }
+            }
+        });
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const result = document.getElementById('tracking-result');
+            const badge  = document.getElementById('order-status-badge');
+            const riderName = document.getElementById('rider-name-display');
+
+            if (result) observer.observe(result, { attributes: true, attributeFilter: ['class'] });
+            if (badge)  observer.observe(badge,  { attributes: true, attributeFilter: ['data-status'], childList: true, subtree: true, characterData: true });
+            if (riderName) observer.observe(riderName, { childList: true, subtree: true, characterData: true });
+
+            // Fallback: also check after 2s if already visible
+            setTimeout(() => {
+                if (result && !result.classList.contains('hidden')) {
+                    applyStepperFromBadge();
+                    syncRiderV2();
+                }
+            }, 2000);
+        });
+    })();
+    </script>
+
+    <!-- Sync new share/copy buttons + gold item styling -->
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const origWa  = document.getElementById('whatsapp-share-btn');
+        const newWa   = document.getElementById('whatsapp-share-btn2');
+        const origCopy = document.getElementById('copy-tracking-btn');
+        const newCopy  = document.getElementById('copy-tracking-btn2');
+
+        if (origWa && newWa) {
+            new MutationObserver(() => { if (origWa.href) newWa.href = origWa.href; })
+                .observe(origWa, { attributes: true, attributeFilter: ['href'] });
+        }
+        if (newCopy && origCopy) {
+            newCopy.addEventListener('click', () => origCopy.click());
+        }
+
+        // Style order items: item name left, price gold right
+        const itemsList = document.getElementById('order-items-list');
+        if (itemsList) {
+            new MutationObserver(function() {
+                itemsList.querySelectorAll(':scope > *').forEach(el => {
+                    el.style.cssText += 'display:flex;justify-content:space-between;align-items:center;font-size:14px;color:#d1d5db;';
+                    const kids = el.children;
+                    if (kids.length >= 2) {
+                        kids[kids.length-1].style.color = '#F4B400';
+                        kids[kids.length-1].style.fontWeight = '700';
+                        kids[kids.length-1].style.fontSize = '14px';
+                    }
+                });
+            }).observe(itemsList, { childList: true, subtree: true });
+        }
+    });
+    </script>
+
     <script>
         // Simple header scroll for track page
         window.addEventListener('scroll', () => {

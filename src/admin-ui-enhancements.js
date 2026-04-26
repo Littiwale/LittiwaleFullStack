@@ -8,6 +8,57 @@ import toast from './ui/toast';
 import ImageUploader from './ui/image-uploader';
 
 /**
+ * CUSTOM MODAL — Promise-based modal for confirmations
+ */
+export function showCustomModal(config) {
+  return new Promise((resolve) => {
+    const overlay = document.createElement('div');
+    overlay.style.cssText = `position: fixed; inset: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(4px); z-index: 2000; display: flex; align-items: center; justify-content: center;`;
+
+    const modal = document.createElement('div');
+    modal.style.cssText = `background: #1a1e2e; border: 1px solid rgba(255,255,255,0.08); border-radius: 16px; padding: 28px; width: 90%; max-width: 420px; box-shadow: 0 20px 60px rgba(0,0,0,0.4);`;
+
+    modal.innerHTML = `
+      <div style="margin-bottom: 20px;">
+        <h3 style="font-size: 18px; font-weight: 700; color: white; margin: 0 0 12px 0; font-family: 'Syne', sans-serif;">${config.title || 'Confirm'}</h3>
+        ${config.html ? `<div style="color: #d1d5db; font-size: 14px; line-height: 1.6;">${config.html}</div>` : ''}
+      </div>
+      <div style="display: flex; gap: 12px; flex-direction: row-reverse;">
+        ${(config.buttons || []).map((btn, idx) => `
+          <button data-value="${JSON.stringify(btn.value).replace(/"/g, '&quot;')}" style="flex: 1; padding: 11px 16px; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 13px; transition: all 0.15s ease; ${btn.style || 'background: #374151; color: white;'}">${btn.label}</button>
+        `).join('')}
+      </div>
+    `;
+
+    overlay.appendChild(modal);
+    document.body.appendChild(overlay);
+
+    const cleanup = () => {
+      overlay.remove();
+    };
+
+    modal.querySelectorAll('button').forEach(btn => {
+      btn.addEventListener('click', () => {
+        try {
+          const val = JSON.parse(btn.getAttribute('data-value'));
+          resolve(val);
+        } catch {
+          resolve(btn.getAttribute('data-value'));
+        }
+        cleanup();
+      });
+    });
+
+    overlay.addEventListener('click', (e) => {
+      if (e.target === overlay) {
+        resolve(false);
+        cleanup();
+      }
+    });
+  });
+}
+
+/**
  * MODAL SYSTEM — KPI Cards (Clickable stat cards)
  */
 export function initKPIModals() {
@@ -169,4 +220,5 @@ export default {
   showToast,
   initKPIModals,
   applyPremiumStyling,
+  showCustomModal,
 };

@@ -154,16 +154,71 @@ export const updateOrderDetails = async (docId, updates) => {
 };
 
 /**
- * Assigns a specific rider to an order
+ * Assigns a specific rider to an order and sends notification
  * @param {string} docId 
  * @param {string} riderId 
+ * @param {string} riderName
  */
 export const assignRiderToOrder = async (docId, riderId, riderName) => {
-    return updateOrderDetails(docId, {
-        riderId,
-        riderName,
-        status: ORDER_STATUS.ASSIGNED
-    });
+    try {
+        // Get the order data first
+        const orderRef = doc(db, 'orders', docId);
+        const orderSnap = await getDoc(orderRef);
+        
+        if (!orderSnap.exists()) {
+            throw new Error('Order not found');
+        }
+        
+        const orderData = orderSnap.data();
+        
+        // Update order with rider assignment (keep status as READY, rider will accept to start delivery)
+        await updateOrderDetails(docId, {
+            riderId,
+            riderName,
+            riderStatus: 'pending',  // Track pending assignment
+            riderAssignedAt: serverTimestamp()
+        });
+        
+        // Create a notification for the rider in Firestore
+        try {
+            console.log('[ASSIGN] Creating notification for rider:', riderId);
+            const notificationsRef = collection(db, 'riderNotifications');
+            const notifPayload = {
+                riderId,
+                orderId: docId,
+                orderData: {
+                    orderId: orderData.orderId || docId.slice(0, 10),
+                    customerId: orderData.userId,
+                    customerName: orderData.customer?.name || 'Customer',
+                    customerPhone: orderData.customer?.phone || '',
+                    customerAddress: orderData.customer?.address || '',
+                    total: orderData.total,
+                    items: orderData.items
+                },
+                type: 'NEW_ASSIGNMENT',
+                title: '🛵 New Delivery Assigned!',
+                message: `New order assigned: ${orderData.orderId || docId.slice(0, 10)} - ₹${orderData.total}`,
+                read: false,
+                createdAt: serverTimestamp(),
+                updatedAt: serverTimestamp()
+            };
+            console.log('[ASSIGN] Notification payload:', notifPayload);
+            const notifDocRef = await addDoc(notificationsRef, notifPayload);
+            console.log('[ASSIGN] ✅ Notification created:', notifDocRef.id);
+        } catch (notifError) {
+            console.error('❌ CRITICAL: Failed to create notification:', {
+                error: notifError.message,
+                code: notifError.code,
+                fullError: notifError
+            });
+            // Still throw error so admin knows something failed
+            throw new Error(`Notification failed: ${notifError.message}`);
+        }
+        
+    } catch (error) {
+        console.error('Error assigning rider to order:', error);
+        throw error;
+    }
 };
 
 /**

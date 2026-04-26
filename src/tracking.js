@@ -153,6 +153,7 @@ const renderOrder = async (order, docId) => {
     statusBadge.style.border = `1px solid ${config.color}40`;
     statusBadge.textContent = `${config.emoji} ${config.label}`;
     statusBadge.className = 'px-4 py-2 rounded-full text-[12px] font-black uppercase tracking-widest';
+    statusBadge.setAttribute('data-status', order.status); // stepper hook
     
     // Friendly status message
     const statusMessages = {

@@ -1,9 +1,10 @@
-import { collection, query, where, onSnapshot, doc, updateDoc, getDoc } from 'firebase/firestore';
+import { collection, query, where, onSnapshot, doc, updateDoc, getDoc, orderBy } from 'firebase/firestore';
 import { db } from './firebase/config';
 import { ORDER_STATUS } from './constants/orderStatus';
 import { onAuthChange, logoutUser, getUserRole } from './api/auth';
 import { updateOrderDetails } from './api/orders';
 import { RIDER_EARNING_PER_ORDER } from './constants/config';
+import { showPersistentNotification, closePersistentNotification } from './utils/notification-manager';
 
 /**
  * 🛵 LITTIWALE RIDER PANEL — NEON DARK
@@ -79,6 +80,7 @@ const initRider = () => {
 
         startRiderListener(user.uid);
         initRiderToggle(user.uid);
+        startRiderNotificationListener(user.uid);
     });
 };
 
@@ -124,9 +126,11 @@ const initRiderToggle = async (riderId) => {
 const startRiderListener = (riderId) => {
     if (typeof riderListenerUnsubscribe === 'function') riderListenerUnsubscribe();
 
+    console.log('[RIDER] Starting order listener for rider:', riderId);
     const q = query(collection(db, 'orders'), where('riderId', '==', riderId));
 
     riderListenerUnsubscribe = onSnapshot(q, (snapshot) => {
+        console.log('[RIDER] Orders found:', snapshot.size);
         snapshot.docChanges().forEach(change => {
             if (change.type === 'added' && !isInitialLoad) {
                 playNotificationSound();
@@ -171,6 +175,114 @@ const startRiderListener = (riderId) => {
 
 window.addEventListener('beforeunload', () => {
     if (typeof riderListenerUnsubscribe === 'function') riderListenerUnsubscribe();
+});
+
+/* ── RIDER NOTIFICATIONS (NEW ASSIGNMENTS) ──────── */
+let riderNotificationUnsubscribe = null;
+let riderNotificationId = null;
+
+const startRiderNotificationListener = (riderId) => {
+    if (typeof riderNotificationUnsubscribe === 'function') riderNotificationUnsubscribe();
+
+    console.log('[RIDER] Starting notification listener for rider:', riderId);
+    // Removed orderBy temporarily - Firestore composite index issue
+    const q = query(
+        collection(db, 'riderNotifications'),
+        where('riderId', '==', riderId)
+    );
+
+    riderNotificationUnsubscribe = onSnapshot(q, (snapshot) => {
+        console.log('[RIDER] Notifications received:', snapshot.size, snapshot.docs.map(d => ({id: d.id, read: d.data().read, createdAt: d.data().createdAt})));
+        
+        // Sort manually since we can't use orderBy with composite index yet
+        const docs = snapshot.docs.sort((a, b) => {
+            const aTime = a.data().createdAt?.toMillis ? a.data().createdAt.toMillis() : 0;
+            const bTime = b.data().createdAt?.toMillis ? b.data().createdAt.toMillis() : 0;
+            return bTime - aTime;
+        });
+        
+        docs.forEach(docSnapshot => {
+            const change = {type: 'added', doc: docSnapshot};
+            if (change.type === 'added') {
+                const notif = change.doc.data();
+                const notifDocId = change.doc.id;
+                
+                // Client-side filter: only show unread notifications
+                if (notif.read === true) {
+                    console.log('[RIDER] Skipping read notification:', notifDocId);
+                    return;
+                }
+                
+                console.log('[RIDER] ✅ Showing notification:', notifDocId, notif);
+                
+                // Show persistent modal notification with buttons
+                riderNotificationId = showPersistentNotification({
+                    title: '🛵 NEW DELIVERY ASSIGNED!',
+                    message: 'You have a new order assignment. Review details and accept or reject.',
+                    type: 'assignment',
+                    data: {
+                        orderId: notif.orderData?.orderId || change.doc.id,
+                        total: notif.orderData?.total,
+                        customerName: notif.orderData?.customerName,
+                        customerPhone: notif.orderData?.customerPhone,
+                        items: notif.orderData?.items
+                    },
+                    persistent: true,
+                    onAccept: async () => {
+                        // Track rider acceptance in the order
+                        try {
+                            const orderId = notif.orderId;
+                            if (!orderId) throw new Error('Order ID not found');
+                            await updateOrderDetails(orderId, {
+                                riderStatus: 'accepted',
+                                riderAcceptedAt: new Date(),
+                                status: ORDER_STATUS.ASSIGNED  // Move to assigned when rider accepts
+                            });
+                            await updateDoc(doc(db, 'riderNotifications', notifDocId), { read: true });
+                            showPersistentNotification({
+                                title: '✅ Order Accepted!',
+                                message: 'Order ready for pickup',
+                                type: 'success',
+                                duration: 3000
+                            });
+                        } catch (e) {
+                            console.error('Error accepting order:', e);
+                            alert('❌ Failed to accept order. Please try again.');
+                        }
+                    },
+                    onReject: async () => {
+                        // Track rider rejection in the order
+                        try {
+                            const orderId = notif.orderId;
+                            if (!orderId) throw new Error('Order ID not found');
+                            // Only update riderStatus and riderRejectedAt - don't clear riderId/riderName
+                            // Admin will handle reassignment
+                            await updateOrderDetails(orderId, {
+                                riderStatus: 'rejected',
+                                riderRejectedAt: new Date()
+                            });
+                            await updateDoc(doc(db, 'riderNotifications', notifDocId), { read: true });
+                            showPersistentNotification({
+                                title: '❌ Order Rejected',
+                                message: 'Admin will reassign to another rider',
+                                type: 'warning',
+                                duration: 3000
+                            });
+                        } catch (e) {
+                            console.error('Error rejecting order:', e);
+                            alert('❌ Failed to reject order. Please try again.');
+                        }
+                    }
+                });
+            }
+        });
+    });
+};
+
+
+
+window.addEventListener('beforeunload', () => {
+    if (typeof riderNotificationUnsubscribe === 'function') riderNotificationUnsubscribe();
 });
 
 /* ── PENDING PICKUPS ─────────────────────────────── */
@@ -322,9 +434,5 @@ window.markDelivered = async (docId) => {
     }
 };
 
-const playNotificationSound = () => {
-    const audio = document.querySelector('#notif-sound');
-    if (audio) { audio.currentTime = 0; audio.play().catch(() => {}); }
-};
 
 document.addEventListener('DOMContentLoaded', initRider);
