@@ -85,8 +85,8 @@
             content: '';
             position: absolute;
             top: 48px;
-            left: 12.5%;
-            right: 12.5%;
+            left: 10%;
+            right: 10%;
             height: 3px;
             background: #1e1e1e;
             border-radius: 99px;
@@ -96,14 +96,14 @@
         .progress-line-fill {
             position: absolute;
             top: 48px;
-            left: 12.5%;
+            left: 10%; /* Aligns with center of first dot */
             height: 3px;
             background: #F4B400;
             border-radius: 99px;
             z-index: 1;
             transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
             width: 0%;
-            max-width: 75%; /* stops at last circle, never overflows */
+            max-width: 80%; /* Aligns with center of last dot */
         }
 
         .progress-step {
@@ -298,22 +298,26 @@
                     <!-- ORDER PROGRESS STEPPER -->
                     <div style="position:relative;">
                         <div class="order-progress-bar" id="order-stepper">
-                            <div class="progress-line-fill" id="progress-line-fill"></div>
+                            <div class="progress-line-fill" id="progress-line-fill" style="max-width:100%;"></div>
                             <div class="progress-step">
                                 <div class="step-circle" id="step-circle-0">✓</div>
-                                <div class="step-label" id="step-label-0">Order<br>Confirmed</div>
+                                <div class="step-label" id="step-label-0">Order<br>Received</div>
                             </div>
                             <div class="progress-step">
                                 <div class="step-circle" id="step-circle-1">🍳</div>
-                                <div class="step-label" id="step-label-1">Preparing<br>Your Food</div>
+                                <div class="step-label" id="step-label-1">Preparing<br>In Kitchen</div>
                             </div>
                             <div class="progress-step">
-                                <div class="step-circle" id="step-circle-2">🛵</div>
-                                <div class="step-label" id="step-label-2">Out For<br>Delivery</div>
+                                <div class="step-circle" id="step-circle-2">📦</div>
+                                <div class="step-label" id="step-label-2">Packed</div>
                             </div>
                             <div class="progress-step">
-                                <div class="step-circle" id="step-circle-3">🎉</div>
-                                <div class="step-label" id="step-label-3">Delivered</div>
+                                <div class="step-circle" id="step-circle-3">🛵</div>
+                                <div class="step-label" id="step-label-3">Out For<br>Delivery</div>
+                            </div>
+                            <div class="progress-step">
+                                <div class="step-circle" id="step-circle-4">🎉</div>
+                                <div class="step-label" id="step-label-4">Delivered</div>
                             </div>
                         </div>
                     </div>
@@ -679,9 +683,9 @@
             'PLACED':    0,
             'ACCEPTED':  0,
             'PREPARING': 1,
-            'READY':     1,
-            'ASSIGNED':  2,
-            'DELIVERED': 3,
+            'READY':     2,
+            'ASSIGNED':  3,
+            'DELIVERED': 4,
             'CANCELLED': -1,
             'REJECTED':  -1
         };
@@ -690,8 +694,9 @@
         const ETA_MAP = {
             0: { text: '~30–45 min', sub: 'Getting your order ready' },
             1: { text: '~20–35 min', sub: 'Cooking your food fresh 🔥' },
-            2: { text: '~10–20 min', sub: 'Your rider is on the way 🛵' },
-            3: { text: '🎉 Delivered!', sub: 'Enjoy your meal! Thank you 😊' }
+            2: { text: '~15–25 min', sub: 'Packing your order safely 📦' },
+            3: { text: '~10–20 min', sub: 'Your rider is on the way 🛵' },
+            4: { text: '🎉 Delivered!', sub: 'Enjoy your meal! Thank you 😊' }
         };
 
         function setStepperState(stepIndex) {
@@ -709,7 +714,7 @@
                     if (labels[i]) labels[i].classList.add('done');
                 } else if (i === stepIndex) {
                     // Last step (DELIVERED) = all filled gold, no just pulse ring
-                    if (stepIndex === 3) {
+                    if (stepIndex === 4) {
                         c.classList.add('done');
                         if (labels[i]) labels[i].classList.add('done');
                     } else {
@@ -719,8 +724,9 @@
                 }
             });
 
-            // Fill line: 0%=step0, 33%=step1, 67%=step2, 75%=step3 (max-width:75% prevents overflow)
-            const pct = stepIndex === 0 ? 0 : stepIndex === 3 ? 75 : Math.round((stepIndex / 3) * 75);
+            // Fill line: spans from center of first dot (10%) to center of last dot (90%)
+            // Total span = 80%. step 0 is 0%, step 4 is 80%
+            const pct = stepIndex === 0 ? 0 : Math.round((stepIndex / 4) * 80);
             if (fill) fill.style.width = pct + '%';
 
             // ETA card
@@ -763,7 +769,7 @@
             const key = (rawStatus || '').trim().toUpperCase();
             const stepIndex = STATUS_MAP.hasOwnProperty(key) ? STATUS_MAP[key] : 0;
             setStepperState(stepIndex);
-            if (stepIndex >= 2) syncRiderV2();
+            if (stepIndex >= 3) syncRiderV2(); // ASSIGNED or DELIVERED
         }
 
         function applyStepperFromBadge() {

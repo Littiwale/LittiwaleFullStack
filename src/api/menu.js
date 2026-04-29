@@ -80,6 +80,9 @@ export const createMenuItem = async (data, imageFile = null) => {
             image: imageUrl || null,
             storagePath: storagePath || null,
             bestseller: data.bestseller === true,
+            spiceLevel: data.spiceLevel || 'regular',
+            prepTime: data.prepTime || 15,
+            tags: Array.isArray(data.tags) ? data.tags : [],
             createdAt: serverTimestamp(),
             updatedAt: serverTimestamp()
         };
@@ -106,6 +109,9 @@ export const updateMenuItem = async (id, data, imageFile = null, currentStorageP
             description: String(data.description || '').trim(),
             category: String(data.category || 'Uncategorized').trim(),
             veg: data.veg === true || data.veg === 'true',
+            spiceLevel: data.spiceLevel || 'regular',
+            prepTime: data.prepTime || 15,
+            tags: Array.isArray(data.tags) ? data.tags : [],
             updatedAt: serverTimestamp()
         };
 

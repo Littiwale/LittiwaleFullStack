@@ -3,6 +3,7 @@ import { db } from './firebase/config';
 import { ORDER_STATUS } from './constants/orderStatus';
 import { onAuthChange, logoutUser, getUserRole } from './api/auth';
 import { updateOrderDetails } from './api/orders';
+import { fetchRiderPayments } from './api/users';
 import { RIDER_EARNING_PER_ORDER } from './constants/config';
 import { showPersistentNotification, closePersistentNotification } from './utils/notification-manager';
 
@@ -139,7 +140,11 @@ const startRiderListener = (riderId) => {
         });
 
         const today = new Date(); today.setHours(0, 0, 0, 0);
+        const currentMonth = today.getMonth();
+        const currentYear = today.getFullYear();
+        
         let todaysEarnings = 0, deliveriesCount = 0;
+        let monthlyEarnings = 0, allTimeEarnings = 0;
 
         const allOrders = snapshot.docs
             .map(snap => ({ id: snap.id, ...snap.data() }))
@@ -152,16 +157,52 @@ const startRiderListener = (riderId) => {
         allOrders.forEach(o => {
             if (o.status === ORDER_STATUS.DELIVERED && o.updatedAt) {
                 const d = o.updatedAt.toDate ? o.updatedAt.toDate() : new Date(o.updatedAt);
+                allTimeEarnings += RIDER_EARNING_PER_ORDER;
+                if (d.getMonth() === currentMonth && d.getFullYear() === currentYear) {
+                    monthlyEarnings += RIDER_EARNING_PER_ORDER;
+                }
                 if (d >= today) { todaysEarnings += RIDER_EARNING_PER_ORDER; deliveriesCount++; }
             }
         });
 
+        // Update DOM for basic metrics
         const earnEl       = document.getElementById('rider-earnings');
         const countEl      = document.getElementById('rider-deliveries');
         const todayCountEl = document.getElementById('rider-today-count');
         if (earnEl)       earnEl.textContent      = `₹${todaysEarnings}`;
         if (countEl)      countEl.textContent      = `${deliveriesCount} deliveries`;
         if (todayCountEl) todayCountEl.textContent = `${deliveriesCount} today`;
+        
+        // Fetch Payments and Update Financial Overview
+        fetchRiderPayments(riderId).then(payments => {
+            const totalPaid = payments.reduce((sum, p) => sum + (p.amount || 0), 0);
+            const pendingDue = allTimeEarnings - totalPaid;
+            
+            document.getElementById('rider-pending-due').textContent = `₹${pendingDue}`;
+            document.getElementById('rider-total-paid').textContent = `₹${totalPaid}`;
+            document.getElementById('rider-monthly-earn').textContent = `₹${monthlyEarnings}`;
+            document.getElementById('rider-alltime-earn').textContent = `₹${allTimeEarnings}`;
+            
+            // Ledger logic
+            const ledgerList = document.getElementById('ledger-list');
+            if (ledgerList) {
+                if (payments.length === 0) {
+                    ledgerList.innerHTML = `<div style="color:#888;text-align:center;font-size:13px;padding:20px;">No payments recorded yet.</div>`;
+                } else {
+                    ledgerList.innerHTML = payments.map(p => {
+                        const date = p.createdAt?.toDate ? new Date(p.createdAt.toDate()).toLocaleDateString() : 'Unknown date';
+                        return `
+                        <div style="background:#13151A;border:1px solid rgba(255,255,255,0.06);border-radius:12px;padding:12px 16px;display:flex;justify-content:space-between;align-items:center;">
+                            <div>
+                                <div style="color:#fff;font-weight:700;font-size:14px;margin-bottom:4px;">${p.note || 'Cash Payment'}</div>
+                                <div style="color:#888;font-size:11px;">${date}</div>
+                            </div>
+                            <div style="color:#10b981;font-weight:900;font-size:16px;">+₹${p.amount}</div>
+                        </div>`;
+                    }).join('');
+                }
+            }
+        });
 
         const activeOrders  = allOrders.filter(o => ![ORDER_STATUS.DELIVERED, ORDER_STATUS.CANCELLED, ORDER_STATUS.REJECTED].includes(o.status));
         const pendingOrders = activeOrders.filter(o => o.status === ORDER_STATUS.READY);
@@ -435,4 +476,31 @@ window.markDelivered = async (docId) => {
 };
 
 
-document.addEventListener('DOMContentLoaded', initRider);
+document.addEventListener('DOMContentLoaded', () => {
+    initRider();
+    
+    // Ledger Modal Events
+    const ledgerModal = document.getElementById('ledger-modal');
+    const ledgerBtn = document.getElementById('view-ledger-btn');
+    const closeLedgerBtn = document.getElementById('close-ledger');
+    
+    if (ledgerBtn && ledgerModal) {
+        ledgerBtn.addEventListener('click', () => {
+            ledgerModal.style.display = 'flex';
+        });
+    }
+    
+    if (closeLedgerBtn && ledgerModal) {
+        closeLedgerBtn.addEventListener('click', () => {
+            ledgerModal.style.display = 'none';
+        });
+    }
+    
+    if (ledgerModal) {
+        ledgerModal.addEventListener('click', (e) => {
+            if (e.target === ledgerModal) {
+                ledgerModal.style.display = 'none';
+            }
+        });
+    }
+});

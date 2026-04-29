@@ -192,6 +192,20 @@ const createItemCard = (item) => {
     const initialDetail = description || (hasVariants ? `Selected: ${escapeHtml(defaultVariant.type)}` : '\u00A0');
     const inStock = item.inStock !== false;
 
+    let spiceBadgeHTML = '';
+    if (item.spiceLevel === 'spicy') {
+        spiceBadgeHTML = `<span class="menu-card-badge" style="background:rgba(239,68,68,0.9);color:#fff;top:12px;right:12px;left:auto;font-size:10px;font-weight:800;padding:4px 8px;border-radius:8px;border:1px solid #ef4444;box-shadow: 0 4px 12px rgba(239,68,68,0.3);">🌶 Spicy</span>`;
+    } else if (item.spiceLevel === 'extra_spicy') {
+        spiceBadgeHTML = `<span class="menu-card-badge" style="background:rgba(220,38,38,1);color:#fff;top:12px;right:12px;left:auto;font-size:10px;font-weight:800;padding:4px 8px;border-radius:8px;border:1px solid #dc2626;box-shadow: 0 4px 12px rgba(220,38,38,0.4);">🌶🌶 Extra</span>`;
+    }
+
+    let tagsHTML = '';
+    if (item.tags && Array.isArray(item.tags) && item.tags.length > 0) {
+        tagsHTML = `<div class="flex flex-wrap gap-1 mt-1 mb-2">
+            ${item.tags.map(t => `<span class="bg-[#C47F17]/10 text-[#C47F17] border border-[#C47F17]/30 text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full">${escapeHtml(t)}</span>`).join('')}
+        </div>`;
+    }
+
     return `
         <div class="menu-card rounded-3xl overflow-hidden flex flex-col h-full group" data-id="${escapeHtml(item.id)}">
             <div class="menu-card-media relative overflow-hidden" style="aspect-ratio:4/3;">
@@ -216,14 +230,18 @@ const createItemCard = (item) => {
                     </span>
                 ` : ''}
 
+                ${spiceBadgeHTML}
+
                 <span class="diet-tag ${item.veg ? 'diet-tag--veg' : 'diet-tag--nonveg'}" title="${item.veg ? 'Veg' : 'Non-Veg'}"></span>
             </div>
 
             <div class="menu-card-body p-5 flex flex-col flex-grow" style="background: var(--card-bg, #FFFFFF);" data-base-description="${description}">
-                <div class="menu-card-intro mb-4">
-                    <h3 class="menu-card-title text-base font-semibold mb-2 group-hover:text-[#C47F17] transition-colors leading-tight">${escapeHtml(item.name)}</h3>
+                <div class="menu-card-intro mb-2">
+                    <h3 class="menu-card-title text-base font-semibold group-hover:text-[#C47F17] transition-colors leading-tight">${escapeHtml(item.name)}</h3>
                     <span class="item-price">₹${displayPrice}</span>
                 </div>
+
+                ${tagsHTML}
 
                 <p class="item-description text-sm leading-relaxed mb-4">${initialDetail}</p>
 

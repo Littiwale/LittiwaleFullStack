@@ -185,7 +185,11 @@ const renderOrder = async (order, docId) => {
 
     itemsList.innerHTML = order.items.map(item => `
         <div class="flex justify-between text-sm">
-            <span>${item.name} <span class="text-gray-500">(${item.variant.toUpperCase()} × ${item.quantity})</span></span>
+            <span>
+                ${item.name} 
+                <span class="text-gray-500">(${item.variant.toUpperCase()} × ${item.quantity})</span>
+                ${item.spiceLevel ? `<span style="font-size:10px; color:#ef4444; font-weight:800; background:rgba(239,68,68,0.1); padding:2px 6px; border-radius:4px; margin-left:4px;">🌶 ${item.spiceLevel.replace('_', ' ').toUpperCase()}</span>` : ''}
+            </span>
             <span class="font-bold">₹${item.price * item.quantity}</span>
         </div>
     `).join('');

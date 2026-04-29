@@ -641,10 +641,120 @@
                         <button class="filter-tab" data-filter="ACCEPTED">Kitchen</button>
                         <button class="filter-tab" data-filter="READY">Ready</button>
                         <button class="filter-tab" data-filter="ASSIGNED">On Way</button>
+                        <button class="filter-tab" data-filter="ANALYTICS" style="margin-left:auto;background:rgba(245,168,0,0.1);color:#F5A800;border:1px solid rgba(245,168,0,0.3);">📊 Analytics & History</button>
                     </div>
+                    
                     <div id="orders-list-container" class="orders-grid-admin">
                         <!-- Cards injected by JS -->
                         <p class="text-center py-20 text-gray-600">Loading orders...</p>
+                    </div>
+
+                    <!-- ORDER ANALYTICS & HISTORY CONTAINER -->
+                    <div id="orders-analytics-container" style="display:none; flex-direction:column; gap:24px;">
+                        <!-- Stats Row -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <!-- Date-wise -->
+                            <div class="admin-card p-6">
+                                <h4 class="font-bold text-lg mb-4 text-white">📅 Date-wise Orders</h4>
+                                <div class="flex gap-2 mb-4">
+                                    <input type="date" id="order-analytics-date" class="admin-search-input flex-1" />
+                                    <button onclick="window.fetchDateOrders()" class="btn btn-primary px-4 py-2">View</button>
+                                </div>
+                                <div class="flex justify-between items-center bg-gray-800/50 p-4 rounded-xl border border-gray-700/50">
+                                    <div>
+                                        <p class="text-xs text-gray-400 uppercase tracking-widest mb-1">Total Orders</p>
+                                        <p id="oa-date-orders" class="text-2xl font-bold text-blue-400">0</p>
+                                    </div>
+                                    <div class="text-right">
+                                        <p class="text-xs text-gray-400 uppercase tracking-widest mb-1">Revenue</p>
+                                        <p id="oa-date-revenue" class="text-2xl font-bold text-accent">₹0</p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- Week-wise -->
+                            <div class="admin-card p-6">
+                                <h4 class="font-bold text-lg mb-4 text-white">📅 Week-wise Comparison</h4>
+                                <div class="flex justify-between items-center gap-4">
+                                    <div class="flex-1 bg-gray-800/50 p-4 rounded-xl border border-gray-700/50">
+                                        <p class="text-xs text-gray-400 uppercase tracking-widest mb-1">This Week</p>
+                                        <p id="oa-this-week-orders" class="text-xl font-bold text-blue-400 mb-1">0 Orders</p>
+                                        <p id="oa-this-week-revenue" class="text-lg font-bold text-accent">₹0</p>
+                                    </div>
+                                    <div class="flex-1 bg-gray-800/50 p-4 rounded-xl border border-gray-700/50">
+                                        <p class="text-xs text-gray-400 uppercase tracking-widest mb-1">Last Week</p>
+                                        <p id="oa-last-week-orders" class="text-xl font-bold text-gray-300 mb-1">0 Orders</p>
+                                        <p id="oa-last-week-revenue" class="text-lg font-bold text-gray-400">₹0</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Previous Orders History -->
+                        <div class="admin-card p-6">
+                            <div class="flex justify-between items-center mb-6">
+                                <h4 class="font-bold text-lg text-white">📜 Order History</h4>
+                            </div>
+                            
+                            <!-- Filters -->
+                            <div class="flex flex-wrap gap-4 mb-6 p-4 bg-gray-800/30 rounded-xl border border-gray-700/50">
+                                <div class="flex-1 min-w-[150px]">
+                                    <label class="text-xs text-gray-400 block mb-1">Start Date</label>
+                                    <input type="date" id="oa-history-start" class="admin-search-input w-full" />
+                                </div>
+                                <div class="flex-1 min-w-[150px]">
+                                    <label class="text-xs text-gray-400 block mb-1">End Date</label>
+                                    <input type="date" id="oa-history-end" class="admin-search-input w-full" />
+                                </div>
+                                <div class="flex-1 min-w-[150px]">
+                                    <label class="text-xs text-gray-400 block mb-1">Status</label>
+                                    <select id="oa-history-status" class="admin-search-input w-full">
+                                        <option value="ALL">All Statuses</option>
+                                        <option value="DELIVERED">Delivered</option>
+                                        <option value="REJECTED">Cancelled</option>
+                                    </select>
+                                </div>
+                                <div class="flex-1 min-w-[150px]">
+                                    <label class="text-xs text-gray-400 block mb-1">Payment</label>
+                                    <select id="oa-history-payment" class="admin-search-input w-full">
+                                        <option value="ALL">All Methods</option>
+                                        <option value="ONLINE">Online</option>
+                                        <option value="COD">COD</option>
+                                    </select>
+                                </div>
+                                <div class="flex items-end">
+                                    <button onclick="window.fetchOrderHistory()" class="btn btn-primary px-6 py-2 h-[42px]">Filter</button>
+                                </div>
+                            </div>
+
+                            <!-- Table -->
+                            <div class="overflow-x-auto">
+                                <table class="admin-table w-full">
+                                    <thead>
+                                        <tr>
+                                            <th>Order ID</th>
+                                            <th>Date</th>
+                                            <th>Customer</th>
+                                            <th>Items</th>
+                                            <th>Total</th>
+                                            <th>Status</th>
+                                            <th>Payment</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="oa-history-table-body">
+                                        <tr>
+                                            <td colspan="7" class="text-center py-8 text-gray-500">Apply filters to view order history.</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            
+                            <div class="mt-4 flex justify-between items-center">
+                                <button id="oa-history-prev" onclick="window.fetchOrderHistory('prev')" class="btn btn-outline" disabled>Previous</button>
+                                <span id="oa-history-page-info" class="text-sm text-gray-400">Page 1</span>
+                                <button id="oa-history-next" onclick="window.fetchOrderHistory('next')" class="btn btn-outline" disabled>Next</button>
+                            </div>
+                        </div>
                     </div>
                 </section>
 
@@ -731,40 +841,36 @@
                             <button onclick="document.getElementById('rider-analytics-modal').style.display='none'"
                                 style="background:none;border:none;color:#fff;font-size:24px;cursor:pointer;">&times;</button>
                         </div>
-                        <div
-                            style="padding:20px;display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;">
-                            <div
-                                style="background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.3);padding:12px;border-radius:8px;text-align:center;">
-                                <div style="font-size:24px;font-weight:900;color:#F5A800;"
-                                    id="analytics-total-deliveries">0</div>
-                                <div
-                                    style="font-size:11px;color:#F5A800;font-weight:600;margin-top:4px;text-transform:uppercase;">
-                                    Total Deliveries</div>
+                        <div style="padding:20px;display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:12px;">
+                            <div style="background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.3);padding:12px;border-radius:8px;text-align:center;">
+                                <div style="font-size:24px;font-weight:900;color:#F5A800;" id="analytics-total-deliveries">0</div>
+                                <div style="font-size:11px;color:#F5A800;font-weight:600;margin-top:4px;text-transform:uppercase;">Total Deliveries</div>
                             </div>
-                            <div
-                                style="background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.3);padding:12px;border-radius:8px;text-align:center;">
-                                <div style="font-size:24px;font-weight:900;color:#10B981;" id="analytics-avg-time">-
-                                </div>
-                                <div
-                                    style="font-size:11px;color:#10B981;font-weight:600;margin-top:4px;text-transform:uppercase;">
-                                    Avg Delivery Time</div>
+                            <div style="background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.3);padding:12px;border-radius:8px;text-align:center;">
+                                <div style="font-size:24px;font-weight:900;color:#10B981;" id="analytics-today-deliveries">0</div>
+                                <div style="font-size:11px;color:#10B981;font-weight:600;margin-top:4px;text-transform:uppercase;">Today Deliveries</div>
                             </div>
-                            <div
-                                style="background:rgba(59,130,246,0.1);border:1px solid rgba(59,130,246,0.3);padding:12px;border-radius:8px;text-align:center;">
-                                <div style="font-size:24px;font-weight:900;color:#3b82f6;" id="analytics-ontime-rate">-
-                                </div>
-                                <div
-                                    style="font-size:11px;color:#3b82f6;font-weight:600;margin-top:4px;text-transform:uppercase;">
-                                    On-Time Rate</div>
+                            <div style="background:rgba(59,130,246,0.1);border:1px solid rgba(59,130,246,0.3);padding:12px;border-radius:8px;text-align:center;">
+                                <div style="font-size:20px;font-weight:900;color:#3b82f6;" id="analytics-monthly-earnings">₹0</div>
+                                <div style="font-size:11px;color:#3b82f6;font-weight:600;margin-top:4px;text-transform:uppercase;">This Month</div>
                             </div>
-                            <div
-                                style="background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);padding:12px;border-radius:8px;text-align:center;">
-                                <div style="font-size:24px;font-weight:900;color:#ef4444;" id="analytics-active-orders">
-                                    0</div>
-                                <div
-                                    style="font-size:11px;color:#ef4444;font-weight:600;margin-top:4px;text-transform:uppercase;">
-                                    Active Orders</div>
+                            <div style="background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.3);padding:12px;border-radius:8px;text-align:center;">
+                                <div style="font-size:20px;font-weight:900;color:#F5A800;" id="analytics-total-earnings">₹0</div>
+                                <div style="font-size:11px;color:#F5A800;font-weight:600;margin-top:4px;text-transform:uppercase;">Total Earnings</div>
                             </div>
+                            <div style="background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.3);padding:12px;border-radius:8px;text-align:center;">
+                                <div style="font-size:20px;font-weight:900;color:#10B981;" id="analytics-total-paid">₹0</div>
+                                <div style="font-size:11px;color:#10B981;font-weight:600;margin-top:4px;text-transform:uppercase;">Total Paid</div>
+                            </div>
+                            <div style="background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);padding:12px;border-radius:8px;text-align:center;">
+                                <div style="font-size:20px;font-weight:900;color:#ef4444;" id="analytics-pending-due">₹0</div>
+                                <div style="font-size:11px;color:#ef4444;font-weight:600;margin-top:4px;text-transform:uppercase;">Pending Due</div>
+                            </div>
+                        </div>
+                        <div style="padding:0 20px 20px 20px;display:flex;justify-content:flex-end;">
+                            <button id="admin-pay-rider-btn" data-rider="" style="background:#10B981;color:#fff;border:none;border-radius:8px;padding:10px 16px;font-weight:800;cursor:pointer;font-size:13px;display:flex;align-items:center;gap:8px;transition:transform 0.2s;">
+                                <span>💸</span> Record Cash Payment
+                            </button>
                         </div>
                         <div style="padding:20px;border-top:1px solid #252830;">
                             <h4

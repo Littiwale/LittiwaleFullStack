@@ -1,7 +1,7 @@
 import { collection, query, orderBy, onSnapshot, doc, updateDoc, serverTimestamp, where, Timestamp, getDocs, limit, addDoc, getDoc, setDoc, writeBatch } from 'firebase/firestore';
 import { db } from './firebase/config';
 import { onAuthChange, logoutUser, getUserRole, isAdminOrManager } from './api/auth';
-import { fetchAllUsers, fetchUsersByRole, updateUserRole } from './api/users';
+import { fetchAllUsers, fetchUsersByRole, updateUserRole, getRiderFinancialStats, addRiderPayment } from './api/users';
 import { assignRiderToOrder, updateOrderDetails } from './api/orders';
 import { fetchAnalyticsData } from './api/analytics';
 import { ORDER_STATUS } from './constants/orderStatus';
@@ -17,6 +17,59 @@ import { showPersistentNotification } from './utils/notification-manager';
 /**
  * 👑 LITTIWALE ADMIN PANEL CORE (PREMIUM REDESIGN)
  */
+
+window.markOrderAsPaid = (orderId, totalAmount, riderId) => {
+    // Build a custom modal that resolves with the amount directly, before DOM cleanup
+    return new Promise((resolve) => {
+        const overlay = document.createElement('div');
+        overlay.style.cssText = `position:fixed;inset:0;background:rgba(0,0,0,0.75);backdrop-filter:blur(4px);z-index:2000;display:flex;align-items:center;justify-content:center;`;
+
+        overlay.innerHTML = `
+            <div style="background:#1a1e2e;border:1px solid rgba(255,255,255,0.08);border-radius:16px;padding:28px;width:90%;max-width:400px;box-shadow:0 20px 60px rgba(0,0,0,0.5);">
+                <h3 style="font-size:18px;font-weight:700;color:#fff;margin:0 0 12px 0;font-family:'Syne',sans-serif;">💰 Mark as Paid</h3>
+                <p style="color:#e5e7eb;font-size:14px;margin-bottom:12px;">Enter cash collected for order <b style="color:#F5A800">${orderId.slice(0,8)}</b>:</p>
+                <input type="number" id="pay-modal-amount" value="${totalAmount}" min="0"
+                    style="width:100%;background:#12151f;border:2px solid #374151;color:#fff;padding:12px;border-radius:8px;font-size:18px;font-weight:700;outline:none;margin-bottom:20px;box-sizing:border-box;"
+                />
+                <div style="display:flex;gap:10px;">
+                    <button id="pay-modal-cancel" style="flex:1;padding:11px;background:#1e2130;color:#9ca3af;border:1px solid #374151;border-radius:8px;font-weight:600;cursor:pointer;font-size:13px;">Cancel</button>
+                    <button id="pay-modal-confirm" style="flex:1;padding:11px;background:#10b981;color:#fff;border:none;border-radius:8px;font-weight:800;cursor:pointer;font-size:13px;">✓ Yes, Mark Paid</button>
+                </div>
+            </div>
+        `;
+
+        document.body.appendChild(overlay);
+        overlay.querySelector('#pay-modal-cancel').onclick = () => { overlay.remove(); resolve(null); };
+        overlay.querySelector('#pay-modal-confirm').onclick = () => {
+            const amt = parseFloat(overlay.querySelector('#pay-modal-amount').value) || totalAmount;
+            overlay.remove();
+            resolve(amt);
+        };
+        overlay.addEventListener('click', (e) => { if (e.target === overlay) { overlay.remove(); resolve(null); } });
+    }).then(async (collectedAmount) => {
+        if (collectedAmount === null) return;
+
+        try {
+            await updateOrderDetails(orderId, { paymentStatus: 'paid' });
+
+            if (riderId) {
+                const collectionRef = collection(db, 'cash_collections');
+                await addDoc(collectionRef, {
+                    orderId,
+                    riderId,
+                    amount: collectedAmount,
+                    type: 'COD_CASH',
+                    status: 'COLLECTED',
+                    createdAt: serverTimestamp()
+                });
+            }
+            showToast('Order marked as paid & cash collected! 💵', 'success');
+        } catch (e) {
+            console.error('Payment Error:', e);
+            showToast('Error marking as paid. Check console.', 'error');
+        }
+    });
+};
 
 // View Elements
 const viewDashboard = document.querySelector('#view-dashboard');
@@ -222,14 +275,18 @@ const initAdmin = () => {
             loadCustomers(),
             loadDashboardAnalytics()
         ]).then(([riders]) => {
-            ridersList = riders;
-            renderRiders(riders);
+            console.log('[ADMIN INIT] Riders fetched:', riders ? riders.length : 0, riders);
+            ridersList = riders || [];
+            renderRiders(ridersList);
             
             // Start order listener AFTER riders are loaded
             startOrderListener();
             
             // Re-render orders to show rider dropdowns
             renderOrders();
+        }).catch(error => {
+            console.error('[ADMIN INIT] Error loading initial data:', error);
+            showToast('Error loading dashboard data', 'error');
         });
 
         setupLogout();
@@ -369,9 +426,170 @@ const setupOrderFiltering = () => {
         tab.addEventListener('click', () => {
             currentFilter = tab.getAttribute('data-filter');
             tabs.forEach(t => t.classList.toggle('active', t === tab));
-            renderOrders();
+            
+            if (currentFilter === 'ANALYTICS') {
+                const listContainer = document.getElementById('orders-list-container');
+                if (listContainer) listContainer.style.display = 'none';
+                
+                const analyticsContainer = document.getElementById('orders-analytics-container');
+                if (analyticsContainer) analyticsContainer.style.display = 'flex';
+                
+                // Initialize default dates
+                const today = new Date().toISOString().split('T')[0];
+                if (!document.getElementById('order-analytics-date').value) {
+                    document.getElementById('order-analytics-date').value = today;
+                    window.fetchDateOrders();
+                }
+                if (!document.getElementById('oa-history-start').value) {
+                    const lastWeek = new Date();
+                    lastWeek.setDate(lastWeek.getDate() - 7);
+                    document.getElementById('oa-history-start').value = lastWeek.toISOString().split('T')[0];
+                    document.getElementById('oa-history-end').value = today;
+                    window.fetchOrderHistory();
+                }
+                window.fetchWeekOrders();
+            } else {
+                const listContainer = document.getElementById('orders-list-container');
+                if (listContainer) listContainer.style.display = '';
+                
+                const analyticsContainer = document.getElementById('orders-analytics-container');
+                if (analyticsContainer) analyticsContainer.style.display = 'none';
+                
+                renderOrders();
+            }
         });
     });
+};
+
+window.fetchDateOrders = async () => {
+    const dateStr = document.getElementById('order-analytics-date').value;
+    if (!dateStr) return;
+    
+    const startOfDay = new Date(dateStr);
+    startOfDay.setHours(0,0,0,0);
+    const endOfDay = new Date(dateStr);
+    endOfDay.setHours(23,59,59,999);
+    
+    try {
+        const q = query(
+            collection(db, 'orders'),
+            where('createdAt', '>=', Timestamp.fromDate(startOfDay)),
+            where('createdAt', '<=', Timestamp.fromDate(endOfDay))
+        );
+        const snap = await getDocs(q);
+        const orders = snap.docs.map(d => d.data());
+        
+        const validOrders = orders.filter(o => o.status !== ORDER_STATUS.REJECTED && o.status !== ORDER_STATUS.CANCELLED);
+        const revenue = validOrders.reduce((sum, o) => sum + (Number(o.total) || 0), 0);
+        
+        document.getElementById('oa-date-orders').textContent = validOrders.length;
+        document.getElementById('oa-date-revenue').textContent = `₹${revenue}`;
+    } catch (e) {
+        console.error("Error fetching date orders:", e);
+    }
+};
+
+window.fetchWeekOrders = async () => {
+    const now = new Date();
+    
+    // This week (Last 7 days)
+    const thisWeekStart = new Date(now);
+    thisWeekStart.setDate(now.getDate() - 7);
+    thisWeekStart.setHours(0,0,0,0);
+    
+    // Last week (7 to 14 days ago)
+    const lastWeekStart = new Date(thisWeekStart);
+    lastWeekStart.setDate(thisWeekStart.getDate() - 7);
+    
+    try {
+        const qThis = query(
+            collection(db, 'orders'),
+            where('createdAt', '>=', Timestamp.fromDate(thisWeekStart)),
+            where('createdAt', '<=', Timestamp.fromDate(now))
+        );
+        
+        const qLast = query(
+            collection(db, 'orders'),
+            where('createdAt', '>=', Timestamp.fromDate(lastWeekStart)),
+            where('createdAt', '<', Timestamp.fromDate(thisWeekStart))
+        );
+        
+        const [snapThis, snapLast] = await Promise.all([getDocs(qThis), getDocs(qLast)]);
+        
+        const validThis = snapThis.docs.map(d => d.data()).filter(o => o.status !== ORDER_STATUS.REJECTED && o.status !== ORDER_STATUS.CANCELLED);
+        const validLast = snapLast.docs.map(d => d.data()).filter(o => o.status !== ORDER_STATUS.REJECTED && o.status !== ORDER_STATUS.CANCELLED);
+        
+        const revThis = validThis.reduce((sum, o) => sum + (Number(o.total) || 0), 0);
+        const revLast = validLast.reduce((sum, o) => sum + (Number(o.total) || 0), 0);
+        
+        document.getElementById('oa-this-week-orders').textContent = `${validThis.length} Orders`;
+        document.getElementById('oa-this-week-revenue').textContent = `₹${revThis}`;
+        
+        document.getElementById('oa-last-week-orders').textContent = `${validLast.length} Orders`;
+        document.getElementById('oa-last-week-revenue').textContent = `₹${revLast}`;
+    } catch (e) {
+        console.error("Error fetching week orders:", e);
+    }
+};
+
+window.fetchOrderHistory = async (direction = null) => {
+    const startStr = document.getElementById('oa-history-start').value;
+    const endStr = document.getElementById('oa-history-end').value;
+    const statusFilter = document.getElementById('oa-history-status').value;
+    const paymentFilter = document.getElementById('oa-history-payment').value;
+    
+    if (!startStr || !endStr) return;
+    
+    const start = new Date(startStr);
+    start.setHours(0,0,0,0);
+    const end = new Date(endStr);
+    end.setHours(23,59,59,999);
+    
+    try {
+        let q = query(
+            collection(db, 'orders'),
+            where('createdAt', '>=', Timestamp.fromDate(start)),
+            where('createdAt', '<=', Timestamp.fromDate(end)),
+            orderBy('createdAt', 'desc'),
+            limit(100) // Keep simple for now without true cursor pagination just load 100
+        );
+        
+        const snap = await getDocs(q);
+        let orders = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+        
+        if (statusFilter !== 'ALL') {
+            orders = orders.filter(o => o.status === statusFilter);
+        }
+        if (paymentFilter !== 'ALL') {
+            orders = orders.filter(o => o.paymentMethod === paymentFilter);
+        }
+        
+        const tbody = document.getElementById('oa-history-table-body');
+        if (orders.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="7" class="text-center py-8 text-gray-500">No orders found for this criteria.</td></tr>';
+            return;
+        }
+        
+        tbody.innerHTML = orders.map(o => {
+            const date = o.createdAt?.toDate ? o.createdAt.toDate().toLocaleDateString() : '';
+            const items = o.items ? o.items.map(i => `${i.quantity}x ${i.name}`).join(', ') : '';
+            return `
+                <tr>
+                    <td class="font-bold text-gray-300">${o.orderId || o.id.slice(0, 8)}</td>
+                    <td class="text-gray-400">${date}</td>
+                    <td>${o.customer?.name || 'Guest'}</td>
+                    <td class="text-xs text-gray-400 max-w-[200px] truncate" title="${items}">${items}</td>
+                    <td class="font-bold text-accent">₹${o.total}</td>
+                    <td><span class="px-2 py-1 bg-gray-800 rounded text-xs text-gray-300">${o.status}</span></td>
+                    <td><span class="px-2 py-1 ${o.paymentMethod==='ONLINE'?'bg-blue-900/50 text-blue-400':'bg-green-900/50 text-green-400'} rounded text-xs">${o.paymentMethod || 'COD'}</span></td>
+                </tr>
+            `;
+        }).join('');
+        
+    } catch (e) {
+        console.error("Error fetching order history:", e);
+        document.getElementById('oa-history-table-body').innerHTML = '<tr><td colspan="7" class="text-center py-8 text-red-500">Error loading history.</td></tr>';
+    }
 };
 
 const setupMenuAdmin = () => {
@@ -926,7 +1144,7 @@ const resolveTicket = async (ticketDocId) => {
         loadTickets();
     } catch (error) {
         console.error('Failed to resolve ticket:', error);
-        alert('Could not mark ticket as resolved. Please try again.');
+        showToast('Could not mark ticket as resolved. Please try again.', 'error');
     }
 };
 
@@ -2190,10 +2408,11 @@ const createOrderCard = (order) => {
     // Items
     const itemsHTML = (order.items || []).map(i => `
         <div class="lw-order-item-row">
-            <div style="display:flex;align-items:center;gap:8px;">
+            <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
                 <span style="background:#1e2130;color:#F5A800;font-size:9px;font-weight:800;padding:2px 7px;border-radius:6px;font-family:'Syne',sans-serif;">×${i.quantity}</span>
                 <span style="font-size:12px;font-weight:600;color:#e5e7eb;">${i.name}</span>
                 ${i.variant ? `<span style="font-size:10px;color:#6b7280;font-weight:600;background:#1e2130;padding:1px 6px;border-radius:4px;">${i.variant}</span>` : ''}
+                ${i.spiceLevel ? `<span style="font-size:9px;color:#ef4444;font-weight:800;background:rgba(239,68,68,0.1);padding:1px 5px;border-radius:4px;text-transform:uppercase;">🌶 ${i.spiceLevel.replace('_', ' ')}</span>` : ''}
             </div>
             <span style="font-size:12px;font-weight:700;color:#9ca3af;">₹${(i.price || 0) * (i.quantity || 1)}</span>
         </div>
@@ -2238,6 +2457,9 @@ const createOrderCard = (order) => {
         default:
             const archiveLabel = order.status?.replace(/_/g, ' ') || 'Unknown';
             actionsHTML = `<span style="font-size:10px;color:#6b7280;font-weight:700;text-transform:uppercase;letter-spacing:.06em;">Archive: ${archiveLabel}</span>`;
+            if (order.status === ORDER_STATUS.DELIVERED && order.paymentMethod === 'COD' && order.paymentStatus !== 'paid') {
+                actionsHTML += `<button onclick="markOrderAsPaid('${order.id}', ${order.total}, '${order.riderId || ''}')" class="lw-order-btn" style="background:rgba(16,185,129,0.15);border:1px solid rgba(16,185,129,0.3);color:#34d399;margin-left:10px;padding:6px 12px;font-size:10px;">Mark as Paid 💰</button>`;
+            }
     }
 
     const payBadge = order.paymentMethod === 'ONLINE'
@@ -2315,7 +2537,7 @@ window.handleRiderAssignment = async (orderId) => {
     if (!dropdown) return;
     const riderId = dropdown.value;
     if (!riderId) {
-        alert('🛵 Please select a rider first!');
+        showToast('🛵 Please select a rider first!', 'error');
         return;
     }
     const rider = ridersList.find(r => r.id === riderId);
@@ -2549,7 +2771,7 @@ window.sendRiderContactMessage = async () => {
         }, 2000);
     } catch (error) {
         console.error('Error sending message:', error);
-        alert('Failed to send message');
+        showToast('Failed to send message', 'error');
     }
 };
 
@@ -2560,19 +2782,29 @@ window.openRiderAnalytics = async (riderId, riderName) => {
 
     // Show loading state
     modal.style.display = 'flex';
-    document.getElementById('analytics-total-deliveries').textContent = 'Loading...';
-    document.getElementById('analytics-avg-time').textContent = '-';
-    document.getElementById('analytics-ontime-rate').textContent = '-';
-    document.getElementById('analytics-active-orders').textContent = 'Loading...';
+    document.getElementById('analytics-total-deliveries').textContent = '...';
+    document.getElementById('analytics-today-deliveries').textContent = '...';
+    document.getElementById('analytics-monthly-earnings').textContent = '...';
+    document.getElementById('analytics-total-earnings').textContent = '...';
+    document.getElementById('analytics-total-paid').textContent = '...';
+    document.getElementById('analytics-pending-due').textContent = '...';
     document.getElementById('analytics-recent-deliveries').innerHTML = '<div style="color:#6b7280;">Loading...</div>';
 
-    try {
-        const analytics = await getRiderAnalytics(riderId);
+    const payBtn = document.getElementById('admin-pay-rider-btn');
+    if (payBtn) payBtn.setAttribute('data-rider', riderId);
 
-        document.getElementById('analytics-total-deliveries').textContent = analytics.totalDeliveries;
-        document.getElementById('analytics-avg-time').textContent = analytics.avgDeliveryTime > 0 ? `${analytics.avgDeliveryTime}m` : '-';
-        document.getElementById('analytics-ontime-rate').textContent = `${analytics.onTimeRate}%`;
-        document.getElementById('analytics-active-orders').textContent = analytics.activeOrders;
+    try {
+        const [analytics, financials] = await Promise.all([
+            getRiderAnalytics(riderId),
+            getRiderFinancialStats(riderId)
+        ]);
+
+        document.getElementById('analytics-total-deliveries').textContent = financials.allTimeDeliveries;
+        document.getElementById('analytics-today-deliveries').textContent = financials.todayDeliveries;
+        document.getElementById('analytics-monthly-earnings').textContent = `₹${financials.monthlyEarnings}`;
+        document.getElementById('analytics-total-earnings').textContent = `₹${financials.totalEarnings}`;
+        document.getElementById('analytics-total-paid').textContent = `₹${financials.totalPaid}`;
+        document.getElementById('analytics-pending-due').textContent = `₹${financials.pendingAmount}`;
 
         // Display recent deliveries
         const recentEl = document.getElementById('analytics-recent-deliveries');
@@ -2595,6 +2827,68 @@ window.openRiderAnalytics = async (riderId, riderName) => {
         document.getElementById('analytics-recent-deliveries').innerHTML = '<div style="color:#ef4444;">Error loading data</div>';
     }
 };
+
+document.addEventListener('DOMContentLoaded', () => {
+    const payBtn = document.getElementById('admin-pay-rider-btn');
+    if (payBtn) {
+        payBtn.addEventListener('click', async () => {
+            const riderId = payBtn.getAttribute('data-rider');
+            if (!riderId) return;
+            
+            const pendingText = document.getElementById('analytics-pending-due').textContent.replace('₹', '');
+            const defaultAmount = parseFloat(pendingText) || 0;
+
+            // Custom Modal for Rider Payment
+            const collectedAmount = await new Promise((resolve) => {
+                const overlay = document.createElement('div');
+                overlay.style.cssText = `position:fixed;inset:0;background:rgba(0,0,0,0.75);backdrop-filter:blur(4px);z-index:2100;display:flex;align-items:center;justify-content:center;`;
+
+                overlay.innerHTML = `
+                    <div style="background:#1a1e2e;border:1px solid rgba(255,255,255,0.08);border-radius:16px;padding:28px;width:90%;max-width:400px;box-shadow:0 20px 60px rgba(0,0,0,0.5);">
+                        <h3 style="font-size:18px;font-weight:700;color:#fff;margin:0 0 12px 0;font-family:'Syne',sans-serif;">💸 Record Payout</h3>
+                        <p style="color:#e5e7eb;font-size:14px;margin-bottom:12px;">Enter amount paid to rider (Pending: <b style="color:#F5A800">₹${defaultAmount}</b>):</p>
+                        <input type="number" id="rider-pay-modal-amount" value="${defaultAmount}" min="0"
+                            style="width:100%;background:#12151f;border:2px solid #374151;color:#fff;padding:12px;border-radius:8px;font-size:18px;font-weight:700;outline:none;margin-bottom:20px;box-sizing:border-box;"
+                        />
+                        <div style="display:flex;gap:10px;">
+                            <button id="rider-pay-modal-cancel" style="flex:1;padding:11px;background:#1e2130;color:#9ca3af;border:1px solid #374151;border-radius:8px;font-weight:600;cursor:pointer;font-size:13px;">Cancel</button>
+                            <button id="rider-pay-modal-confirm" style="flex:1;padding:11px;background:#10b981;color:#fff;border:none;border-radius:8px;font-weight:800;cursor:pointer;font-size:13px;">Confirm Payment</button>
+                        </div>
+                    </div>
+                `;
+
+                document.body.appendChild(overlay);
+                overlay.querySelector('#rider-pay-modal-cancel').onclick = () => { overlay.remove(); resolve(null); };
+                overlay.querySelector('#rider-pay-modal-confirm').onclick = () => {
+                    const amt = parseFloat(overlay.querySelector('#rider-pay-modal-amount').value);
+                    if (isNaN(amt) || amt <= 0) {
+                        showToast('Please enter a valid amount', 'error');
+                        return;
+                    }
+                    overlay.remove();
+                    resolve(amt);
+                };
+            });
+
+            if (collectedAmount === null) return;
+            
+            payBtn.disabled = true;
+            payBtn.innerHTML = '<span class="animate-pulse">Processing...</span>';
+            try {
+                await addRiderPayment(riderId, collectedAmount, 'Manual Admin Payout');
+                showToast(`Successfully recorded ₹${collectedAmount} payment.`, 'success');
+                // Refresh modal
+                window.openRiderAnalytics(riderId);
+            } catch (err) {
+                console.error(err);
+                showToast('Error recording payment. Check console.', 'error');
+            } finally {
+                payBtn.disabled = false;
+                payBtn.innerHTML = '<span>💸</span> Record Cash Payment';
+            }
+        });
+    }
+});
 
 // Calculate online duration in hours
 const calculateOnlineDuration = (rider) => {
@@ -2636,10 +2930,30 @@ const renderRiders = async (riders) => {
     ridersContainer.innerHTML = '<div style="grid-column: 1/-1; text-align: center; padding: 40px; color: #6b7280;">Loading rider data...</div>';
 
     try {
+        // Debug: Log riders data
+        console.log('[ADMIN RIDERS] Total riders found:', riders.length);
+        if (riders.length > 0) {
+            console.log('[ADMIN RIDERS] First rider sample:', riders[0]);
+        }
+
+        // Check if riders array is empty
+        if (!riders || riders.length === 0) {
+            console.warn('[ADMIN RIDERS] No riders found in database');
+            ridersContainer.innerHTML = '<div style="grid-column: 1/-1; text-align: center; padding: 40px; color: #6b7280;"><div style="font-size:48px;margin-bottom:16px;">🛵</div><p style="font-size:14px;font-weight:600;color:#fff;margin-bottom:8px;">No Riders Yet</p><p style="font-size:12px;">No riders have been registered.</p></div>';
+            return;
+        }
+
         // Fetch delivery stats for all riders in parallel
         const riderDataPromises = riders.map(async (r) => {
             const deliveryCount = await getRiderDeliveryStats(r.id);
-            return { ...r, deliveryCount };
+            // Ensure required fields exist with defaults
+            return {
+                ...r,
+                deliveryCount,
+                isOnline: r.isOnline || false,
+                lastOnlineAt: r.lastOnlineAt || null,
+                lastOfflineAt: r.lastOfflineAt || null
+            };
         });
 
         const ridersWithStats = await Promise.all(riderDataPromises);
@@ -2652,7 +2966,7 @@ const renderRiders = async (riders) => {
             return nameA.localeCompare(nameB);
         });
 
-        ridersContainer.innerHTML = sorted.map(r => {
+        ridersContainer.innerHTML = sorted.map((r, idx) => {
             const riderName = r.profile?.name || r.name || r.email || 'Unknown Rider';
             const status = r.isOnline ? 'Online' : 'Offline';
             const statusColor = r.isOnline ? '#10B981' : '#ef4444';
@@ -2664,7 +2978,12 @@ const renderRiders = async (riders) => {
                 duration = onlineTime ? `Online for ${onlineTime}` : 'Recently online';
             } else {
                 const offlineTime = getLastOfflineTime(r);
-                duration = `Last online ${offlineTime}`;
+                duration = offlineTime ? `Last online ${offlineTime}` : 'Never online';
+            }
+            
+            // Debug first rider
+            if (idx === 0) {
+                console.log('[ADMIN RIDERS] Rendering rider:', { riderName, status, duration, isOnline: r.isOnline });
             }
 
             const deliveries = r.deliveryCount || 0;
@@ -2715,8 +3034,13 @@ const renderRiders = async (riders) => {
             document.head.appendChild(style);
         }
     } catch (error) {
-        console.error('Error rendering riders:', error);
-        ridersContainer.innerHTML = '<div style="grid-column: 1/-1; text-align: center; padding: 40px; color: #ef4444;">Error loading riders. Please try again.</div>';
+        console.error('[ADMIN RIDERS] Error rendering riders:', error);
+        console.error('[ADMIN RIDERS] Error details:', {
+            message: error.message,
+            code: error.code,
+            stack: error.stack
+        });
+        ridersContainer.innerHTML = `<div style="grid-column: 1/-1; text-align: center; padding: 40px; color: #ef4444;"><div style="font-size:48px;margin-bottom:16px;">⚠️</div><p style="font-size:14px;font-weight:600;color:#fff;margin-bottom:8px;">Error Loading Riders</p><p style="font-size:12px;color:#9ca3af;margin-bottom:16px;">${error.message || 'Unknown error'}</p><button onclick="location.reload()" style="background:#F5A800;color:#000;border:none;border-radius:8px;padding:8px 16px;font-weight:600;font-size:12px;cursor:pointer;">🔄 Reload</button></div>`;
     }
 };
 
@@ -2929,7 +3253,7 @@ const setupNotificationBell = () => {
         const pendingOrders = activeOrders.filter(o => [ORDER_STATUS.PLACED, ORDER_STATUS.ACCEPTED, ORDER_STATUS.PREPARING].includes(o.status));
 
         if (pendingOrders.length === 0) {
-            alert('No new notifications or pending orders.');
+            showToast('No new notifications or pending orders.', 'info');
             return;
         }
 
@@ -4322,7 +4646,7 @@ const initSettings = async () => {
             status.style.display = 'block';
             setTimeout(() => { status.style.display = 'none'; }, 3000);
         } catch (e) {
-            alert('Failed to save. Check Firestore connection.');
+            showToast('Failed to save. Check Firestore connection.', 'error');
         }
         saveBtn.textContent = 'Save';
         saveBtn.disabled = false;

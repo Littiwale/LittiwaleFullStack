@@ -374,13 +374,19 @@ const handleSpecialCouponTypes = (result) => {
             if (sItems.length > 0) {
                 benefitsHTML = `
                     <div style="background: rgba(196, 127, 23, 0.1); border: 1px solid #C47F17; border-radius: 8px; padding: 12px; margin-top: 12px;">
-                        <div style="display: flex; align-items: center; gap: 8px;">
+                        <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px;">
                             <span style="font-size: 16px;">🎯</span>
-                            <div>
-                                <div style="font-size: 14px; font-weight: 700; color: #C47F17;">Special Price Unlocked!</div>
-                                <div style="font-size: 12px; color: #C47F17; opacity: 0.9;">${sItems.map(i => `${i.name} @ ₹${i.price}`).join('<br>')}</div>
-                            </div>
+                            <div style="font-weight: 700; color: #C47F17;">Items Unlocked at Special Price!</div>
                         </div>
+                        <div style="display: flex; flex-direction: column; gap: 6px;">
+                            ${sItems.map(i => `
+                                <div style="display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.3); padding: 8px 10px; border-radius: 8px;">
+                                    <span style="font-size: 13px; color: #d1d5db;">${i.name}</span>
+                                    <span style="font-weight: 800; color: #F4B400;">₹${i.price}</span>
+                                </div>
+                            `).join('')}
+                        </div>
+                        <p style="font-size: 11px; color: #C47F17; opacity: 0.8; margin: 8px 0 0;">Add these items to your cart to get them at the special price!</p>
                     </div>
                 `;
             }
@@ -504,12 +510,9 @@ const calculateEligibilityScore = (coupon, cartItems, cartTotal) => {
             score = hasRequiredItem ? 95 : 30;
             break;
         case 'special_price':
-            // Special price depends on specific products
-            const requiredSpecialItems = coupon.specialItems || (coupon.productName ? [{ name: coupon.productName }] : []);
-            const hasSpecialProduct = cartItems.some(cartItem =>
-                requiredSpecialItems.some(i => cartItem.name.toLowerCase().includes(i.name.toLowerCase()))
-            );
-            score = hasSpecialProduct ? 100 : 20;
+            // Special price coupons are now "unlock" based (cart total only)
+            // They are highly recommended if the cart total is met
+            score = cartTotal >= (coupon.minOrderValue || 300) ? 100 : 20;
             break;
         case 'combo_upgrade':
             // Combo upgrades depend on cart composition
@@ -595,8 +598,10 @@ const showEnhancedCouponSuggestions = (topCoupons, cartTotal) => {
                 bgColor = 'rgba(245, 158, 11, 0.1)';
                 break;
             case 'special_price':
-                const sItems = details.specialItems || [];
-                benefitText = `${sItems.length} items @ Special Price`;
+                const sItems = details.specialItems || (coupon.specialItems || []);
+                const spName = sItems.length > 0 ? sItems[0].name : (coupon.productName || 'Special Item');
+                const spPrice = sItems.length > 0 ? sItems[0].price : (coupon.offerPrice || 99);
+                benefitText = sItems.length > 1 ? `${sItems.length} items @ Special Price` : `${spName} @ ₹${spPrice}`;
                 icon = '🎯';
                 bgColor = 'rgba(139, 92, 246, 0.1)';
                 break;
@@ -712,8 +717,9 @@ const loadActiveCoupons = async () => {
         );
 
         // Separate eligible and ineligible coupons
-        const eligibleCoupons = couponAnalysis.filter(c => c.valid && c.savings > 0);
-        const ineligibleCoupons = couponAnalysis.filter(c => !c.valid || c.savings === 0);
+        // special_price has discount=0 but is still valid (unlocks items at special price)
+        const eligibleCoupons = couponAnalysis.filter(c => c.valid && (c.savings > 0 || c.coupon.type === 'special_price' || c.coupon.type === 'freebie' || c.coupon.type === 'combo_upgrade'));
+        const ineligibleCoupons = couponAnalysis.filter(c => !c.valid);
 
         // Generate enhanced coupon display
         let couponHTML = '';
@@ -828,7 +834,10 @@ const generateProgressCouponCard = (couponData) => {
             benefitText = `Free ${coupon.freeItemName || 'Item'}`;
             break;
         case 'special_price':
-            benefitText = `${coupon.productName || 'Item'} @ ₹${coupon.offerPrice || 0}`;
+            const sItems = coupon.specialItems || [];
+            const spName = sItems.length > 0 ? sItems[0].name : (coupon.productName || 'Special Item');
+            const spPrice = sItems.length > 0 ? sItems[0].price : (coupon.offerPrice || 99);
+            benefitText = sItems.length > 1 ? `${sItems.length} items @ Special Price` : `${spName} @ ₹${spPrice}`;
             break;
         case 'combo_upgrade':
             benefitText = coupon.upgradeDescription || 'Upgrade Available';
@@ -885,7 +894,11 @@ const generateCouponCard = (couponData, isEligible) => {
             break;
         case 'special_price':
             displayText = coupon.id;
-            subText = `${coupon.productName} @ ₹${coupon.offerPrice}`;
+            // Use specialItems array (new format) or fall back to legacy fields
+            const spItems = coupon.specialItems || (coupon.productName ? [{ name: coupon.productName, price: coupon.offerPrice }] : []);
+            const spPrice = spItems[0]?.price ?? '?';
+            const spName = spItems[0]?.name || 'Items';
+            subText = `${spItems.length} item${spItems.length !== 1 ? 's' : ''} @ ₹${spPrice}`;
             icon = '🎯';
             break;
         case 'combo_upgrade':

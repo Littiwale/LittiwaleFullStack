@@ -48,6 +48,7 @@ export const addItem = (item, variantType = 'single', lockedPrice) => {
             price: lockedPrice,
             image: item.image,
             veg: item.veg,
+            spiceLevel: item.spiceLevel || null,
             quantity: 1
         });
     }

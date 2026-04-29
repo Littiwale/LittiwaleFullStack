@@ -136,13 +136,30 @@ export const createOrderEntry = async (orderData) => {
 export const updateOrderDetails = async (docId, updates) => {
     try {
         const orderRef = doc(db, 'orders', docId);
+        
+        // Prevent changing status if already DELIVERED
+        if (updates.status) {
+            const snap = await getDoc(orderRef);
+            if (snap.exists() && snap.data().status === ORDER_STATUS.DELIVERED && updates.status !== ORDER_STATUS.DELIVERED) {
+                throw new Error('Order is already DELIVERED. Status cannot be changed further.');
+            }
+        }
+
         const finalUpdates = {
             ...updates,
             updatedAt: serverTimestamp()
         };
 
         if (updates.status === ORDER_STATUS.DELIVERED && !('paymentStatus' in updates)) {
-            finalUpdates.paymentStatus = 'paid';
+            // Only auto-mark online payments as paid upon delivery (or leave them if already paid).
+            // COD must be marked paid manually when cash is collected.
+            const snap = await getDoc(orderRef);
+            if (snap.exists()) {
+                const data = snap.data();
+                if (data.paymentMethod === 'ONLINE') {
+                    finalUpdates.paymentStatus = 'paid';
+                }
+            }
         }
 
         await updateDoc(orderRef, finalUpdates);

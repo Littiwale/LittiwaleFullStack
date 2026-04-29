@@ -86,29 +86,12 @@ export const validateCoupon = async (code, cartTotal, cartItems = []) => {
                 break;
 
             case 'special_price':
-                // Special price coupons modify item prices
-                // Check if cart contains the required product
-                const specialItems = coupon.specialItems || (coupon.productName ? [{ name: coupon.productName, price: coupon.offerPrice || 0 }] : []);
-                let specialDiscount = 0;
-                let foundMatch = false;
-
-                cartItems.forEach(cartItem => {
-                    const matchedSpecial = specialItems.find(si => cartItem.name.toLowerCase().includes(si.name.toLowerCase()));
-                    if (matchedSpecial) {
-                        foundMatch = true;
-                        const regularPrice = cartItem.price * cartItem.quantity;
-                        const offerTotal = matchedSpecial.price * cartItem.quantity;
-                        specialDiscount += Math.max(0, regularPrice - offerTotal);
-                    }
-                });
-
-                if (!foundMatch) {
-                    return { valid: false, message: `This coupon requires specific products in your cart.` };
-                }
-
-                discount = specialDiscount;
-                message = `Special pricing applied! Save ₹${discount} 🎯`;
-                details = { specialItems, savings: discount };
+                // Special price unlocks items at a special price (like ₹99 items)
+                // Validation is ONLY based on cart minimum value — no need for items in cart
+                const specialItems = coupon.specialItems || (coupon.productName ? [{ name: coupon.productName, price: coupon.offerPrice || 99 }] : []);
+                discount = 0; // No direct discount — customer adds the special-price items separately
+                message = `🎯 Special items unlocked! Add items below at ₹${specialItems[0]?.price || 99} each.`;
+                details = { specialItems };
                 break;
 
             case 'combo_upgrade':
