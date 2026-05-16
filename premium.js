@@ -1,4 +1,4 @@
-﻿/*
+/*
   SELECTORS MAP
   Category Bar: #category-tabs .category-tab
   Category Wrapper: #category-tabs
