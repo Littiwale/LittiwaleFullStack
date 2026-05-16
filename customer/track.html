@@ -9,7 +9,7 @@
     <meta property="og:title" content="Track Your Order - Littiwale">
     <meta property="og:description" content="Track your Littiwale order in real-time. See delivery status and estimated arrival.">
     <meta property="og:image" content="https://firebasestorage.googleapis.com/v0/b/littiwale-ordering-system.appspot.com/o/images%2Fmenu%2FLittiwale%20Rice%20Bowl%20Combos%2Fbhook-lagi-hai-boss.png?alt=media">
-    <meta property="og:url" content="https://littiwale.food/customer/track.html">
+    <meta property="og:url" content="https://littiwale.food/track">
     <meta property="og:type" content="website">
     <meta name="twitter:card" content="summary">
     <meta name="twitter:title" content="Track Your Order">
@@ -256,27 +256,96 @@
 </head>
 <body class="bg-primary text-white font-sans">
     <div id="app">
-        <header class="fixed w-full top-0 z-50 flex items-center justify-between px-6 py-4 md:px-12 backdrop-blur-xl bg-primary/80 border-b border-gray-800">
-            <div class="flex items-center">
-                <img src="/images/logo.png" alt="Littiwale" class="h-10 cursor-pointer" onclick="window.location.href='./index.html'">
+        <!-- NAVBAR (Same as index) -->
+        <nav class="navbar">
+            <div class="container nav-container">
+                <a href="/" class="logo-link flex items-center gap-3">
+                    <img src="/images/logo.png" alt="Littiwale" class="nav-logo">
+                    <span style="font-family: var(--font-futuristic); font-weight: 900; letter-spacing: 4px; font-size: 18px; color: var(--primary);">LITTIWALE</span>
+                </a>
+                <ul class="nav-links" style="font-family: var(--font-body); font-weight: 700; text-transform: uppercase; letter-spacing: 1px; font-size: 13px;">
+                    <li><a href="/">Home</a></li>
+                    <li><a href="/menu">Menu</a></li>
+                    <li><a href="/#about">About</a></li>
+                    <li><a href="/track" class="active">Track Order</a></li>
+                    <li><a href="/#reach">Reach Us</a></li>
+                </ul>
+                <div class="nav-right" style="display: flex; align-items: center; gap: 16px;">
+                    <div class="location-switcher-wrapper" style="position: relative; display: flex; align-items: center;">
+                        <button id="nav-location-btn" type="button" aria-haspopup="true" aria-expanded="false" style="
+                            background: rgba(245, 168, 0, 0.1); border: 1px solid rgba(245, 168, 0, 0.3); border-radius: 12px;
+                            padding: 8px 14px; display: flex; align-items: center; gap: 8px; cursor: pointer;
+                            font-family: var(--font-body); font-size: 12px; font-weight: 800; color: #F5A800; transition: all 0.2s;
+                        ">
+                            <span style="font-size: 14px;">📍</span>
+                            <div style="display: flex; flex-direction: column; text-align: left; line-height: 1.1;">
+                                <span style="font-size: 9px; text-transform: uppercase; letter-spacing: 1px; color: #888;">Location</span>
+                                <span id="nav-location-label" style="color: #fff; font-weight: 700;">Cloud Kitchen</span>
+                            </div>
+                            <i class="fas fa-chevron-down" style="font-size: 10px; margin-left: 4px; color: #888;"></i>
+                        </button>
+
+                        <div id="nav-location-dropdown" class="lw-dropdown" style="
+                            position: absolute; top: calc(100% + 8px); right: 0; width: 280px; background: #131313;
+                            border: 1px solid rgba(245, 168, 0, 0.2); border-radius: 16px; box-shadow: 0 10px 40px rgba(0,0,0,0.8);
+                            padding: 12px; z-index: 1050; flex-direction: column; gap: 8px;
+                        ">
+                            <div class="lw-loc-option" data-loc="cloud" style="
+                                padding: 12px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.05); background: #181818;
+                                cursor: pointer; transition: all 0.2s; display: flex; align-items: flex-start; gap: 12px;
+                            ">
+                                <span style="font-size: 20px; margin-top: 2px;">🍳</span>
+                                <div style="flex: 1;">
+                                    <div style="display: flex; align-items: center; justify-content: space-between;">
+                                        <h5 style="color: #fff; font-size: 13px; font-weight: 800; margin: 0;">Cloud Kitchen</h5>
+                                        <span class="lw-loc-badge" style="font-size: 9px; padding: 2px 6px; background: rgba(16,185,129,0.15); color: #34d399; border-radius: 6px; font-weight: 700;">Full Menu</span>
+                                    </div>
+                                    <p style="color: #888; font-size: 11px; margin: 4px 0 0; line-height: 1.3;">Punjabi Para (9 AM - 11 PM)<br>Veg &amp; Non-Veg</p>
+                                </div>
+                            </div>
+
+                            <div class="lw-loc-option" data-loc="outlet" style="
+                                padding: 12px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.05); background: #181818;
+                                cursor: pointer; transition: all 0.2s; display: flex; align-items: flex-start; gap: 12px;
+                            ">
+                                <span style="font-size: 20px; margin-top: 2px;">🏪</span>
+                                <div style="flex: 1;">
+                                    <div style="display: flex; align-items: center; justify-content: space-between;">
+                                        <h5 style="color: #fff; font-size: 13px; font-weight: 800; margin: 0;">Physical Outlet</h5>
+                                        <span class="lw-loc-badge" style="font-size: 9px; padding: 2px 6px; background: rgba(245,168,0,0.15); color: #F5A800; border-radius: 6px; font-weight: 700;">100% Pure Veg</span>
+                                    </div>
+                                    <p style="color: #888; font-size: 11px; margin: 4px 0 0; line-height: 1.3;">Near Barbil Court (8 AM - 10 PM)<br>Pure Vegetarian Catalog</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="nav-profile-area" style="position:relative;z-index:1100;"></div>
+                    <a href="#" class="cart-btn" id="nav-cart-btn">
+                        🛒 <span class="cart-text">Cart</span> <span id="cart-count" class="cart-badge">0</span>
+                    </a>
+                </div>
+                <!-- MOBILE HAMBURGER -->
+                <button id="mobile-nav-toggle" class="mobile-hamburger" aria-label="Open navigation menu" aria-expanded="false">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
             </div>
+        </nav>
 
-            <nav class="hidden md:flex space-x-10 text-sm font-semibold tracking-wide">
-                <a href="./index.html" class="hover:text-accent transition">Home</a>
-                <a href="./menu.html" class="hover:text-accent transition">Menu</a>
-                <a href="./index.html#about" class="hover:text-accent transition">About</a>
-                <a href="./track.html" class="text-accent">Track Order</a>
-                <a href="./index.html#reach" class="hover:text-accent transition">Contact Us</a>
-            </nav>
+        <!-- MOBILE NAV DRAWER -->
+        <div id="mobile-nav-drawer" class="mobile-nav-drawer" aria-hidden="true">
+            <div class="mobile-nav-inner">
+                <a href="/" class="mobile-nav-link">Home</a>
+                <a href="/menu" class="mobile-nav-link">Menu</a>
+                <a href="/#about" class="mobile-nav-link">About</a>
+                <a href="/track" class="mobile-nav-link">Track Order</a>
+                <a href="/#reach" class="mobile-nav-link">Reach Us</a>
+            </div>
+            <div class="mobile-nav-overlay" id="mobile-nav-overlay"></div>
+        </div>
 
-            <button id="theme-toggle" type="button" data-theme-toggle class="theme-toggle-btn" aria-label="Toggle dark mode">🌙</button>
-            <a href="#" class="cart-btn hidden md:inline-flex items-center gap-2" id="nav-cart-btn">
-                🛒 <span id="cart-count" class="cart-badge">0</span>
-            </a>
-            <div class="w-10 md:hidden"></div> <!-- Spacer for mobile center logo if needed -->
-        </header>
-
-        <main class="pt-32 p-6 max-w-2xl mx-auto mb-20 w-full">
+        <main class="pt-44 p-6 max-w-2xl mx-auto mb-20 w-full" style="padding-top: 160px;">
             <div id="tracking-content" class="glass-card p-10 animate-fade-in shadow-2xl">
                 <div id="tracking-loading" class="text-center py-20">
                     <div class="animate-pulse flex flex-col items-center">
@@ -346,10 +415,9 @@
                     </div>
                     <div id="delivery-estimate" style="display:none;"></div>
 
-                    <!-- Share & Actions Row (hidden - synced to bottom buttons via JS) -->
+                    <!-- Share & Actions Row (hidden - synced to bottom WhatsApp button via JS) -->
                     <div style="display:none;">
                         <a id="whatsapp-share-btn" href="#" target="_blank"></a>
-                        <button id="copy-tracking-btn" type="button"></button>
                     </div>
 
                     <!-- ORDER ITEMS CARD — Image 2 style -->
@@ -394,20 +462,28 @@
                         <div id="order-tickets-list"></div>
                     </div>
 
-                    <!-- SHARE + BACK BUTTONS — Image 2 style -->
                     <div style="display:flex; gap:12px; flex-wrap:wrap;">
                         <a id="whatsapp-share-btn2" href="#" target="_blank" style="flex:1; min-width:160px; display:flex; align-items:center; justify-content:center; gap:8px; background:#1aad4e; color:#fff; border-radius:14px; padding:16px 20px; font-size:13px; font-weight:800; text-decoration:none; letter-spacing:0.05em; transition:opacity 0.2s;">
                             📱 Share on WhatsApp
                         </a>
-                        <button id="copy-tracking-btn2" type="button" style="flex:1; min-width:140px; display:flex; align-items:center; justify-content:center; gap:8px; background:#1e2028; color:#d1d5db; border:1px solid rgba(255,255,255,0.08); border-radius:14px; padding:16px 20px; font-size:13px; font-weight:800; cursor:pointer; transition:background 0.2s;">
-                            🔗 Copy Link
-                        </button>
                     </div>
 
                     <div>
                         <button onclick="window.location.href='./menu.html'" style="width:100%; background:#1e2028; border:1px solid rgba(255,255,255,0.06); color:#fff; border-radius:14px; padding:18px; font-size:14px; font-weight:800; cursor:pointer; letter-spacing:0.05em; transition:background 0.2s;">
                             ← Back to Menu
                         </button>
+                    </div>
+
+                    <!-- Help & Ticket Section (always shown when order is found) -->
+                    <div id="order-help-card" style="background: #181818; border: 1px solid rgba(244, 180, 0, 0.15); border-radius: 20px; padding: 28px; text-align: center; margin-top: 8px;">
+                        <div style="font-family: var(--font-head); font-size: 12px; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; color: #F4B400; margin-bottom: 16px;">Need Help?</div>
+                        <p id="help-card-text" style="color: #888; font-size: 14px; margin: 0 0 16px 0;">Facing issues with your order? Raise a support ticket.</p>
+                        <div id="ticket-action-area" style="display: flex; flex-direction: column; gap: 12px; align-items: center;">
+                            <button id="track-raise-ticket-btn" style="background: #F4B400; color: #000; border: none; border-radius: 50px; padding: 12px 32px; font-family: var(--font-head); font-weight: 800; font-size: 12px; letter-spacing: 1px; text-transform: uppercase; cursor: pointer; transition: all 0.2s ease;">
+                                📢 Raise a Complaint
+                            </button>
+                            <a href="https://wa.me/916370680744" target="_blank" style="color: #888; font-size: 12px; text-decoration: underline;">Or WhatsApp Us</a>
+                        </div>
                     </div>
                 </div>
                 
@@ -457,77 +533,84 @@
                             </button>
                         </div>
                         
-                        <!-- Help Section -->
-                        <div style="background: #181818; border: 1px solid rgba(244, 180, 0, 0.15); border-radius: 20px; padding: 28px; text-align: center;">
-                            <div style="font-family: var(--font-head); font-size: 12px; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; color: #F4B400; margin-bottom: 16px;">Need Help?</div>
-                            <p style="color: #888; font-size: 14px; margin: 0 0 16px 0;">Contact us directly on WhatsApp</p>
-                            <a href="https://wa.me/916370680744" target="_blank" style="display: inline-flex; align-items: center; gap: 10px; background: #1aad4e; color: #fff; padding: 12px 24px; border-radius: 50px; text-decoration: none; font-family: var(--font-head); font-weight: 800; font-size: 12px; letter-spacing: 1px; text-transform: uppercase; transition: all 0.2s ease;">
-                                💬 WhatsApp Support
-                            </a>
-                        </div>
-                    </div>
                 </div>
+
             </div>
         </main>
 
-        <footer class="footer" style="background: #131313; border-top: 1px solid rgba(244,180,0,0.15); padding: 64px 0 0;">
-          <div class="container">
-            <div class="footer-grid" style="display: grid; grid-template-columns: 1.5fr 1fr 1fr 1fr; gap: 40px; margin-bottom: 48px;">
-              <!-- BRAND -->
-              <div>
-                <div class="footer-brand-logo" style="display: flex; align-items: center; gap: 10px; margin-bottom: 16px;">
-                  <div class="footer-logo-box" style="width: 40px; height: 40px; background: #F4B400; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-family: var(--font-head); font-weight: 900; font-size: 18px; color: #000;">L</div>
-                  <span class="footer-brand-name" style="font-family: var(--font-head); font-weight: 900; font-size: 18px; letter-spacing: 3px; color: #F4B400;">LITTIWALE</span>
+        <footer class="site-footer">
+            <div class="container footer-grid">
+
+                <!-- Brand Column -->
+                <div class="footer-brand">
+                    <img src="/images/logo.png" alt="Littiwale" class="footer-logo">
+                    <p class="footer-tagline">The Soul of Bihar, Delivered.<br>Authentic Bihari flavours, made fresh daily in Barbil, Odisha.</p>
+                    <div class="footer-social">
+                        <a href="https://www.instagram.com/littiwaleofficial/" target="_blank" rel="noopener" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+                        <a href="https://www.facebook.com/share/18fQs5NEQU/" target="_blank" rel="noopener" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+                        <a href="https://wa.me/916370680744" target="_blank" rel="noopener" aria-label="WhatsApp"><i class="fab fa-whatsapp"></i></a>
+                    </div>
                 </div>
-                <p class="footer-tagline" style="font-size: 14px; color: #888; line-height: 1.7; margin-bottom: 24px;">The Soul of Bihar, Delivered.<br>Authentic Bihari flavours, made fresh daily in Barbil, Odisha.</p>
-                <div class="footer-socials" style="display: flex; gap: 12px;">
-                  <div class="footer-social-icon" style="width: 38px; height: 38px; background: #181818; border: 1px solid rgba(244,180,0,0.15); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 15px; cursor: pointer;"><i class="fab fa-instagram"></i></div>
-                  <div class="footer-social-icon" style="width: 38px; height: 38px; background: #181818; border: 1px solid rgba(244,180,0,0.15); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 15px; cursor: pointer;"><i class="fab fa-facebook-f"></i></div>
-                  <div class="footer-social-icon" style="width: 38px; height: 38px; background: #181818; border: 1px solid rgba(244,180,0,0.15); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 15px; cursor: pointer;"><i class="fab fa-whatsapp"></i></div>
-                  <div class="footer-social-icon" style="width: 38px; height: 38px; background: #181818; border: 1px solid rgba(244,180,0,0.15); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 15px; cursor: pointer;"><i class="fab fa-youtube"></i></div>
+
+                <!-- Menu Column -->
+                <div class="footer-links-col">
+                    <h4>Explore</h4>
+                    <ul>
+                        <li><a href="./index.html#why-littiwale">Why Littiwale</a></li>
+                        <li><a href="./index.html#how-it-works">How It Works</a></li>
+                        <li><a href="./index.html#membership">Membership Plans</a></li>
+                        <li><a href="/menu">Full Menu</a></li>
+                        <li><a href="./index.html#catering">Catering Services</a></li>
+                    </ul>
                 </div>
-              </div>
-              <!-- MENU COL -->
-              <div class="footer-col">
-                <h5 style="font-family: var(--font-head); font-weight: 800; font-size: 12px; letter-spacing: 2px; text-transform: uppercase; color: #F4B400; margin-bottom: 20px;">Menu</h5>
-                <ul style="list-style: none; display: flex; flex-direction: column; gap: 12px;">
-                  <li><a href="./index.html#why" style="font-size: 14px; color: #888; text-decoration: none;">Why Littiwale</a></li>
-                  <li><a href="./index.html#how" style="font-size: 14px; color: #888; text-decoration: none;">How It Works</a></li>
-                  <li><a href="./index.html#plans" style="font-size: 14px; color: #888; text-decoration: none;">Membership Plans</a></li>
-                  <li><a href="./menu.html" style="font-size: 14px; color: #888; text-decoration: none;">Full Menu</a></li>
-                  <li><a href="./index.html#catering" style="font-size: 14px; color: #888; text-decoration: none;">Catering Services</a></li>
-                </ul>
-              </div>
-              <!-- COMPANY COL -->
-              <div class="footer-col">
-                <h5 style="font-family: var(--font-head); font-weight: 800; font-size: 12px; letter-spacing: 2px; text-transform: uppercase; color: #F4B400; margin-bottom: 20px;">Company</h5>
-                <ul style="list-style: none; display: flex; flex-direction: column; gap: 12px;">
-                  <li><a href="./index.html#about" style="font-size: 14px; color: #888; text-decoration: none;">About Littiwale</a></li>
-                  <li><a href="./index.html#reach" style="font-size: 14px; color: #888; text-decoration: none;">Reach Us</a></li>
-                  <li><a href="./index.html#faq" style="font-size: 14px; color: #888; text-decoration: none;">FAQ</a></li>
-                  <li><a href="./track.html" style="font-size: 14px; color: #888; text-decoration: none;">Track Order</a></li>
-                </ul>
-              </div>
-              <!-- VISIT COL -->
-              <div class="footer-col">
-                <h5 style="font-family: var(--font-head); font-weight: 800; font-size: 12px; letter-spacing: 2px; text-transform: uppercase; color: #F4B400; margin-bottom: 20px;">Visit Us</h5>
-                <p style="font-size: 13px; color: #888; line-height: 1.8;">Ward No. 7, Punjabi Para<br>Barbil, Odisha 758035</p>
-                <p style="margin-top:12px; font-size: 13px; color: #888;">📞 +91 63706 80744</p>
-                <p style="font-size: 13px; color: #888;">🕚 11 AM – 10:30 PM, Daily</p>
-              </div>
+
+                <!-- Company Column -->
+                <div class="footer-links-col">
+                    <h4>Company</h4>
+                    <ul>
+                        <li><a href="./index.html#about">About Littiwale</a></li>
+                        <li><a href="./index.html#reach">Reach Us</a></li>
+                        <li><a href="./index.html#faq">FAQ</a></li>
+                        <li><a href="/track">Track Order</a></li>
+                    </ul>
+                </div>
+
+                <!-- Visit / CTA Column -->
+                <div class="footer-info-col" style="min-width: 280px;">
+                    <h4>Visit Us</h4>
+                    <div style="margin-bottom: 20px; padding-bottom: 16px; border-bottom: 1px solid rgba(255,255,255,0.1);">
+                        <p style="font-weight: 700; color: #F5A800; margin-bottom: 4px; font-size: 13px;">☁️ Cloud Kitchen</p>
+                        <p>Ward No. 7, Punjabi Para<br>Barbil, Odisha 758035</p>
+                        <p style="margin-top:4px;">🕚 9:00 AM – 11:00 PM</p>
+                        <a href="https://g.page/r/CYlrxD6jO24cEAE/review" target="_blank" rel="noopener" style="display:inline-flex; align-items:center; gap:6px; color:#F5A800; font-size:12px; font-weight:700; margin-top:8px; background:rgba(245,168,0,0.1); padding:6px 12px; border-radius:6px; border:1px solid rgba(245,168,0,0.3); text-decoration:none;">
+                            ⭐⭐⭐⭐⭐ Review Cloud Kitchen
+                        </a>
+                    </div>
+                    <div style="margin-bottom: 20px;">
+                        <p style="font-weight: 700; color: #10b981; margin-bottom: 4px; font-size: 13px;">🏪 Physical Outlet</p>
+                        <p>Near Barbil Court, Rabisons Mall<br>Barbil, Odisha</p>
+                        <p style="margin-top:4px;">🕚 8:00 AM – 10:00 PM (Sun Closed)</p>
+                        <a href="https://g.page/r/CWt0NauZrydZEAE/review" target="_blank" rel="noopener" style="display:inline-flex; align-items:center; gap:6px; color:#10b981; font-size:12px; font-weight:700; margin-top:8px; background:rgba(16,185,129,0.1); padding:6px 12px; border-radius:6px; border:1px solid rgba(16,185,129,0.3); text-decoration:none;">
+                            ⭐⭐⭐⭐⭐ Review Physical Outlet
+                        </a>
+                    </div>
+                    <p style="margin-top:8px;">📞 +91 63706 80744</p>
+                    <a href="/menu" class="btn btn-primary footer-order-btn" style="margin-top:16px;">Order Now →</a>
+                </div>
+
             </div>
-            <!-- FOOTER BOTTOM -->
-            <div class="footer-bottom" style="margin-top: 48px; padding: 20px 0; border-top: 1px solid rgba(244,180,0,0.15); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
-              <span style="font-size: 12px; color: #888;">© 2026 Littiwale Barbil. All rights reserved.</span>
-              <div style="display:flex;gap:20px;align-items:center;flex-wrap:wrap;">
-                <a href="#" style="font-size:12px;color:#888;text-decoration:none;">Privacy Policy</a>
-                <a href="#" style="font-size:12px;color:#888;text-decoration:none;">Terms of Service</a>
-                <a href="https://tushkarmakar.vercel.app/client" target="_blank" style="font-size:12px;color:#888;text-decoration:none;font-family:var(--font-body);font-weight:700;">
-                  Developed by BrandNest <i class="fas fa-external-link-alt" style="font-size:9px;"></i>
-                </a>
-              </div>
+
+            <!-- Footer Bottom — copyright left, links right -->
+            <div class="footer-bottom container" style="margin-top: 48px; padding: 20px 0; border-top: 1px solid rgba(255,255,255,0.05); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+                <span style="font-size: 12px; color: #888;">&copy; 2026 Littiwale Barbil. All rights reserved.</span>
+                <div class="footer-bottom-links" style="display: flex; gap: 20px; align-items: center;">
+                    <a href="#" style="font-size: 12px; color: #888; text-decoration: none;">Privacy Policy</a>
+                    <a href="#" style="font-size: 12px; color: #888; text-decoration: none;">Terms of Service</a>
+                    <a href="https://brandnestagency.vercel.app" target="_blank" rel="noopener noreferrer" style="font-size: 12px; color: #F5A800; text-decoration: none; font-weight: 700;">
+                        Developed by BrandNest - India's First AI Powered Digital Agency
+                    </a>
+                </div>
             </div>
-          </div>
         </footer>
     </div>
 
@@ -674,6 +757,46 @@
     <script type="module" src="/src/pwa.js"></script>
     <script type="module" src="/src/theme.js"></script>
     <script type="module" src="/src/tracking.js"></script>
+    <script>
+        (function () {
+            var toggle = document.getElementById('mobile-nav-toggle');
+            var drawer = document.getElementById('mobile-nav-drawer');
+            var overlay = document.getElementById('mobile-nav-overlay');
+            if (!toggle || !drawer) return;
+
+            function openNav() {
+                toggle.classList.add('open');
+                drawer.classList.add('open');
+                toggle.setAttribute('aria-expanded', 'true');
+                drawer.setAttribute('aria-hidden', 'false');
+                document.body.style.overflow = 'hidden';
+            }
+
+            function closeNav() {
+                toggle.classList.remove('open');
+                drawer.classList.remove('open');
+                toggle.setAttribute('aria-expanded', 'false');
+                drawer.setAttribute('aria-hidden', 'true');
+                document.body.style.overflow = '';
+            }
+
+            toggle.addEventListener('click', function () {
+                drawer.classList.contains('open') ? closeNav() : openNav();
+            });
+
+            if (overlay) overlay.addEventListener('click', closeNav);
+
+            // Close on ESC key
+            document.addEventListener('keydown', function (e) {
+                if (e.key === 'Escape') closeNav();
+            });
+
+            // Close on any nav link click
+            document.querySelectorAll('.mobile-nav-link').forEach(function (link) {
+                link.addEventListener('click', closeNav);
+            });
+        })();
+    </script>
 
     <!-- ===== STEPPER + ETA LOGIC ===== -->
     <script>
@@ -853,9 +976,6 @@
             new MutationObserver(() => { if (origWa.href) newWa.href = origWa.href; })
                 .observe(origWa, { attributes: true, attributeFilter: ['href'] });
         }
-        if (newCopy && origCopy) {
-            newCopy.addEventListener('click', () => origCopy.click());
-        }
 
         // Style order items: item name left, price gold right
         const itemsList = document.getElementById('order-items-list');
@@ -878,7 +998,8 @@
     <script>
         // Simple header scroll for track page
         window.addEventListener('scroll', () => {
-            const header = document.querySelector('header');
+            const header = document.querySelector('nav.navbar');
+            if (!header) return;
             if (window.scrollY > 50) {
                 header.classList.add('py-4');
                 header.classList.remove('py-6');
@@ -891,5 +1012,131 @@
     
     <!-- Status Action Sound -->
     <audio id="status-sound" src="https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3" preload="auto"></audio>
+    <!-- TICKET MODAL — Premium Redesign -->
+    <div id="ticket-modal" style="
+        position: fixed; inset: 0; z-index: 200;
+        background: rgba(0,0,0,0.85); backdrop-filter: blur(12px);
+        display: none; align-items: center; justify-content: center; padding: 16px;
+    ">
+        <div style="
+            background: #0d0d0d;
+            border: 1px solid rgba(244,180,0,0.25);
+            border-radius: 24px;
+            width: 100%; max-width: 480px;
+            max-height: 90vh;
+            display: flex; flex-direction: column;
+            box-shadow: 0 32px 80px rgba(0,0,0,0.8), 0 0 0 1px rgba(244,180,0,0.08);
+            overflow: hidden;
+        ">
+            <!-- HEADER -->
+            <div style="
+                padding: 22px 24px 18px;
+                background: linear-gradient(135deg, rgba(244,180,0,0.08) 0%, rgba(13,13,13,0) 100%);
+                border-bottom: 1px solid rgba(244,180,0,0.12);
+                display: flex; align-items: flex-start; justify-content: space-between; gap: 12px;
+            ">
+                <div style="display:flex; align-items:center; gap: 14px;">
+                    <div style="
+                        width: 42px; height: 42px; border-radius: 12px;
+                        background: rgba(244,180,0,0.12); border: 1px solid rgba(244,180,0,0.25);
+                        display: flex; align-items: center; justify-content: center;
+                        font-size: 20px; flex-shrink: 0;
+                    ">🎫</div>
+                    <div>
+                        <div id="tm-title" style="font-family: var(--font-head,'Playfair Display'),serif; font-size: 16px; font-weight: 900; color: #F0EAD6; letter-spacing: 0.02em;">Support Ticket</div>
+                        <div style="display:flex; align-items:center; gap:8px; margin-top:3px;">
+                            <span id="tm-id" style="font-size: 10px; font-weight: 800; color: #F4B400; letter-spacing: 2px; text-transform: uppercase;"></span>
+                            <span id="tm-status-pill" style="font-size: 9px; padding: 2px 8px; border-radius: 20px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; display:none;"></span>
+                        </div>
+                    </div>
+                </div>
+                <button id="close-ticket-modal" style="
+                    width: 34px; height: 34px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.08);
+                    background: rgba(255,255,255,0.04); color: #9CA3AF; font-size: 16px;
+                    cursor: pointer; display: flex; align-items: center; justify-content: center;
+                    transition: all 0.2s; flex-shrink: 0;
+                " onmouseover="this.style.background='rgba(255,255,255,0.08)';this.style.color='#fff'"
+                   onmouseout="this.style.background='rgba(255,255,255,0.04)';this.style.color='#9CA3AF'">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+
+            <!-- CHAT BODY -->
+            <div id="tm-chat-body" style="flex:1; overflow-y:auto; padding: 20px; background: #0d0d0d; display:flex; flex-direction:column; gap:16px; min-height: 200px; max-height: 420px;">
+
+                <!-- New Ticket Form -->
+                <div id="tm-new-form">
+                    <div style="background: rgba(244,180,0,0.06); border: 1px solid rgba(244,180,0,0.15); border-radius: 14px; padding: 14px 16px; margin-bottom: 16px;">
+                        <p style="font-size: 12px; color: #9CA3AF; margin: 0; line-height: 1.7;">
+                            Describe the issue with Order
+                            <span id="tm-order-id-label" style="color: #F4B400; font-weight: 800; font-family: var(--font-head,'Playfair Display'),serif;"></span>
+                        </p>
+                    </div>
+                    <textarea id="tm-issue-input" placeholder="E.g. Food is cold, Missing items, Delivery delay..." style="
+                        width: 100%; box-sizing: border-box;
+                        background: #111318; border: 1px solid rgba(255,255,255,0.08);
+                        border-radius: 14px; padding: 14px 16px;
+                        color: #F0EAD6; font-size: 13px; font-family: inherit;
+                        outline: none; resize: none; min-height: 120px;
+                        transition: border-color 0.2s; line-height: 1.6;
+                    " onfocus="this.style.borderColor='rgba(244,180,0,0.4)'" onblur="this.style.borderColor='rgba(255,255,255,0.08)'"></textarea>
+                    <button id="tm-submit-btn" style="
+                        width: 100%; margin-top: 12px;
+                        background: #F4B400; color: #000;
+                        border: none; border-radius: 14px;
+                        padding: 15px 20px;
+                        font-family: var(--font-head,'Playfair Display'),serif;
+                        font-weight: 900; font-size: 12px;
+                        letter-spacing: 2px; text-transform: uppercase;
+                        cursor: pointer; transition: all 0.2s;
+                        box-shadow: 0 8px 24px rgba(244,180,0,0.25);
+                    " onmouseover="this.style.opacity='0.88'" onmouseout="this.style.opacity='1'">
+                        📤 Submit Complaint
+                    </button>
+                </div>
+
+                <!-- Chat History -->
+                <div id="tm-chat-list" class="hidden" style="display:none; flex-direction:column; gap:10px;"></div>
+            </div>
+
+            <!-- REPLY FOOTER -->
+            <div id="tm-reply-area" style="
+                padding: 16px 20px;
+                background: #111318;
+                border-top: 1px solid rgba(244,180,0,0.10);
+                display: none;
+            ">
+                <div style="display:flex; gap:10px; align-items:center;">
+                    <input type="text" id="tm-reply-input" placeholder="Type your reply..." style="
+                        flex: 1;
+                        background: #0d0d0d; border: 1px solid rgba(255,255,255,0.08);
+                        border-radius: 12px; padding: 12px 16px;
+                        color: #F0EAD6; font-size: 13px; font-family: inherit;
+                        outline: none; transition: border-color 0.2s;
+                    " onfocus="this.style.borderColor='rgba(244,180,0,0.4)'" onblur="this.style.borderColor='rgba(255,255,255,0.08)'">
+                    <button id="tm-send-btn" style="
+                        width: 44px; height: 44px; flex-shrink: 0;
+                        background: #F4B400; color: #000; border: none;
+                        border-radius: 12px; cursor: pointer;
+                        display: flex; align-items: center; justify-content: center;
+                        font-size: 15px; transition: all 0.2s;
+                        box-shadow: 0 4px 12px rgba(244,180,0,0.3);
+                    " onmouseover="this.style.opacity='0.85'" onmouseout="this.style.opacity='1'">
+                        <i class="fas fa-paper-plane"></i>
+                    </button>
+                </div>
+                <div style="margin-top:12px; display:flex; justify-content:flex-end;">
+                    <button id="tm-close-ticket-btn" style="
+                        background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.2);
+                        color: #f87171; border-radius: 8px; padding: 6px 14px;
+                        font-size: 10px; font-weight: 800; letter-spacing: 1.5px;
+                        text-transform: uppercase; cursor: pointer; transition: all 0.2s;
+                    " onmouseover="this.style.background='rgba(239,68,68,0.15)'" onmouseout="this.style.background='rgba(239,68,68,0.08)'">
+                        ✕ Close Ticket
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
 </body>
 </html>

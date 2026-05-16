@@ -6,7 +6,9 @@ import { assignRiderToOrder, updateOrderDetails } from './api/orders';
 import { fetchAnalyticsData } from './api/analytics';
 import { ORDER_STATUS } from './constants/orderStatus';
 import { fetchAllCoupons, createCoupon, updateCoupon, deleteCoupon, getCouponAnalytics, getTopCoupons, getCouponTimeline } from './api/coupons';
-import { fetchAllAnnouncements, createAnnouncement, toggleAnnouncementActive, deleteAnnouncement } from './api/announcements';
+import { fetchAllAnnouncements, createAnnouncement, toggleAnnouncementActive, deleteAnnouncement, reorderAnnouncements } from './api/announcements';
+
+import { createTicket, fetchTickets, resolveTicket, addMessageToTicket } from './api/tickets';
 import { createMenuItem, updateMenuItem, deleteMenuItem } from './api/menu';
 import Chart from 'chart.js/auto';
 import toast from './ui/toast';
@@ -99,16 +101,192 @@ const ticketsListContainer = document.querySelector('#tickets-list-container');
 const menuListContainer = document.querySelector('#menu-list-container');
 const menuCategoryFilter = document.querySelector('#menu-category-filter');
 
-const handleTicketActionClick = (event) => {
+const handleTicketActionClick = async (event) => {
     const resolveBtn = event.target.closest('[data-ticket-action="resolve"]');
-    if (!resolveBtn) return;
-    const ticketId = resolveBtn.dataset.id;
-    resolveTicket(ticketId);
+    const replyBtn = event.target.closest('[data-ticket-action="reply"]');
+    
+    if (resolveBtn) {
+        const ticketId = resolveBtn.dataset.id;
+        await resolveTicket(ticketId);
+        loadTickets(); // refresh
+    } else if (replyBtn) {
+        const ticketId = replyBtn.dataset.id;
+        openAdminTicketModal(ticketId);
+    }
 };
 
 if (ticketsListContainer) {
     ticketsListContainer.addEventListener('click', handleTicketActionClick);
 }
+
+const openAdminTicketModal = async (ticketId) => {
+    // Fetch the latest ticket data
+    let ticket = null;
+    try {
+        const { doc: firestoreDoc, getDoc: firestoreGetDoc } = await import('firebase/firestore');
+        const ticketRef = firestoreDoc(db, 'tickets', ticketId);
+        const snap = await firestoreGetDoc(ticketRef);
+        if (!snap.exists()) {
+            showToast('Ticket not found.', 'error');
+            return;
+        }
+        ticket = { id: snap.id, ...snap.data() };
+    } catch (e) {
+        console.error('[Ticket Modal] Failed to fetch ticket:', e);
+        showToast('Failed to load ticket.', 'error');
+        return;
+    }
+
+    const messages = ticket.messages || [];
+
+    const formatTime = (ts) => {
+        if (!ts) return '';
+        try {
+            return new Date(ts).toLocaleString('en-IN', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
+        } catch { return ts; }
+    };
+
+    const renderMessages = (msgs) => msgs.map(m => {
+        const isAdmin = m.sender === 'admin';
+        return `
+            <div style="display:flex;flex-direction:column;align-items:${isAdmin ? 'flex-end' : 'flex-start'};margin-bottom:12px;">
+                <div style="
+                    max-width:75%;
+                    background:${isAdmin ? '#F5A800' : '#1e2130'};
+                    color:${isAdmin ? '#000' : '#e5e7eb'};
+                    padding:10px 14px;
+                    border-radius:${isAdmin ? '14px 14px 4px 14px' : '14px 14px 14px 4px'};
+                    font-size:13px;
+                    line-height:1.5;
+                    font-weight:${isAdmin ? '600' : '400'};
+                    box-shadow:0 2px 8px rgba(0,0,0,0.3);
+                ">${m.text || ''}</div>
+                <div style="font-size:10px;color:#6b7280;margin-top:3px;padding:0 4px;">${isAdmin ? '🛡️ Admin' : `👤 ${ticket.name || 'Customer'}`} · ${formatTime(m.timestamp)}</div>
+            </div>
+        `;
+    }).join('');
+
+    const overlay = document.createElement('div');
+    overlay.id = 'admin-ticket-modal-overlay';
+    overlay.style.cssText = `position:fixed;inset:0;background:rgba(0,0,0,0.8);backdrop-filter:blur(6px);z-index:3000;display:flex;align-items:center;justify-content:center;padding:20px;`;
+
+    overlay.innerHTML = `
+        <div style="background:#0d0f14;border:1px solid #252830;border-radius:20px;width:100%;max-width:560px;max-height:85vh;display:flex;flex-direction:column;box-shadow:0 30px 80px rgba(0,0,0,0.7);overflow:hidden;">
+            <!-- Header -->
+            <div style="padding:18px 20px;border-bottom:1px solid #252830;display:flex;justify-content:space-between;align-items:flex-start;flex-shrink:0;">
+                <div>
+                    <div style="font-size:16px;font-weight:800;color:#fff;font-family:'Syne',sans-serif;margin-bottom:4px;">💬 ${ticket.name || 'Customer'}</div>
+                    <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+                        <span style="font-size:10px;color:#6b7280;">${ticket.ticketId ? '#' + ticket.ticketId : ticket.id?.slice(0, 10)}</span>
+                        ${ticket.phone ? `<span style="font-size:10px;color:#6b7280;">· ${ticket.phone}</span>` : ''}
+                        ${ticket.orderId ? `<span style="font-size:10px;color:#F5A800;">· Order: ${ticket.orderId.slice(0,8)}</span>` : ''}
+                        <span style="font-size:10px;padding:2px 8px;border-radius:20px;font-weight:700;background:${ticket.status==='resolved'?'rgba(16,185,129,0.15)':'rgba(239,68,68,0.12)'};color:${ticket.status==='resolved'?'#34d399':'#f87171'};">${ticket.status || 'open'}</span>
+                    </div>
+                </div>
+                <button id="atm-close-btn" style="background:#1e2130;border:1px solid #374151;color:#9ca3af;border-radius:8px;padding:6px 10px;cursor:pointer;font-size:16px;line-height:1;flex-shrink:0;">✕</button>
+            </div>
+
+            <!-- Issue summary -->
+            <div style="padding:12px 20px;background:rgba(245,168,0,0.04);border-bottom:1px solid #252830;flex-shrink:0;">
+                <div style="font-size:10px;color:#F5A800;font-weight:700;text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px;">Issue</div>
+                <div style="font-size:12px;color:#9ca3af;line-height:1.5;">${ticket.issue || ticket.message || 'No description.'}</div>
+            </div>
+
+            <!-- Messages thread -->
+            <div id="atm-messages" style="flex:1;overflow-y:auto;padding:16px 20px;display:flex;flex-direction:column;min-height:0;">
+                ${messages.length > 0 ? renderMessages(messages) : '<div style="text-align:center;color:#4b5563;font-size:12px;padding:24px 0;">No messages yet. Start the conversation below.</div>'}
+            </div>
+
+            <!-- Reply input / Closed notice -->
+            <div style="padding:14px 20px;border-top:1px solid #252830;flex-shrink:0;background:#0d0f14;">
+                ${['resolved','closed'].includes(ticket.status) ? `
+                <div style="text-align:center;padding:14px;background:rgba(16,185,129,0.06);border:1px solid rgba(16,185,129,0.2);border-radius:12px;">
+                    <span style="font-size:12px;font-weight:800;color:#10b981;text-transform:uppercase;letter-spacing:1px;">✓ Ticket ${ticket.status === 'resolved' ? 'Resolved' : 'Closed'}</span>
+                    <p style="margin:6px 0 0;font-size:11px;color:#6b7280;">This ticket has been resolved. No further replies needed.</p>
+                </div>` : `
+                <div style="display:flex;gap:10px;align-items:flex-end;">
+                    <textarea id="atm-reply-input" placeholder="Type your reply…" rows="2" style="flex:1;background:#12141b;border:1px solid #252830;border-radius:12px;padding:10px 14px;color:#e5e7eb;font-size:13px;font-family:inherit;resize:none;outline:none;line-height:1.5;transition:border-color .15s;"></textarea>
+                    <button id="atm-send-btn" style="background:#F5A800;color:#000;border:none;border-radius:12px;padding:10px 20px;font-weight:800;font-size:13px;cursor:pointer;flex-shrink:0;transition:opacity .15s;white-space:nowrap;">Send 🚀</button>
+                </div>
+                <div style="margin-top:10px;display:flex;gap:8px;">
+                    <button id="atm-resolve-btn" style="background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.3);color:#34d399;border-radius:8px;padding:6px 14px;font-size:11px;font-weight:700;cursor:pointer;transition:all .15s;">✓ Mark as Resolved</button>
+                </div>`}
+            </div>
+        </div>
+    `;
+
+    document.body.appendChild(overlay);
+
+    // Scroll to bottom of messages
+    const msgContainer = overlay.querySelector('#atm-messages');
+    if (msgContainer) msgContainer.scrollTop = msgContainer.scrollHeight;
+
+    // Focus textarea
+    const replyInput = overlay.querySelector('#atm-reply-input');
+    if (replyInput) {
+        replyInput.focus();
+        replyInput.addEventListener('focus', () => replyInput.style.borderColor = '#F5A800');
+        replyInput.addEventListener('blur', () => replyInput.style.borderColor = '#252830');
+        // Ctrl+Enter or Cmd+Enter to send
+        replyInput.addEventListener('keydown', (e) => {
+            if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') sendReply();
+        });
+    }
+
+    const closeModal = () => overlay.remove();
+
+    overlay.querySelector('#atm-close-btn').addEventListener('click', closeModal);
+    overlay.addEventListener('click', (e) => { if (e.target === overlay) closeModal(); });
+
+    const sendReply = async () => {
+        const text = replyInput?.value?.trim();
+        if (!text) return;
+        const sendBtn = overlay.querySelector('#atm-send-btn');
+        if (sendBtn) { sendBtn.disabled = true; sendBtn.textContent = 'Sending…'; }
+
+        try {
+            const msg = await addMessageToTicket(ticket.id, text, 'admin');
+            // Append the new message to the thread
+            const newMsgEl = document.createElement('div');
+            newMsgEl.innerHTML = `
+                <div style="display:flex;flex-direction:column;align-items:flex-end;margin-bottom:12px;">
+                    <div style="max-width:75%;background:#F5A800;color:#000;padding:10px 14px;border-radius:14px 14px 4px 14px;font-size:13px;line-height:1.5;font-weight:600;box-shadow:0 2px 8px rgba(0,0,0,0.3);">${text}</div>
+                    <div style="font-size:10px;color:#6b7280;margin-top:3px;padding:0 4px;">🛡️ Admin · just now</div>
+                </div>
+            `;
+            msgContainer.appendChild(newMsgEl);
+            msgContainer.scrollTop = msgContainer.scrollHeight;
+            if (replyInput) replyInput.value = '';
+            showToast('Reply sent!', 'success');
+        } catch (err) {
+            console.error('[Ticket Reply] Error:', err);
+            showToast('Failed to send reply.', 'error');
+        } finally {
+            if (sendBtn) { sendBtn.disabled = false; sendBtn.textContent = 'Send 🚀'; }
+        }
+    };
+
+    overlay.querySelector('#atm-send-btn').addEventListener('click', sendReply);
+
+    const resolveBtn = overlay.querySelector('#atm-resolve-btn');
+    if (resolveBtn) {
+        resolveBtn.addEventListener('click', async () => {
+            resolveBtn.disabled = true;
+            resolveBtn.textContent = 'Resolving…';
+            try {
+                await resolveTicket(ticket.id);
+                showToast('Ticket resolved! ✅', 'success');
+                closeModal();
+                loadTickets(); // Refresh the list
+            } catch (err) {
+                console.error('[Ticket Resolve] Error:', err);
+                showToast('Failed to resolve ticket.', 'error');
+                resolveBtn.disabled = false;
+                resolveBtn.textContent = '✓ Mark as Resolved';
+            }
+        });
+    }
+};
 const menuForm = document.querySelector('#menu-form');
 const menuFormTitle = document.querySelector('#menu-form-title');
 const menuItemIdInput = document.querySelector('#menu-item-id');
@@ -152,6 +330,7 @@ let currentMenuCategory = 'all';
 let currentMenuStatus = 'all';
 let currentMenuType = 'all';
 let currentMenuStock = 'all';
+let currentMenuLocation = 'all';
 let editingMenuItemId = null;
 let editingCouponCode = null;
 
@@ -243,7 +422,7 @@ const initAdmin = () => {
 
         // No session → login
         if (!user) {
-            window.location.href = '/login.html';
+            window.location.href = '/login';
             return;
         }
 
@@ -251,13 +430,13 @@ const initAdmin = () => {
 
         // Rider → rider panel
         if (role === 'rider') {
-            window.location.href = '/rider/index.html';
+            window.location.href = '/rider';
             return;
         }
 
         // Customer or unknown → storefront
         if (role !== 'admin' && role !== 'manager') {
-            window.location.href = '/customer/index.html';
+            window.location.href = '/';
             return;
         }
 
@@ -342,17 +521,17 @@ const setupProfileDropdown = (triggerId, dropdownId, logoutId) => {
 
     // Navigation items — plain click, no preventDefault so navigation is never blocked
     document.getElementById('admin-dd-storefront')?.addEventListener('click', function () {
-        window.location.href = '/customer/index.html';
+        window.location.href = '/';
     });
     document.getElementById('admin-dd-rider')?.addEventListener('click', function () {
-        window.location.href = '/rider/index.html';
+        window.location.href = '/rider';
     });
 
     // Logout
     document.getElementById(logoutId)?.addEventListener('click', async function () {
         if (confirm('Logout from Admin Session?')) {
             await logoutUser();
-            window.location.href = '/login.html';
+            window.location.href = '/login';
         }
     });
 };
@@ -421,6 +600,27 @@ const switchView = (viewName) => {
 };
 
 const setupOrderFiltering = () => {
+    const locFilterEl = document.querySelector('#admin-location-filter');
+    if (locFilterEl) {
+        locFilterEl.addEventListener('change', () => {
+            renderOrders();
+        });
+    }
+
+    const locTabs = document.querySelectorAll('#admin-location-tabs button');
+    locTabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+            locTabs.forEach(t => t.classList.remove('btn-primary', 'active'));
+            locTabs.forEach(t => t.classList.add('btn-outline'));
+            tab.classList.remove('btn-outline');
+            tab.classList.add('btn-primary', 'active');
+            if (locFilterEl) {
+                locFilterEl.value = tab.getAttribute('data-location');
+                renderOrders();
+            }
+        });
+    });
+
     const tabs = document.querySelectorAll('.filter-tab');
     tabs.forEach(tab => {
         tab.addEventListener('click', () => {
@@ -658,6 +858,13 @@ const setupMenuAdmin = () => {
     menuStockFilter?.addEventListener('change', (e) => {
         currentMenuStock = e.target.value || 'all';
         menuListCache.clear(); // Clear cache on filter change
+        renderMenuList();
+    });
+
+    const menuLocationFilter = document.getElementById('menu-location-filter');
+    menuLocationFilter?.addEventListener('change', (e) => {
+        currentMenuLocation = e.target.value || 'all';
+        menuListCache.clear();
         renderMenuList();
     });
 
@@ -1100,7 +1307,11 @@ const renderTickets = (tickets) => {
                         <div class="lw-tc-footer">
                             <div class="lw-tc-meta">${ticket.createdAt ? new Date(ticket.createdAt.seconds * 1000).toLocaleDateString('en-IN', {day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}) : '—'}</div>
                             <div class="lw-tc-actions">
-                                ${!isResolved ? `<button type="button" class="lw-tc-btn resolve" data-ticket-action="resolve" data-id="${ticket.id}">✓ Resolve</button>` : `<button type="button" class="lw-tc-btn view" disabled style="opacity:.5;cursor:default;">✓ Resolved</button>`}
+                                ${!isResolved
+                                    ? `<button type="button" class="lw-tc-btn view" data-ticket-action="reply" data-id="${ticket.id}">💬 Reply</button>`
+                                    : `<button type="button" class="lw-tc-btn view" data-ticket-action="reply" data-id="${ticket.id}" style="opacity:0.6;">📋 View Chat</button>`
+                                }
+                                ${!isResolved ? `<button type="button" class="lw-tc-btn resolve" data-ticket-action="resolve" data-id="${ticket.id}">✓ Resolve</button>` : `<button type="button" class="lw-tc-btn resolve" style="background:rgba(16,185,129,0.1);color:#10b981;cursor:default;" disabled>✓ Resolved</button>`}
                             </div>
                         </div>
                     </div>
@@ -1137,16 +1348,6 @@ window.lwFilterTickets = () => {
     if (empty) empty.style.display = visible === 0 ? 'block' : 'none';
 };
 
-const resolveTicket = async (ticketDocId) => {
-    if (!ticketDocId) return;
-    try {
-        await updateDoc(doc(db, 'tickets', ticketDocId), { status: 'resolved' });
-        loadTickets();
-    } catch (error) {
-        console.error('Failed to resolve ticket:', error);
-        showToast('Could not mark ticket as resolved. Please try again.', 'error');
-    }
-};
 
 const renderMenuCategories = () => {
     if (!menuCategoryFilter) return;
@@ -1172,10 +1373,17 @@ const renderMenuList = () => {
     if (currentMenuCategory && currentMenuCategory !== 'all') filteredItems = filteredItems.filter(i => i.category === currentMenuCategory);
     if (currentMenuStatus === 'visible') filteredItems = filteredItems.filter(i => i.available !== false);
     if (currentMenuStatus === 'hidden') filteredItems = filteredItems.filter(i => i.available === false);
-    if (currentMenuType === 'veg') filteredItems = filteredItems.filter(i => i.veg === true);
-    if (currentMenuType === 'non-veg') filteredItems = filteredItems.filter(i => i.veg === false);
+    if (currentMenuType === 'veg') {
+        filteredItems = filteredItems.filter(i => i.veg === true || i.veg === 'true' || i.veg === 'veg' || i.isVeg === true);
+    }
+    if (currentMenuType === 'non-veg') {
+        filteredItems = filteredItems.filter(i => !(i.veg === true || i.veg === 'true' || i.veg === 'veg' || i.isVeg === true));
+    }
     if (currentMenuStock === 'in-stock') filteredItems = filteredItems.filter(i => i.inStock !== false);
     if (currentMenuStock === 'out-of-stock') filteredItems = filteredItems.filter(i => i.inStock === false);
+    if (currentMenuLocation !== 'all') {
+        filteredItems = filteredItems.filter(i => (i.availability || 'both') === currentMenuLocation);
+    }
     if (menuSearchQuery) {
         const q = menuSearchQuery.toLowerCase();
         filteredItems = filteredItems.filter(i =>
@@ -1210,7 +1418,16 @@ const renderMenuList = () => {
         const cardsHtml = items.map(item => {
             const isInStock = item.inStock !== false;
             const isVisible = item.available !== false;
-            const vegDot = item.veg ? '#10B981' : '#ef4444';
+            const isVegItem = item.veg === true || item.veg === 'true' || item.veg === 'veg' || item.isVeg === true;
+            const vegDot = isVegItem ? '#10B981' : '#ef4444';
+            
+            // Location Badge Data
+            const avail = item.availability || 'both';
+            const locInfo = avail === 'cloud_only' 
+                ? { label: 'Cloud Only', icon: '☁️', color: '#3B82F6', bg: 'rgba(59,130,246,0.1)' }
+                : avail === 'outlet_only'
+                    ? { label: 'Outlet Only', icon: '🏠', color: '#EF4444', bg: 'rgba(239,68,68,0.1)' }
+                    : { label: 'Cloud + Outlet', icon: '🌟', color: '#F5A800', bg: 'rgba(245,168,0,0.1)' };
 
             return `
             <div class="menu-admin-card" data-id="${item.id}" style="
@@ -1239,6 +1456,14 @@ const renderMenuList = () => {
                 <div style="aspect-ratio:4/3;overflow:hidden;background:#0d0f14;position:relative;">
                     <img src="${item.image || '/images/logo.png'}" alt="${item.name}"
                         loading="lazy" style="width:100%;height:100%;object-fit:cover;">
+                    
+                    <!-- Location Badge -->
+                    <div style="position:absolute;top:8px;right:8px;z-index:2;">
+                        <span style="background:${locInfo.bg};color:${locInfo.color};backdrop-filter:blur(4px);border:1px solid ${locInfo.color}20;font-size:9px;font-weight:900;padding:4px 8px;border-radius:8px;display:flex;align-items:center;gap:4px;text-transform:uppercase;letter-spacing:0.5px;">
+                            ${locInfo.icon} ${locInfo.label}
+                        </span>
+                    </div>
+
                     ${!isInStock ? `<div style="position:absolute;bottom:8px;left:8px;">
                         <span style="background:#ef4444;color:#fff;font-size:9px;font-weight:800;padding:3px 8px;border-radius:10px;letter-spacing:0.5px;text-transform:uppercase;">Out of Stock</span>
                     </div>` : ''}
@@ -1426,6 +1651,9 @@ const initMenuForm = () => {
 
     document.getElementById('menu-avail-visible')?.addEventListener('click', () => setMenuPill('avail', 'true'));
     document.getElementById('menu-avail-hidden')?.addEventListener('click', () => setMenuPill('avail', 'false'));
+    document.querySelectorAll('input[name="menu-location-avail"]').forEach(radio => {
+        radio.addEventListener('change', () => window._lwSyncPreview?.());
+    });
 
     const syncPreview = () => {
         const name = document.getElementById('menu-name')?.value?.trim();
@@ -1436,6 +1664,7 @@ const initMenuForm = () => {
         const spice = document.getElementById('menu-spice-input')?.value;
         const prep = document.getElementById('menu-prep-time')?.value;
         const avail = document.getElementById('menu-avail-input')?.value;
+        const locAvail = document.querySelector('input[name="menu-location-avail"]:checked')?.value || 'both';
 
         const prevName = document.getElementById('lw-prev-name');
         const prevDesc = document.getElementById('lw-prev-desc');
@@ -1482,6 +1711,20 @@ const initMenuForm = () => {
             const visible = avail === 'true';
             prevAvail.textContent = visible ? 'Visible ✓' : 'Hidden 🚫';
             prevAvail.className = visible ? 'text-blue-400 font-bold text-[10px]' : 'text-gray-500 font-bold text-[10px]';
+        }
+
+        const prevLocAvail = document.getElementById('lw-prev-loc-avail');
+        if (prevLocAvail) {
+            if (locAvail === 'cloud_only') {
+                prevLocAvail.textContent = '☁️ Cloud Only';
+                prevLocAvail.className = 'text-[#F5A800] font-bold text-[10px]';
+            } else if (locAvail === 'outlet_only') {
+                prevLocAvail.textContent = '🏪 Outlet Only';
+                prevLocAvail.className = 'text-[#10b981] font-bold text-[10px]';
+            } else {
+                prevLocAvail.textContent = '🌐 Both';
+                prevLocAvail.className = 'text-[#60a5fa] font-bold text-[10px]';
+            }
         }
 
         if (prevVariants) {
@@ -1670,6 +1913,10 @@ const populateMenuForm = (item) => {
     window.setMenuPill?.('avail', item.available !== false ? 'true' : 'false');
     window.setMenuPill?.('spice', item.spiceLevel || 'regular');
 
+    const availVal = item.availability || 'both';
+    const radioEl = document.querySelector(`input[name="menu-location-avail"][value="${availVal}"]`);
+    if (radioEl) radioEl.checked = true;
+
     document.getElementById('menu-prep-time').value = item.prepTime || 15;
 
     window._lwCurrentTags = item.tags ? [...item.tags] : [];
@@ -1724,6 +1971,9 @@ const resetMenuForm = () => {
     window.setMenuPill?.('veg', 'true');
     window.setMenuPill?.('avail', 'true');
     window.setMenuPill?.('spice', 'regular');
+
+    const defaultRadio = document.querySelector('input[name="menu-location-avail"][value="both"]');
+    if (defaultRadio) defaultRadio.checked = true;
 
     document.getElementById('menu-prep-time').value = '';
 
@@ -1964,6 +2214,7 @@ const handleMenuFormSubmit = async (event) => {
     const spiceLevel = document.getElementById('menu-spice-input')?.value || 'regular';
     const prepTime = Number(document.getElementById('menu-prep-time')?.value || 15);
     const tags = window._lwCurrentTags || [];
+    const availability = document.querySelector('input[name="menu-location-avail"]:checked')?.value || 'both';
 
     const variants = parseVariants();
     const imageFile = document.getElementById('menu-image').files?.[0] || null;
@@ -1983,6 +2234,7 @@ const handleMenuFormSubmit = async (event) => {
         spiceLevel,
         prepTime,
         tags,
+        availability,
         variants
     };
 
@@ -2206,9 +2458,7 @@ const openDashboardModal = (modalType) => {
                 <span style="fontWeight:600;">${order.orderId || order.id.slice(0, 8)}</span>
                 <span style="color:#ef4444;fontWeight:700;">₹${order.total}</span>
               </div>
-              <span style="background:rgba(239,68,68,0.1);color:#ef4444;padding:3px 10px;borderRadius:999px;fontSize:11px;fontWeight:600;textTransform:uppercase;">
-                ${order.status === ORDER_STATUS.REJECTED ? '❌ Rejected' : '❌ Cancelled'}
-              </span>
+              <span style="background:rgba(239,68,68,0.1);color:#ef4444;padding:3px 10px;borderRadius:999px;fontSize:11px;fontWeight:600;textTransform:uppercase;">${order.status}</span>
             </div>
           `).join('')}
         </div>
@@ -2241,6 +2491,13 @@ const renderOrders = () => {
     if (!ordersContainer) return;
 
     let filtered = activeOrders.concat(completedOrders);
+
+    const locationFilterEl = document.querySelector('#admin-location-filter');
+    const locFilter = locationFilterEl ? locationFilterEl.value : 'all';
+
+    if (locFilter !== 'all') {
+        filtered = filtered.filter(o => o.locationId === locFilter);
+    }
 
     if (currentFilter !== 'ALL') {
         if (currentFilter === 'COMPLETED') {
@@ -2466,6 +2723,10 @@ const createOrderCard = (order) => {
         ? `<span style="background:rgba(59,130,246,.1);color:#60a5fa;border:1px solid rgba(59,130,246,.3);font-size:9px;font-weight:800;padding:2px 8px;border-radius:10px;text-transform:uppercase;">💳 Online</span>`
         : `<span style="background:rgba(16,185,129,.1);color:#34d399;border:1px solid rgba(16,185,129,.3);font-size:9px;font-weight:800;padding:2px 8px;border-radius:10px;text-transform:uppercase;">💵 COD</span>`;
 
+    const locationBadge = order.locationId === 'outlet' 
+        ? '<span style="background:rgba(16,185,129,0.15);color:#10b981;border:1px solid rgba(16,185,129,0.3);padding:2px 8px;border-radius:10px;font-size:9px;font-weight:800;text-transform:uppercase;">🏪 Physical Outlet</span>'
+        : '<span style="background:rgba(59,130,246,0.15);color:#60a5fa;border:1px solid rgba(59,130,246,0.3);padding:2px 8px;border-radius:10px;font-size:9px;font-weight:800;text-transform:uppercase;">☁️ Cloud Kitchen</span>';
+
     return `
         <div class="lw-order-card ${meta.cardCls}">
             <div class="lw-order-card-header">
@@ -2482,6 +2743,7 @@ const createOrderCard = (order) => {
                 <div style="display:flex;align-items:center;gap:7px;flex-wrap:wrap;">
                     <span class="lw-status-pill ${meta.cls}">${meta.icon} ${meta.label}</span>
                     ${payBadge}
+                    ${locationBadge}
                 </div>
             </div>
             <div class="lw-order-card-body">
@@ -4077,7 +4339,7 @@ window.adminDeleteCoupon = async (code) => {
 };
 
 /**
- * 📢 ANNOUNCEMENT ADMIN (Item 8)
+ * 📢 ANNOUNCEMENT ADMIN
  */
 const loadAnnouncements = async () => {
     const listEl = document.querySelector('#announcements-list');
@@ -4088,50 +4350,120 @@ const loadAnnouncements = async () => {
         listEl.innerHTML = '<p style="color:#7a8098;">No announcements yet.</p>';
         return;
     }
-    listEl.innerHTML = anns.map(a => {
-        const expiry = a.expiresAt?.toDate ? a.expiresAt.toDate().toLocaleString('en-IN') : 'No expiry';
-        const isExpired = a.expiresAt?.toDate && new Date() > a.expiresAt.toDate();
-        // Support both old imageUrl and new image field for backward compatibility
-        const imageSource = a.image || a.imageUrl;
-        return `
-            <div class="announcement-card-premium">
-                ${imageSource ? `<img src="${imageSource}" style="width:100px;height:70px;object-fit:cover;border-radius:14px;flex-shrink:0;box-shadow: 0 8px 20px rgba(0,0,0,0.3);">` : '<div style="width:100px;height:70px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.05);border-radius:14px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:32px;">📢</div>'}
+
+    // Mutable order array for drag-and-drop
+    let orderedAnns = [...anns];
+
+    const renderList = () => {
+        listEl.innerHTML = orderedAnns.map((a, idx) => {
+            const expiry = a.expiresAt?.toDate ? a.expiresAt.toDate().toLocaleString('en-IN') : 'No expiry';
+            const isExpired = a.expiresAt?.toDate && new Date() > a.expiresAt.toDate();
+            const imageSource = a.imageSource || a.imageBase64 || a.image || a.imageUrl;
+            return `
+            <div class="announcement-card-premium" draggable="true" data-ann-idx="${idx}" data-ann-id="${a.id}"
+                style="cursor:grab;user-select:none;transition:opacity .15s,transform .15s;">
+                <div style="display:flex;align-items:center;gap:4px;flex-shrink:0;margin-right:4px;cursor:grab;">
+                    <span title="Drag to reorder" style="font-size:18px;color:#4b5563;line-height:1;">☰</span>
+                </div>
+                ${imageSource ? `<img src="${imageSource}" style="width:100px;height:70px;object-fit:contain;background:#0d0d0d;border-radius:14px;flex-shrink:0;box-shadow:0 8px 20px rgba(0,0,0,0.3);">` : '<div style="width:100px;height:70px;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.05);border-radius:14px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:32px;">📢</div>'}
                 <div style="flex:1;min-width:0;">
-                    <p style="font-weight:900;color:#fff;font-size:16px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-family:var(--font-display);">${a.title || '(No title)'}</p>
-                    <div style="display:flex;gap:12px;align-items:center;margin-top:8px;">
-                        ${isExpired ? '<span class="px-2 py-0.5 rounded bg-red-500/10 text-red-500 text-[9px] font-black uppercase border border-red-500/20">Expired</span>' : (a.active ? '<span class="px-2 py-0.5 rounded bg-green-500/10 text-green-500 text-[9px] font-black uppercase border border-green-500/20">Live</span>' : '<span class="px-2 py-0.5 rounded bg-gray-500/10 text-gray-500 text-[9px] font-black uppercase border border-gray-500/20">Hidden</span>')}
+                    <p style="font-weight:900;color:#fff;font-size:15px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-family:var(--font-display);">${a.title || '(No title)'}</p>
+                    <div style="display:flex;gap:12px;align-items:center;margin-top:6px;">
+                        ${isExpired ? '<span style="font-size:9px;font-weight:800;padding:2px 8px;border-radius:99px;background:rgba(239,68,68,.1);color:#ef4444;border:1px solid rgba(239,68,68,.2);">Expired</span>' : (a.active ? '<span style="font-size:9px;font-weight:800;padding:2px 8px;border-radius:99px;background:rgba(16,185,129,.1);color:#10b981;border:1px solid rgba(16,185,129,.2);">Live</span>' : '<span style="font-size:9px;font-weight:800;padding:2px 8px;border-radius:99px;background:rgba(107,114,128,.1);color:#6b7280;border:1px solid rgba(107,114,128,.2);">Hidden</span>')}
                         <p style="font-size:11px;color:#7a8098;font-weight:700;text-transform:uppercase;letter-spacing:1px;">Ends: ${expiry}</p>
+                        <span style="font-size:10px;color:#4b5563;">#${idx + 1}</span>
                     </div>
                 </div>
                 <div style="display:flex;gap:10px;flex-shrink:0;">
-                    <button onclick="window.adminToggleAnn('${a.id}', ${!a.active})" class="action-btn-sm bg-gray-800 text-white hover:bg-gray-700">${a.active ? 'Hide' : 'Publish'}</button>
-                    <button onclick="window.adminDeleteAnn('${a.id}', '${a.storagePath || ''}')" class="action-btn-sm bg-red-950/30 text-red-500 border border-red-500/20 hover:bg-red-900/40">Delete</button>
+                    <button onclick="window.adminToggleAnn('${a.id}', ${!a.active})" class="action-btn-sm" style="background:#1a1c23;color:#9ca3af;border:1px solid #252830;">${a.active ? 'Hide' : 'Publish'}</button>
+                    <button onclick="window.adminDeleteAnn('${a.id}')" class="action-btn-sm" style="background:rgba(239,68,68,.08);color:#ef4444;border:1px solid rgba(239,68,68,.2);">Delete</button>
                 </div>
-            </div>
-        `;
-    }).join('');
+            </div>`;
+        }).join('');
+
+        // === Drag and Drop ===
+        let dragIdx = null;
+        listEl.querySelectorAll('[data-ann-idx]').forEach(card => {
+            card.addEventListener('dragstart', (e) => {
+                dragIdx = parseInt(card.dataset.annIdx);
+                card.style.opacity = '0.4';
+                e.dataTransfer.effectAllowed = 'move';
+            });
+            card.addEventListener('dragend', () => {
+                card.style.opacity = '1';
+            });
+            card.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                e.dataTransfer.dropEffect = 'move';
+                const overIdx = parseInt(card.dataset.annIdx);
+                if (overIdx !== dragIdx) {
+                    card.style.borderTop = overIdx < dragIdx ? '2px solid #F5A800' : 'none';
+                    card.style.borderBottom = overIdx > dragIdx ? '2px solid #F5A800' : 'none';
+                }
+            });
+            card.addEventListener('dragleave', () => {
+                card.style.borderTop = '';
+                card.style.borderBottom = '';
+            });
+            card.addEventListener('drop', async (e) => {
+                e.preventDefault();
+                card.style.borderTop = '';
+                card.style.borderBottom = '';
+                const dropIdx = parseInt(card.dataset.annIdx);
+                if (dropIdx === dragIdx) return;
+                // Reorder array
+                const moved = orderedAnns.splice(dragIdx, 1)[0];
+                orderedAnns.splice(dropIdx, 0, moved);
+                renderList();
+                // Save to Firestore
+                try {
+                    await reorderAnnouncements(orderedAnns);
+                    showToast('Order saved! ✅', 'success');
+                } catch (err) {
+                    console.error('Reorder failed:', err);
+                    showToast('Failed to save order.', 'error');
+                }
+            });
+        });
+    };
+
+    renderList();
 };
 
 const setupAnnouncementAdmin = () => {
+
+
     const createBtn = document.querySelector('#create-ann-btn');
     const imageInput = document.querySelector('#ann-image');
-    const preview = document.querySelector('#ann-preview');
     const previewImg = document.querySelector('#ann-preview-img');
+    const dropzoneContent = document.querySelector('#ann-dropzone-content');
 
     if (!createBtn) return;
 
-    // Image preview
+    // Image preview — shows as semi-transparent bg on the dropzone
     imageInput?.addEventListener('change', (e) => {
         const file = e.target.files[0];
         if (file) {
             const reader = new FileReader();
             reader.onload = (ev) => {
-                previewImg.src = ev.target.result;
-                preview.style.display = 'block';
+                if (previewImg) {
+                    previewImg.src = ev.target.result;
+                    previewImg.style.display = 'block';
+                }
+                if (dropzoneContent) {
+                    dropzoneContent.innerHTML = `
+                        <div style="font-size:22px;">✅</div>
+                        <p style="font-size:13px;font-weight:700;color:#10b981;margin:0;">${file.name}</p>
+                        <p style="font-size:11px;color:#6b7280;margin:0;">Click to change image</p>`;
+                }
             };
             reader.readAsDataURL(file);
         } else {
-            preview.style.display = 'none';
+            if (previewImg) previewImg.style.display = 'none';
+            if (dropzoneContent) dropzoneContent.innerHTML = `
+                <div style="font-size:30px;">🖼️</div>
+                <p style="font-size:13px;font-weight:700;color:#9ca3af;margin:0;">Click to choose image</p>
+                <p style="font-size:11px;color:#4b5563;margin:0;">Landscape JPG/PNG recommended · Any size will auto-fit</p>`;
         }
     });
 
@@ -4141,10 +4473,14 @@ const setupAnnouncementAdmin = () => {
         const imageFile = imageInput?.files[0] || null;
         const msg = document.querySelector('#ann-create-msg');
 
-        if (!imageFile && !title) {
-            if (msg) { msg.textContent = 'Provide at least an image or a title.'; msg.style.color = '#ef4444'; }
+        // Image is mandatory
+        if (!imageFile) {
+            if (msg) { msg.textContent = '⚠️ Please choose a banner image first.'; msg.style.color = '#ef4444'; }
+            document.querySelector('#ann-dropzone').style.borderColor = '#ef4444';
             return;
         }
+        if (msg) msg.textContent = '';
+        document.querySelector('#ann-dropzone').style.borderColor = '#2e3140';
 
         try {
             createBtn.textContent = 'Publishing...';
@@ -4156,23 +4492,23 @@ const setupAnnouncementAdmin = () => {
                 active: true
             });
 
-            if (msg) {
-                const fileName = imageFile ? imageFile.name.toLowerCase().replace(/\s+/g, '-') : 'announcement';
-                const instructions = imageFile ? `✅ Announcement created! Upload "${fileName}" to public/images/announcements/ folder.` : '✅ Announcement published!';
-                msg.textContent = instructions;
-                msg.style.color = '#10B981';
-            }
-            // Reset
+            if (msg) { msg.textContent = '✅ Announcement published!'; msg.style.color = '#10B981'; }
+
+            // Reset form
             if (document.querySelector('#ann-title')) document.querySelector('#ann-title').value = '';
             if (document.querySelector('#ann-expiry')) document.querySelector('#ann-expiry').value = '';
             if (imageInput) imageInput.value = '';
-            if (preview) preview.style.display = 'none';
+            if (previewImg) { previewImg.style.display = 'none'; previewImg.src = ''; }
+            if (dropzoneContent) dropzoneContent.innerHTML = `
+                <div style="font-size:30px;">🖼️</div>
+                <p style="font-size:13px;font-weight:700;color:#9ca3af;margin:0;">Click to choose image</p>
+                <p style="font-size:11px;color:#4b5563;margin:0;">Landscape JPG/PNG recommended · Any size will auto-fit</p>`;
             loadAnnouncements();
         } catch (e) {
             if (msg) { msg.textContent = 'Error creating announcement. Check browser console.'; msg.style.color = '#ef4444'; }
             console.error('Create announcement failed:', e);
         } finally {
-            createBtn.textContent = 'Upload & Publish';
+            createBtn.textContent = '🚀 Upload & Publish';
             createBtn.disabled = false;
         }
     });
@@ -4652,6 +4988,7 @@ const initSettings = async () => {
         saveBtn.disabled = false;
     });
 };
+
 
 
 const migrateMenuItemDefaults = async () => {

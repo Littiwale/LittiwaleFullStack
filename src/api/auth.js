@@ -56,6 +56,19 @@ export const isUsernameAvailable = async (username) => {
 };
 
 /**
+ * Check if phone is available
+ */
+export const isPhoneAvailable = async (phone) => {
+    assertFirebaseConfigured();
+
+    const normalized = normalizePhone(phone);
+    if (!normalized) return false;
+    const phoneRef = doc(db, 'phones', normalized);
+    const snap = await getDoc(phoneRef);
+    return !snap.exists();
+};
+
+/**
  * Signup with Email (Hardened Flow)
  */
 export const signupWithEmail = async ({ email, password, name, username, phone }) => {

@@ -87,12 +87,12 @@
 
             if (!user) {
                 // No session — send to login
-                window.location.replace('/login.html');
+                window.location.replace('/login');
                 return;
             }
 
             // Authenticated users should land on the storefront from the root entry point.
-            window.location.replace('/customer/index.html');
+            window.location.replace('/');
         });
     </script>
 </body>

@@ -4,6 +4,7 @@ import {
     signupWithEmail, 
     loginWithMultiIdentifier, 
     isUsernameAvailable,
+    isPhoneAvailable,
     updateProfile,
     normalizePhone,
     normalizeUsername,
@@ -160,9 +161,9 @@ onAuthChange(async (user, isLoading) => {
             let redirectUrl = '/';
             
             if (role === 'admin' || role === 'manager') {
-                redirectUrl = '/admin/index.html';
+                redirectUrl = '/admin';
             } else if (role === 'rider') {
-                redirectUrl = '/rider/index.html';
+                redirectUrl = '/rider';
             } else {
                 // customer or unknown role → go to home
                 redirectUrl = '/';
@@ -282,6 +283,15 @@ signupForm?.addEventListener('submit', async (e) => {
 
     try {
         const wasAnonymous = auth.currentUser?.isAnonymous;
+        
+        // Check phone uniqueness before creating account
+        const phoneAvailable = await isPhoneAvailable(phone);
+        if (!phoneAvailable) {
+            signupError.textContent = 'This mobile number is already linked with another account.';
+            loader.classList.add('hidden');
+            return;
+        }
+
         await signOutGuestIfNeeded();
         await signupWithEmail({ email, password, name, username, phone });
         if (wasAnonymous) clearCart();
@@ -306,7 +316,7 @@ completionForm?.addEventListener('submit', async (e) => {
         return;
     }
 
-    const username = document.querySelector('#complete-username').value;
+    const name = document.querySelector('#complete-name').value;
     const phone = document.querySelector('#complete-phone').value;
 
     // Validation
@@ -319,28 +329,43 @@ completionForm?.addEventListener('submit', async (e) => {
     completionError.textContent = '';
 
     try {
-        // Check if username is available
-        const available = await isUsernameAvailable(username);
-        if (!available) throw new Error('Username already taken');
+        // Check if phone is available
+        const phoneAvailable = await isPhoneAvailable(phone);
+        if (!phoneAvailable) {
+            throw new Error('This mobile number is already linked with another account.');
+        }
+
+        // Generate a username from name since DB expects it
+        const baseUsername = normalizeUsername(name.replace(/\s+/g, ''));
+        let finalUsername = baseUsername;
+        
+        // Ensure username is not empty
+        if (!finalUsername) {
+            finalUsername = 'user' + Math.floor(Math.random() * 10000);
+        }
+
+        // Verify if the generated username is available, if not add random suffix
+        const available = await isUsernameAvailable(finalUsername);
+        if (!available) {
+            finalUsername += Math.floor(Math.random() * 10000);
+        }
 
         // auth.currentUser is safe here because onAuthChange has already resolved
         const user = auth.currentUser;
         if (!user) throw new Error('Session expired');
 
-        await updateProfile(user.uid, { username, phone });
+        await updateProfile(user.uid, { name, username: finalUsername, phone });
         
         // Fetch updated profile to get role for proper redirect
-        // Get the role from current user profile or default to customer
         const profile = user.profile || {};
         const role = profile.role || 'customer';
         let redirectUrl = '/';
         
         if (role === 'admin' || role === 'manager') {
-            redirectUrl = '/admin/index.html';
+            redirectUrl = '/admin';
         } else if (role === 'rider') {
-            redirectUrl = '/rider/index.html';
+            redirectUrl = '/rider';
         } else {
-            // customer or unknown role → go to home
             redirectUrl = '/';
         }
         

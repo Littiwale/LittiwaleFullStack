@@ -34,10 +34,10 @@ const initRider = () => {
         if (isLoading) return;
         loadingOverlay.remove();
 
-        if (!user) { window.location.href = '/login.html'; return; }
+        if (!user) { window.location.href = '/login'; return; }
         const role = getUserRole(user);
         if (!['rider', 'admin', 'manager'].includes(role)) {
-            window.location.href = '/customer/index.html'; return;
+            window.location.href = '/'; return;
         }
 
         const name    = user.profile?.name || 'Rider';
@@ -72,9 +72,9 @@ const initRider = () => {
                 dropdown?.classList.remove('open');
         });
 
-        document.getElementById('rider-dd-admin')?.addEventListener('click',      () => { window.location.href = '/admin/index.html'; });
-        document.getElementById('rider-dd-storefront')?.addEventListener('click', () => { window.location.href = '/customer/index.html'; });
-        document.getElementById('rider-dd-logout')?.addEventListener('click', async () => { await logoutUser(); window.location.href = '/login.html'; });
+        document.getElementById('rider-dd-admin')?.addEventListener('click',      () => { window.location.href = '/admin'; });
+        document.getElementById('rider-dd-storefront')?.addEventListener('click', () => { window.location.href = '/'; });
+        document.getElementById('rider-dd-logout')?.addEventListener('click', async () => { await logoutUser(); window.location.href = '/login'; });
         document.getElementById('bnav-profile')?.addEventListener('click', () => {
             alert(`👤 ${name}\nRole: ${role.toUpperCase()}\n\nTo update your profile, contact the admin.`);
         });
@@ -259,14 +259,15 @@ const startRiderNotificationListener = (riderId) => {
                 // Show persistent modal notification with buttons
                 riderNotificationId = showPersistentNotification({
                     title: '🛵 NEW DELIVERY ASSIGNED!',
-                    message: 'You have a new order assignment. Review details and accept or reject.',
+                    message: `You have a new order assignment from ${notif.orderData?.locationId === 'outlet' ? '🏪 Physical Outlet' : '☁️ Cloud Kitchen'}. Review details and accept or reject.`,
                     type: 'assignment',
                     data: {
                         orderId: notif.orderData?.orderId || change.doc.id,
                         total: notif.orderData?.total,
                         customerName: notif.orderData?.customerName,
                         customerPhone: notif.orderData?.customerPhone,
-                        items: notif.orderData?.items
+                        items: notif.orderData?.items,
+                        locationId: notif.orderData?.locationId
                     },
                     persistent: true,
                     onAccept: async () => {
@@ -352,6 +353,10 @@ const createPendingCard = (order) => {
     const cod       = order.paymentMethod === 'COD';
     const mapUrl    = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(order.customer?.address || '')}`;
 
+    const locationBadge = order.locationId === 'outlet' 
+        ? '<div style="background:rgba(16,185,129,0.15);color:#10b981;border:1px solid rgba(16,185,129,0.4);padding:8px 16px;border-radius:12px;font-size:12px;font-weight:800;text-transform:uppercase;display:block;margin-top:12px;text-align:center;letter-spacing:0.5px;">📍 PICKUP: Physical Outlet - Near Barbil Court, Rabisons Mall</div>'
+        : '<div style="background:rgba(245,168,0,0.15);color:#F5A800;border:1px solid rgba(245,168,0,0.4);padding:8px 16px;border-radius:12px;font-size:12px;font-weight:800;text-transform:uppercase;display:block;margin-top:12px;text-align:center;letter-spacing:0.5px;">📍 PICKUP: Cloud Kitchen - Ward No. 7, Punjabi Para</div>';
+
     return `
         <div class="nd-card">
             <div class="nd-card-top">
@@ -360,8 +365,9 @@ const createPendingCard = (order) => {
             </div>
 
             <div class="nd-cust-name">${order.customer?.name || 'Customer'}</div>
+            ${locationBadge}
 
-            <div class="nd-chips">
+            <div class="nd-chips" style="margin-top:12px;">
                 <div class="nd-chip">
                     <div class="nd-chip-label">Items</div>
                     <div class="nd-chip-val">${itemCount}</div>
@@ -412,6 +418,10 @@ const renderCurrentDelivery = (orders) => {
     const cod       = order.paymentMethod === 'COD';
     const mapUrl    = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(order.customer?.address || '')}`;
 
+    const locationBadge = order.locationId === 'outlet' 
+        ? '<div style="background:rgba(16,185,129,0.15);color:#10b981;border:1px solid rgba(16,185,129,0.4);padding:8px 16px;border-radius:12px;font-size:12px;font-weight:800;text-transform:uppercase;display:block;margin-top:12px;text-align:center;letter-spacing:0.5px;">📍 PICKUP: Physical Outlet - Near Barbil Court, Rabisons Mall</div>'
+        : '<div style="background:rgba(245,168,0,0.15);color:#F5A800;border:1px solid rgba(245,168,0,0.4);padding:8px 16px;border-radius:12px;font-size:12px;font-weight:800;text-transform:uppercase;display:block;margin-top:12px;text-align:center;letter-spacing:0.5px;">📍 PICKUP: Cloud Kitchen - Ward No. 7, Punjabi Para</div>';
+
     container.innerHTML = `
         <div class="nd-card nd-card-delivery">
             <div class="nd-delivery-glow"></div>
@@ -427,8 +437,9 @@ const renderCurrentDelivery = (orders) => {
             </div>
 
             <div class="nd-cust-name">${order.customer?.name || 'Customer'}</div>
+            ${locationBadge}
 
-            <div class="nd-chips">
+            <div class="nd-chips" style="margin-top:12px;">
                 <div class="nd-chip">
                     <div class="nd-chip-label">Items</div>
                     <div class="nd-chip-val">${itemCount}</div>

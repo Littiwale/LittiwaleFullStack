@@ -1606,21 +1606,37 @@ html[data-theme='light'] .announcement-title {
   overflow: hidden;
   position: relative;
   width: 100%;
-  min-height: auto;
-  height: auto;
 }
 
 .announcement-slide {
   flex: 0 0 100%;
   text-align: center;
   font-weight: 600;
-  padding: 0 16px;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  min-height: auto;
-  height: auto;
+}
+
+/* Announcement image container — shows full image, no crop */
+.announcement-slide .ann-img-wrap {
+  width: 100%;
+  max-height: 280px;        /* cap height on wide desktops */
+  border-radius: 14px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #0d0d0d;
+}
+
+.announcement-slide .ann-img-wrap img {
+  width: 100%;
+  height: auto;             /* natural height — no cropping */
+  max-height: 280px;
+  object-fit: contain;      /* full image always visible */
+  display: block;
+  border-radius: 14px;
 }
 
 .deal-badge {

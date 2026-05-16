@@ -8,6 +8,7 @@ import { addItem, getCartTotal, getCartCount } from './store/cart';
 import { fetchOrdersByUser } from './api/orders';
 import { openProfileModal } from './profile-modal';
 import { updateDeliveryEstimate, loadMyOrders, showToast } from './utils';
+import { auth } from './firebase/config';
 
 /**
  * 🍱 LITTIWALE MENU ENGINE
@@ -15,6 +16,34 @@ import { updateDeliveryEstimate, loadMyOrders, showToast } from './utils';
  */
 
 let menuData = [];
+
+/**
+ * 🔄 REFRESH MENU GRID (Global for location changes)
+ */
+window.refreshMenuGrid = async () => {
+    const container = document.querySelector('#menu-grid-container');
+    if (!container) return;
+    
+    container.innerHTML = '<div class="text-center py-20"><div class="animate-pulse flex flex-col items-center"><div class="h-12 w-12 border-4 border-t-accent border-gray-800 rounded-full animate-spin mb-4"></div><p class="text-gray-500 font-bold tracking-widest uppercase text-xs">Switching location & reloading menu...</p></div></div>';
+    
+    try {
+        const { fetchMenuItems } = await import('./api/menu');
+        const items = await fetchMenuItems();
+        if (items.length > 0) {
+            menuData = items;
+            renderMenu(container, items);
+            // Re-init search with new items
+            if (typeof window.littiwaleMenuSearch?.clear === 'function') {
+                window.littiwaleMenuSearch.clear();
+            }
+            window.littiwaleMenuData = items;
+            window.dispatchEvent(new CustomEvent('menuDataReady', { detail: { menuData: items } }));
+        }
+    } catch (err) { 
+        console.error('Menu refresh failed:', err);
+        container.innerHTML = '<p class="text-center text-error">Failed to refresh menu. Please try again.</p>';
+    }
+};
 
 // ── MODAL UTILITIES (Module-Level for Global Access) ──
 const showModal = (modalElement) => {
@@ -66,6 +95,7 @@ const initMenu = async () => {
                             <button class="lw-dropdown-item" id="menu-dd-profile">👤 My Profile</button>
                             <button class="lw-dropdown-item" id="menu-dd-orders">📦 My Orders</button>
                             <button class="lw-dropdown-item" id="menu-dd-track">🛵 Track Orders</button>
+                            <button class="lw-dropdown-item" id="menu-dd-tickets">🎫 My Tickets</button>
                             <div class="lw-dropdown-divider"></div>
                             <button class="lw-dropdown-item danger" id="menu-dd-logout">🚪 Logout</button>
                         </div>
@@ -105,14 +135,12 @@ const initMenu = async () => {
                 document.getElementById('menu-dd-track')?.addEventListener('click', async () => {
                     dropdown.classList.remove('open');
                     try {
-                        const { fetchOrdersByUser } = await import('./api/orders');
-                        const { auth } = await import('./firebase/config');
                         if (!auth.currentUser) { window.location.href = '/login'; return; }
                         const orders = await fetchOrdersByUser(auth.currentUser.uid);
                         const active = orders.find(o => !['DELIVERED','CANCELLED','REJECTED'].includes(o.status));
                         const target = active || orders[0];
                         if (target && target.orderId && target.trackingToken) {
-                            window.location.href = `/customer/track.html?id=${target.orderId}&token=${target.trackingToken}`;
+                            window.location.href = `/track?id=${target.orderId}&token=${target.trackingToken}`;
                         } else {
                             const myOrdersModal = document.querySelector('#my-orders-modal');
                             if (myOrdersModal) { showModal(myOrdersModal); loadMyOrders(); }
@@ -120,6 +148,19 @@ const initMenu = async () => {
                     } catch(e) {
                         console.error('Track redirect failed', e);
                     }
+                });
+                document.getElementById('menu-dd-tickets')?.addEventListener('click', () => {
+                    dropdown.classList.remove('open');
+                    openProfileModal({
+                        onMyOrders: () => {
+                            const myOrdersModal = document.querySelector('#my-orders-modal');
+                            if (myOrdersModal) { showModal(myOrdersModal); loadMyOrders(); }
+                        }
+                    });
+                    setTimeout(() => {
+                        const ticketsList = document.getElementById('lw-tickets-list');
+                        if (ticketsList) ticketsList.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }, 300);
                 });
                 document.getElementById('menu-dd-logout')?.addEventListener('click', async () => {
                     await logoutUser();
@@ -250,28 +291,30 @@ const initMenu = async () => {
         const name = document.querySelector('#complaint-name').value;
         const phone = document.querySelector('#complaint-phone').value;
         const issue = document.querySelector('#complaint-issue').value;
+        const submitBtn = complaintForm.querySelector('button[type="submit"]');
 
-        // Show loading state
         complaintFeedback.textContent = 'Submitting your complaint...';
         complaintFeedback.style.color = '#C47F17';
+        if (submitBtn) { submitBtn.disabled = true; submitBtn.textContent = 'Submitting...'; }
 
         try {
-            await createTicket({ name, phone, issue });
+            const userId = auth.currentUser?.uid || null;
+            const ticket = await createTicket({ name, phone, issue, userId });
 
-            complaintFeedback.textContent = '✓ Thank you! Your complaint has been submitted. We will follow up soon.';
+            complaintFeedback.innerHTML = `✓ Ticket <strong style="color:#F5A800;">#${ticket.ticketId}</strong> raised! Check <em>My Profile → My Tickets</em> for updates.`;
             complaintFeedback.style.color = '#10B981';
 
-            // Reset form
             complaintForm.reset();
 
-            // Close modal after 2 seconds
             setTimeout(() => {
                 hideModal(complaintModal);
                 complaintFeedback.textContent = '';
-            }, 2000);
+                if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = 'Send Ticket'; }
+            }, 3000);
         } catch (err) {
             complaintFeedback.textContent = '✗ Error submitting complaint. Please try again.';
             complaintFeedback.style.color = '#EF4444';
+            if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = 'Send Ticket'; }
         }
     });
 

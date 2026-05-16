@@ -7,10 +7,21 @@ let currentMenuItems = [];
 
 const getDietFilteredItems = (items) => {
     if (!Array.isArray(items)) return [];
+    
+    const currentLoc = localStorage.getItem('selectedLocation') || 'cloud';
+    if (currentLoc === 'outlet') {
+        // Force veg-only for outlet
+        return items.filter(item => {
+            const isVeg = item.veg === true || item.veg === 'true' || item.veg === 'veg' || item.isVeg === true;
+            return isVeg;
+        });
+    }
+
     if (currentDietFilter === 'all') return items;
     return items.filter(item => {
-        if (currentDietFilter === 'veg') return item.veg;
-        return !item.veg;
+        const isVeg = item.veg === true || item.veg === 'true' || item.veg === 'veg' || item.isVeg === true;
+        if (currentDietFilter === 'veg') return isVeg;
+        return !isVeg;
     });
 };
 
@@ -20,9 +31,20 @@ const getDietFilteredItems = (items) => {
  */
 export const renderMenu = (container, items) => {
     if (!container) return;
-    currentMenuItems = items;
+    
+    // Create an item map for faster lookups (fixes slowness)
+    const itemMap = new Map();
+    items.forEach(i => itemMap.set(i.id, i));
+    window.littiwaleItemMap = itemMap;
 
-    const activeItems = getDietFilteredItems(items);
+    const currentLoc = localStorage.getItem('selectedLocation') || 'cloud';
+    const mappedLoc = currentLoc === 'cloud' ? 'cloud_only' : 'outlet_only';
+
+    const activeItems = getDietFilteredItems(items).filter(item => {
+        const avail = item.availability || 'cloud_only';
+        return avail === 'both' || avail === mappedLoc;
+    });
+
     const groupedItems = activeItems.reduce((acc, item) => {
         if (item.available === false) return acc;
         if (!acc[item.category]) acc[item.category] = [];
@@ -31,18 +53,20 @@ export const renderMenu = (container, items) => {
     }, {});
 
     const categories = Object.keys(groupedItems).sort();
-    renderCategoryTabs(categories, container, groupedItems, activeItems);
+    renderCategoryTabs(categories, container, groupedItems, items);
+    
     if (!currentCategory || currentCategory === 'all' || !groupedItems[currentCategory]) {
         currentCategory = 'all';
-        renderAllCategories(container, groupedItems, activeItems);
+        renderAllCategories(container, groupedItems, items);
     } else {
-        renderSingleCategory(container, currentCategory, groupedItems[currentCategory], activeItems);
+        renderSingleCategory(container, currentCategory, groupedItems[currentCategory], items);
     }
 
     updateDietButtons();
     updateCategoryTabUI();
     initDietFilter(container, items);
     initMenuEvents(container, items);
+    
     initFloatingFilterShortcut();
     initFilterScrollBehavior();
 
@@ -51,6 +75,16 @@ export const renderMenu = (container, items) => {
 };
 
 const updateDietButtons = () => {
+    const currentLoc = localStorage.getItem('selectedLocation') || 'cloud';
+    const nonVegBtn = document.querySelector('.diet-pill[data-diet="nonveg"]');
+    
+    if (currentLoc === 'outlet' && nonVegBtn) {
+        nonVegBtn.style.display = 'none';
+        if (currentDietFilter === 'nonveg') currentDietFilter = 'all';
+    } else if (nonVegBtn) {
+        nonVegBtn.style.display = 'flex';
+    }
+
     document.querySelectorAll('.diet-pill').forEach(btn => {
         btn.classList.toggle('active', btn.dataset.diet === currentDietFilter);
     });
@@ -83,11 +117,23 @@ const renderCategoryTabs = (categories, container, groupedItems, items) => {
             const category = tab.getAttribute('data-category');
             currentCategory = category || 'all';
             updateCategoryTabUI();
+            
             if (currentCategory === 'all') {
                 renderAllCategories(container, groupedItems, items);
             } else {
                 renderSingleCategory(container, currentCategory, groupedItems[currentCategory], items);
             }
+            
+            // AUTO-SCROLL TO CATEGORY
+            setTimeout(() => {
+                const targetHeader = Array.from(document.querySelectorAll('.menu-category-heading'))
+                    .find(h => h.textContent.trim().includes(category));
+                if (targetHeader) {
+                    const topPos = targetHeader.getBoundingClientRect().top + window.scrollY - 100;
+                    window.scrollTo({ top: topPos, behavior: 'smooth' });
+                }
+            }, 100);
+
             refreshAllCardCTAs(items);
         });
     });
@@ -161,13 +207,19 @@ const qtySelectorHTML = (itemId, qty) => `
 export const refreshAllCardCTAs = (items) => {
     const cart = getCart();
     const ctaZones = document.querySelectorAll('.card-cta-zone');
+    const itemMap = window.littiwaleItemMap;
+
     ctaZones.forEach(zone => {
         const itemId = zone.dataset.itemId;
-        const item = items.find(i => i.id === itemId);
+        const item = itemMap ? itemMap.get(itemId) : items.find(i => i.id === itemId);
         const inStock = item?.inStock !== false;
         const cartEntry = cart.find(i => i.id === itemId);
         const qty = cartEntry ? cartEntry.quantity : 0;
-        zone.innerHTML = qty > 0 ? qtySelectorHTML(itemId, qty) : addToCartBtnHTML(itemId, inStock);
+        
+        const newHTML = qty > 0 ? qtySelectorHTML(itemId, qty) : addToCartBtnHTML(itemId, inStock);
+        if (zone.innerHTML !== newHTML) {
+            zone.innerHTML = newHTML;
+        }
     });
 };
 
@@ -191,6 +243,7 @@ const createItemCard = (item) => {
     const description = escapeHtml(rawDescription);
     const initialDetail = description || (hasVariants ? `Selected: ${escapeHtml(defaultVariant.type)}` : '\u00A0');
     const inStock = item.inStock !== false;
+    const isVeg = item.veg === true || item.veg === 'true' || item.veg === 'veg' || item.isVeg === true;
 
     let spiceBadgeHTML = '';
     if (item.spiceLevel === 'spicy') {
@@ -232,7 +285,7 @@ const createItemCard = (item) => {
 
                 ${spiceBadgeHTML}
 
-                <span class="diet-tag ${item.veg ? 'diet-tag--veg' : 'diet-tag--nonveg'}" title="${item.veg ? 'Veg' : 'Non-Veg'}"></span>
+                <span class="diet-tag ${isVeg ? 'diet-tag--veg' : 'diet-tag--nonveg'}" title="${isVeg ? 'Veg' : 'Non-Veg'}"></span>
             </div>
 
             <div class="menu-card-body p-5 flex flex-col flex-grow" style="background: var(--card-bg, #FFFFFF);" data-base-description="${description}">

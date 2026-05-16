@@ -219,6 +219,13 @@ export const showPersistentNotification = (config) => {
                         <span style="color: #9ca3af; display: block; margin-bottom: 4px;">Amount</span>
                         <span style="font-weight: 700; color: #F5A800; font-size: 16px;">₹${data.total || '—'}</span>
                     </div>
+                    ${data.locationId ? `
+                    <div style="grid-column: span 2; background: ${data.locationId === 'outlet' ? 'rgba(16, 185, 129, 0.15)' : 'rgba(245, 168, 0, 0.15)'}; padding: 12px 16px; border-radius: 12px; border: 1px solid ${data.locationId === 'outlet' ? 'rgba(16, 185, 129, 0.4)' : 'rgba(245, 168, 0, 0.4)'}; text-align: center;">
+                        <span style="font-weight: 800; font-size: 13px; color: ${data.locationId === 'outlet' ? '#10b981' : '#F5A800'}; text-transform: uppercase; letter-spacing: 0.5px;">
+                            ${data.locationId === 'outlet' ? '📍 PICKUP: Physical Outlet - Near Barbil Court, Rabisons Mall' : '📍 PICKUP: Cloud Kitchen - Ward No. 7, Punjabi Para'}
+                        </span>
+                    </div>
+                    ` : ''}
                     ${data.customerName ? `
                     <div>
                         <span style="color: #9ca3af; display: block; margin-bottom: 4px;">Customer</span>

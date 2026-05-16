@@ -14,7 +14,7 @@
         content="Authentic Litti Chokha and comfort food made daily, delivered hot to Barbil. Order now on Littiwale.">
     <meta property="og:image"
         content="https://firebasestorage.googleapis.com/v0/b/littiwale-ordering-system.appspot.com/o/images%2Fmenu%2FLittiwale%20Rice%20Bowl%20Combos%2Fbhook-lagi-hai-boss.png?alt=media">
-    <meta property="og:url" content="https://littiwale.food/customer/index.html">
+    <meta property="og:url" content="https://littiwale.food/">
     <meta property="og:type" content="website">
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="Littiwale - Order Now">
@@ -49,23 +49,69 @@
         <!-- SECTION 1: NAVBAR -->
         <nav class="navbar">
             <div class="container nav-container">
-                <a href="./index.html" class="logo-link flex items-center gap-3">
+                <a href="/" class="logo-link flex items-center gap-3">
                     <img src="/images/logo.png" alt="Littiwale" class="nav-logo">
                     <span style="font-family: var(--font-futuristic); font-weight: 900; letter-spacing: 4px; font-size: 18px; color: var(--primary);">LITTIWALE</span>
                 </a>
 
                 <ul class="nav-links" style="font-family: var(--font-body); font-weight: 700; text-transform: uppercase; letter-spacing: 1px; font-size: 13px;">
-                    <li><a href="#home">Home</a></li>
-                    <li><a href="./menu.html">Menu</a></li>
-                    <li><a href="#about">About</a></li>
-                    <li><a href="#reach">Reach Us</a></li>
+                    <li><a href="/">Home</a></li>
+                    <li><a href="/menu">Menu</a></li>
+                    <li><a href="/#about">About</a></li>
+                    <li><a href="/#reach">Reach Us</a></li>
                 </ul>
 
-                <div class="nav-right">
-                    <button id="theme-toggle" type="button" data-theme-toggle class="theme-toggle-btn"
-                        aria-label="Toggle dark mode">🌙</button>
+                <div class="nav-right" style="display: flex; align-items: center; gap: 16px;">
+                    <div class="location-switcher-wrapper" style="position: relative; display: flex; align-items: center;">
+                        <button id="nav-location-btn" type="button" aria-haspopup="true" aria-expanded="false" style="
+                            background: rgba(245, 168, 0, 0.1); border: 1px solid rgba(245, 168, 0, 0.3); border-radius: 12px;
+                            padding: 8px 14px; display: flex; align-items: center; gap: 8px; cursor: pointer;
+                            font-family: var(--font-body); font-size: 12px; font-weight: 800; color: #F5A800; transition: all 0.2s;
+                        ">
+                            <span style="font-size: 14px;">📍</span>
+                            <div style="display: flex; flex-direction: column; text-align: left; line-height: 1.1;">
+                                <span style="font-size: 9px; text-transform: uppercase; letter-spacing: 1px; color: #888;">Location</span>
+                                <span id="nav-location-label" style="color: #fff; font-weight: 700;">Cloud Kitchen</span>
+                            </div>
+                            <i class="fas fa-chevron-down" style="font-size: 10px; margin-left: 4px; color: #888;"></i>
+                        </button>
+
+                        <div id="nav-location-dropdown" class="lw-dropdown" style="
+                            position: absolute; top: calc(100% + 8px); right: 0; width: 280px; background: #131313;
+                            border: 1px solid rgba(245, 168, 0, 0.2); border-radius: 16px; box-shadow: 0 10px 40px rgba(0,0,0,0.8);
+                            padding: 12px; z-index: 1050; flex-direction: column; gap: 8px;
+                        ">
+                            <div class="lw-loc-option" data-loc="cloud" style="
+                                padding: 12px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.05); background: #181818;
+                                cursor: pointer; transition: all 0.2s; display: flex; align-items: flex-start; gap: 12px;
+                            ">
+                                <span style="font-size: 20px; margin-top: 2px;">🍳</span>
+                                <div style="flex: 1;">
+                                    <div style="display: flex; align-items: center; justify-content: space-between;">
+                                        <h5 style="color: #fff; font-size: 13px; font-weight: 800; margin: 0;">Cloud Kitchen</h5>
+                                        <span class="lw-loc-badge" style="font-size: 9px; padding: 2px 6px; background: rgba(16,185,129,0.15); color: #34d399; border-radius: 6px; font-weight: 700;">Full Menu</span>
+                                    </div>
+                                    <p style="color: #888; font-size: 11px; margin: 4px 0 0; line-height: 1.3;">Punjabi Para (9 AM - 11 PM)<br>Veg &amp; Non-Veg</p>
+                                </div>
+                            </div>
+
+                            <div class="lw-loc-option" data-loc="outlet" style="
+                                padding: 12px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.05); background: #181818;
+                                cursor: pointer; transition: all 0.2s; display: flex; align-items: flex-start; gap: 12px;
+                            ">
+                                <span style="font-size: 20px; margin-top: 2px;">🏪</span>
+                                <div style="flex: 1;">
+                                    <div style="display: flex; align-items: center; justify-content: space-between;">
+                                        <h5 style="color: #fff; font-size: 13px; font-weight: 800; margin: 0;">Physical Outlet</h5>
+                                        <span class="lw-loc-badge" style="font-size: 9px; padding: 2px 6px; background: rgba(245,168,0,0.15); color: #F5A800; border-radius: 6px; font-weight: 700;">100% Pure Veg</span>
+                                    </div>
+                                    <p style="color: #888; font-size: 11px; margin: 4px 0 0; line-height: 1.3;">Near Barbil Court (8 AM - 10 PM)<br>Pure Vegetarian Catalog</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                     <!-- Profile area: injected by JS -->
-                    <div id="nav-profile-area"></div>
+                    <div id="nav-profile-area" style="position:relative;z-index:1100;"></div>
 
                     <a href="#" class="cart-btn" id="nav-cart-btn">
                         🛒 <span class="cart-text">Cart</span> <span id="cart-count" class="cart-badge">0</span>
@@ -83,10 +129,10 @@
 
         <div id="mobile-nav-drawer" class="mobile-nav-drawer" aria-hidden="true">
             <div class="mobile-nav-inner">
-                <a href="./index.html" class="mobile-nav-link">Home</a>
-                <a href="./menu.html" class="mobile-nav-link">Menu</a>
-                <a href="./index.html#about" class="mobile-nav-link">About</a>
-                <a href="./index.html#reach" class="mobile-nav-link">Reach Us</a>
+                <a href="/" class="mobile-nav-link">Home</a>
+                <a href="/menu" class="mobile-nav-link">Menu</a>
+                <a href="/#about" class="mobile-nav-link">About</a>
+                <a href="/#reach" class="mobile-nav-link">Reach Us</a>
             </div>
             <div class="mobile-nav-overlay" id="mobile-nav-overlay"></div>
         </div>
@@ -153,7 +199,7 @@
                 <h1 class="hero-title" id="hero-title-typed">The Soul of India,<br>Delivered Fresh.</h1>
                 <p>Authentic Litti Chokha and comfort food — made daily, delivered hot in Barbil.</p>
                 <div class="hero-buttons">
-                    <a href="./menu.html" class="btn btn-primary">Explore Menu</a>
+                    <a href="/menu" class="btn btn-primary">Explore Menu</a>
                     <div class="partner-text-wrapper">
                         <div class="partner-pill-mega">
                             <span class="mega-label">Also available on</span>
@@ -170,6 +216,52 @@
             </div>
             <div class="hero-glow"></div>
         </header>
+        
+        <!-- NEW OUTLET LAUNCH BANNER -->
+        <section id="outlet-launch" style="background:#111; padding: 40px 0; border-top: 3px solid #f4b400;">
+          <div class="container" style="max-width: 900px; margin: 0 auto; padding: 0 20px;">
+            <div style="background: linear-gradient(135deg, #1a1500, #0d0d0d); border: 1.5px solid #f4b400; border-radius: 16px; padding: 28px 24px; text-align: center; margin-bottom: 24px;">
+              <div style="display: inline-block; background: #f4b400; color: #0d0d0d; font-size: 11px; font-weight: 800; padding: 4px 14px; border-radius: 20px; margin-bottom: 12px; letter-spacing: 1px; text-transform: uppercase;">
+                🎉 NOW OPEN IN BARBIL
+              </div>
+              <h2 style="color: #f4b400; font-size: 2.2rem; font-weight: 900; margin-bottom: 8px; text-transform: uppercase;">
+                Our First Physical Outlet!
+              </h2>
+              <p style="color: #ccc; font-size: 1rem; margin-bottom: 24px;">
+                Cloud Kitchen se shuru hua safar — ab Barbil mein apna pehla outlet! 🙌
+              </p>
+              
+              <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 24px;">
+                <div style="background: #1a1a1a; border-radius: 12px; padding: 16px; text-align: left; border: 1px solid rgba(255,255,255,0.05);">
+                  <div style="font-size: 18px; margin-bottom: 6px;">📍</div>
+                  <div style="font-size: 12px; font-weight: 700; color: #fff; margin-bottom: 2px;">LOCATION</div>
+                  <div style="font-size: 12px; color: #999;">Near Barbil Court, Back Side of Rabisons Mall</div>
+                </div>
+                <div style="background: #1a1a1a; border-radius: 12px; padding: 16px; text-align: left; border: 1px solid rgba(255,255,255,0.05);">
+                  <div style="font-size: 18px; margin-bottom: 6px;">🕐</div>
+                  <div style="font-size: 12px; font-weight: 700; color: #fff; margin-bottom: 2px;">TIMING</div>
+                  <div style="font-size: 12px; color: #999;">Mon – Sat: 8:00 AM – 10:00 PM (Sun Closed)</div>
+                </div>
+                <div style="background: #1a1a1a; border-radius: 12px; padding: 16px; text-align: left; border: 1px solid rgba(255,255,255,0.05);">
+                  <div style="font-size: 18px; margin-bottom: 6px;">🥗</div>
+                  <div style="font-size: 12px; font-weight: 700; color: #fff; margin-bottom: 2px;">MENU</div>
+                  <div style="font-size: 12px; color: #999;">100% Pure Veg (Dine-in & Takeaway)</div>
+                </div>
+              </div>
+              
+              <div style="display: flex; flex-wrap: wrap; gap: 12px; justify-content: center;">
+                <button onclick="localStorage.setItem('selectedLocation','outlet'); window.location.href='./menu.html';"
+                  style="background: #f4b400; color: #0d0d0d; border: none; border-radius: 10px; padding: 14px 28px; font-size: 14px; font-weight: 800; cursor: pointer; text-transform: uppercase; letter-spacing: 1px;">
+                  🏪 Explore Outlet Menu
+                </button>
+                <a href="tel:+916370680744"
+                  style="background: transparent; color: #f4b400; border: 1.5px solid #f4b400; border-radius: 10px; padding: 14px 28px; font-size: 14px; font-weight: 700; text-decoration: none; display: inline-block; text-transform: uppercase; letter-spacing: 1px;">
+                  📞 63706 80744
+                </a>
+              </div>
+            </div>
+          </div>
+        </section>
 
         <!-- Trust Badges -->
         <section class="trust-bar">
@@ -231,7 +323,7 @@
             </div>
             <div id="bestseller-grid" class="hall-of-fame-grid"></div>
             <div class="hall-of-fame-footer">
-                <a href="./menu.html" class="hall-of-fame-btn">VIEW FULL MENU →</a>
+                <a href="/menu" class="hall-of-fame-btn">VIEW FULL MENU →</a>
             </div>
         </section>
 
@@ -322,7 +414,7 @@
                     </div>
                 </div>
                 <div style="text-align: center; margin-top: 40px;">
-                    <a href="./menu.html" class="btn btn-primary">View Full Menu →</a>
+                    <a href="/menu" class="btn btn-primary">View Full Menu →</a>
                 </div>
             </div>
         </section>
@@ -493,7 +585,10 @@
                     <div style="flex:1;">
                         <span class="lw-section-tag">Prefer Takeaway?</span>
                         <h3>Walk In & Collect</h3>
-                        <p>Order via WhatsApp or call, we'll have it ready when you arrive. Ward No. 7, Punjabi Para, Barbil. Open 11 AM – 10:30 PM.</p>
+                        <p style="font-size: 13px; line-height: 1.6; color: #aaa;">
+                            <strong style="color: #F5A800;">Cloud Kitchen:</strong> Punjabi Para, Ward No. 7 (9 AM – 11 PM)<br>
+                            <strong style="color: #10b981;">Physical Outlet:</strong> Near Barbil Court, Rabisons Mall (8 AM – 10 PM, Sun Closed)
+                        </p>
                     </div>
                     <a href="https://maps.google.com/?q=Littiwale+Barbil" target="_blank" class="btn btn-outline" style="white-space:nowrap;">📍 Get Directions</a>
                 </div>
@@ -736,56 +831,88 @@
                             onerror="this.src='/images/logo.png'">
                     </a>
                 </div>
+                <div style="text-align: center; margin-top: 40px; display: flex; gap: 16px; justify-content: center; flex-wrap: wrap;">
+                    <a href="https://g.page/r/CYlrxD6jO24cEAE/review" target="_blank" rel="noopener" class="btn btn-primary" style="display: inline-flex; align-items: center; gap: 8px;">
+                        ⭐⭐⭐⭐⭐ Review Cloud Kitchen
+                    </a>
+                    <a href="https://g.page/r/CWt0NauZrydZEAE/review" target="_blank" rel="noopener" class="btn btn-outline" style="display: inline-flex; align-items: center; gap: 8px; border-color: #10b981; color: #10b981;">
+                        ⭐⭐⭐⭐⭐ Review Physical Outlet
+                    </a>
+                </div>
             </div>
         </section>
 
         <!-- SECTION 10: REACH US -->
-        <section id="reach" class="section-padding"
-            style="background: var(--bg-light); border-top: 1px solid var(--glass-border);">
+        <section id="reach" class="section-padding" style="background: #0d0d0d;">
             <div class="container">
-                <div class="reach-grid">
-                    <div class="reach-left">
-                        <h2 class="reach-title">Reach Us</h2>
-                        <div class="divider left"></div>
-                        <div class="reach-info">
-                            <p>📍 Ward no-7, Punjabi Para, Barbil, Odisha 758035</p>
-                            <p>📞 +91 63706 80744</p>
-                            <p>🕐 11:00 AM – 10:30 PM (Mon–Sun)</p>
+                <div style="text-align: center; margin-bottom: 40px;">
+                    <h2 class="section-title">Reach Us</h2>
+                    <p style="color: var(--text-secondary);">Visit our Cloud Kitchen or Physical Outlet in Barbil</p>
+                    <div class="divider"></div>
+                </div>
+
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 30px;">
+                    <!-- Cloud Kitchen -->
+                    <div style="background: var(--bg-light); border: 1px solid rgba(244,180,0,0.2); border-radius: 24px; overflow: hidden; display: flex; flex-direction: column; box-shadow: 0 10px 30px rgba(0,0,0,0.3);">
+                        <div style="height: 200px; width: 100%;">
+                            <iframe src="https://maps.google.com/maps?q=22.1152751,85.3871145&z=16&output=embed" width="100%" height="100%" style="border:0; filter: grayscale(20%) contrast(1.1);" allowfullscreen="" loading="lazy"></iframe>
                         </div>
-                        <div class="reach-buttons">
-                            <a href="tel:+916370680744" class="btn btn-outline">Call Now</a>
-                            <a href="https://wa.me/916370680744" target="_blank" class="btn btn-whatsapp">WhatsApp</a>
-                            <a href="https://maps.google.com/?q=Littiwale+Barbil" target="_blank"
-                                class="btn btn-primary">Get Directions</a>
+                        <div style="padding: 24px; flex-grow: 1; display: flex; flex-direction: column;">
+                            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 12px;">
+                                <span style="background: rgba(244,180,0,0.1); color: #F5A800; font-size: 10px; font-weight: 800; padding: 4px 12px; border-radius: 20px; text-transform: uppercase;">Cloud Kitchen</span>
+                            </div>
+                            <h3 style="color: #fff; font-size: 20px; margin-bottom: 8px;">Punjabi Para, Barbil</h3>
+                            <p style="color: #888; font-size: 13px; line-height: 1.5; margin-bottom: 20px;">Ward No. 7, Punjabi Para, Near Railway Station, Barbil, Odisha 758035</p>
+                            
+                            <div style="margin-top: auto;">
+                                <div style="color: #F5A800; font-size: 12px; font-weight: 700; margin-bottom: 15px;">🕐 11:00 AM – 10:30 PM (Daily)</div>
+                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px;">
+                                    <a href="https://maps.google.com/maps?q=22.1152751,85.3871145" target="_blank" class="btn btn-outline" style="font-size: 12px; padding: 12px; text-align: center;">📍 Directions</a>
+                                    <a href="tel:+916370680744" class="btn btn-primary" style="font-size: 12px; padding: 12px; text-align: center;">📞 Call Now</a>
+                                </div>
+                                <a href="https://wa.me/916370680744?text=Hi, I want to order from Cloud Kitchen (Punjabi Para)." target="_blank" class="btn btn-whatsapp" style="width: 100%; font-size: 12px; padding: 12px; text-align: center; border-radius: 12px;">💬 WhatsApp Order</a>
+                            </div>
                         </div>
                     </div>
-                    <div class="reach-right"
-                        style="background: #181818; border-radius: 16px; overflow: hidden; border: 1px solid rgba(244,180,0,0.2);">
-                        <iframe src="https://maps.google.com/maps?q=22.11542,85.38711&z=17&output=embed" width="100%"
-                            height="350" allowfullscreen="" loading="lazy"
-                            style="filter: grayscale(30%) contrast(1.1); border: none;">
-                        </iframe>
+
+                    <!-- Physical Outlet -->
+                    <div style="background: var(--bg-light); border: 1.5px solid #4ade80; border-radius: 24px; overflow: hidden; display: flex; flex-direction: column; position: relative; box-shadow: 0 10px 30px rgba(0,0,0,0.3);">
+                        <div style="position: absolute; top: 15px; right: -35px; background: #4ade80; color: #000; font-size: 10px; font-weight: 900; padding: 4px 45px; transform: rotate(45deg); z-index: 10;">NEW</div>
+                        <div style="height: 200px; width: 100%;">
+                            <iframe src="https://maps.google.com/maps?q=22.099435,85.386035&z=16&output=embed" width="100%" height="100%" style="border:0; filter: grayscale(20%) contrast(1.1);" allowfullscreen="" loading="lazy"></iframe>
+                        </div>
+                        <div style="padding: 24px; flex-grow: 1; display: flex; flex-direction: column;">
+                            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 12px;">
+                                <span style="background: rgba(74,222,128,0.1); color: #4ade80; font-size: 10px; font-weight: 800; padding: 4px 12px; border-radius: 20px; text-transform: uppercase;">Physical Outlet</span>
+                                <span style="background: rgba(255,255,255,0.05); color: #fff; font-size: 10px; font-weight: 600; padding: 4px 10px; border-radius: 20px;">100% Pure Veg</span>
+                            </div>
+                            <h3 style="color: #fff; font-size: 20px; margin-bottom: 8px;">Near Barbil Court</h3>
+                            <p style="color: #888; font-size: 13px; line-height: 1.5; margin-bottom: 20px;">Back Side of Rabisons Mall, Near Barbil Court, Barbil, Odisha</p>
+                            
+                            <div style="margin-top: auto;">
+                                <div style="color: #4ade80; font-size: 12px; font-weight: 700; margin-bottom: 15px;">🕐 8:00 AM – 10:00 PM (Mon-Sat, Sun Closed)</div>
+                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px;">
+                                    <a href="https://maps.google.com/maps?q=22.099435,85.386035" target="_blank" class="btn btn-outline" style="font-size: 12px; padding: 12px; text-align: center; border-color: #4ade80; color: #4ade80;">📍 Directions</a>
+                                    <a href="tel:+916370680744" class="btn btn-primary" style="font-size: 12px; padding: 12px; text-align: center; background: #4ade80; color: #000; border: none;">📞 Call Now</a>
+                                </div>
+                                <a href="https://wa.me/916370680744?text=Hi, I want to inquire about the Physical Outlet (Near Court)." target="_blank" class="btn btn-whatsapp" style="width: 100%; font-size: 12px; padding: 12px; text-align: center; border-radius: 12px; background: #25d366;">💬 WhatsApp Query</a>
+                            </div>
+                        </div>
                     </div>
                 </div>
+
                 <!-- Connect With Us -->
-                <div id="connect" class="connect-footer">
-                    <h3>Connect With Us</h3>
+                <div id="connect" class="connect-footer" style="margin-top: 60px;">
+                    <h3 class="text-center" style="font-size: 1.5rem; color: #fff; margin-bottom: 20px;">Connect With Us</h3>
                     <div class="divider"></div>
-                    <div class="connect-links">
+                    <div class="connect-links" style="display: flex; justify-content: center; gap: 20px; flex-wrap: wrap;">
                         <a href="https://www.instagram.com/littiwaleofficial/" target="_blank" rel="noopener noreferrer"
-                            class="connect-card instagram">
-                            <i class="fab fa-instagram" aria-hidden="true"></i>
-                            Instagram
+                            class="connect-card instagram" style="background: linear-gradient(45deg, #f09433 0%,#e6683c 25%,#dc2743 50%,#cc2366 75%,#bc1888 100%); padding: 12px 24px; border-radius: 12px; color: #fff; display: flex; align-items: center; gap: 10px; text-decoration: none;">
+                            <i class="fab fa-instagram"></i> Instagram
                         </a>
                         <a href="https://www.facebook.com/share/18fQs5NEQU/" target="_blank" rel="noopener noreferrer"
-                            class="connect-card facebook">
-                            <i class="fab fa-facebook-f" aria-hidden="true"></i>
-                            Facebook
-                        </a>
-                        <a href="https://www.youtube.com" target="_blank" rel="noopener noreferrer"
-                            class="connect-card youtube">
-                            <i class="fab fa-youtube" aria-hidden="true"></i>
-                            YouTube
+                            class="connect-card facebook" style="background: #1877f2; padding: 12px 24px; border-radius: 12px; color: #fff; display: flex; align-items: center; gap: 10px; text-decoration: none;">
+                            <i class="fab fa-facebook-f"></i> Facebook
                         </a>
                     </div>
                 </div>
@@ -812,7 +939,6 @@
                         <a href="https://www.instagram.com/littiwaleofficial/" target="_blank" rel="noopener" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
                         <a href="https://www.facebook.com/share/18fQs5NEQU/" target="_blank" rel="noopener" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
                         <a href="https://wa.me/916370680744" target="_blank" rel="noopener" aria-label="WhatsApp"><i class="fab fa-whatsapp"></i></a>
-                        <a href="https://www.youtube.com" target="_blank" rel="noopener" aria-label="YouTube"><i class="fab fa-youtube"></i></a>
                     </div>
                 </div>
 
@@ -823,7 +949,7 @@
                         <li><a href="./index.html#why-littiwale">Why Littiwale</a></li>
                         <li><a href="./index.html#how-it-works">How It Works</a></li>
                         <li><a href="./index.html#membership">Membership Plans</a></li>
-                        <li><a href="./menu.html">Full Menu</a></li>
+                        <li><a href="/menu">Full Menu</a></li>
                         <li><a href="./index.html#catering">Catering Services</a></li>
                     </ul>
                 </div>
@@ -835,29 +961,43 @@
                         <li><a href="./index.html#about">About Littiwale</a></li>
                         <li><a href="./index.html#reach">Reach Us</a></li>
                         <li><a href="./index.html#faq">FAQ</a></li>
-                        <li><a href="./track.html">Track Order</a></li>
+                        <li><a href="/track">Track Order</a></li>
                     </ul>
                 </div>
 
                 <!-- Visit / CTA Column -->
-                <div class="footer-info-col">
+                <div class="footer-info-col" style="min-width: 280px;">
                     <h4>Visit Us</h4>
-                    <p>Ward No. 7, Punjabi Para<br>Barbil, Odisha 758035</p>
-                    <p style="margin-top:12px;">📞 +91 63706 80744</p>
-                    <p>🕚 11 AM – 10:30 PM, Daily</p>
-                    <a href="./menu.html" class="btn btn-primary footer-order-btn" style="margin-top:20px;">Order Now →</a>
+                    <div style="margin-bottom: 20px; padding-bottom: 16px; border-bottom: 1px solid rgba(255,255,255,0.1);">
+                        <p style="font-weight: 700; color: #F5A800; margin-bottom: 4px; font-size: 13px;">☁️ Cloud Kitchen</p>
+                        <p>Ward No. 7, Punjabi Para<br>Barbil, Odisha 758035</p>
+                        <p style="margin-top:4px;">🕚 9:00 AM – 11:00 PM</p>
+                        <a href="https://g.page/r/CYlrxD6jO24cEAE/review" target="_blank" rel="noopener" style="display:inline-flex; align-items:center; gap:6px; color:#F5A800; font-size:12px; font-weight:700; margin-top:8px; background:rgba(245,168,0,0.1); padding:6px 12px; border-radius:6px; border:1px solid rgba(245,168,0,0.3); text-decoration:none;">
+                            ⭐⭐⭐⭐⭐ Review Cloud Kitchen
+                        </a>
+                    </div>
+                    <div style="margin-bottom: 20px;">
+                        <p style="font-weight: 700; color: #10b981; margin-bottom: 4px; font-size: 13px;">🏪 Physical Outlet</p>
+                        <p>Near Barbil Court, Rabisons Mall<br>Barbil, Odisha</p>
+                        <p style="margin-top:4px;">🕚 8:00 AM – 10:00 PM (Sun Closed)</p>
+                        <a href="https://g.page/r/CWt0NauZrydZEAE/review" target="_blank" rel="noopener" style="display:inline-flex; align-items:center; gap:6px; color:#10b981; font-size:12px; font-weight:700; margin-top:8px; background:rgba(16,185,129,0.1); padding:6px 12px; border-radius:6px; border:1px solid rgba(16,185,129,0.3); text-decoration:none;">
+                            ⭐⭐⭐⭐⭐ Review Physical Outlet
+                        </a>
+                    </div>
+                    <p style="margin-top:8px;">📞 +91 63706 80744</p>
+                    <a href="/menu" class="btn btn-primary footer-order-btn" style="margin-top:16px;">Order Now →</a>
                 </div>
 
             </div>
 
             <!-- Footer Bottom — copyright left, links right -->
-            <div class="footer-bottom container">
-                <span>&copy; 2026 Littiwale Barbil. All rights reserved.</span>
-                <div class="footer-bottom-links">
-                    <a href="#">Privacy Policy</a>
-                    <a href="#">Terms of Service</a>
-                    <a href="https://tushkarmakar.vercel.app/client" target="_blank" rel="noopener" class="footer-brandnest-link">
-                        Developed by BrandNest <i class="fas fa-external-link-alt"></i>
+            <div class="footer-bottom container" style="margin-top: 48px; padding: 20px 0; border-top: 1px solid rgba(255,255,255,0.05); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+                <span style="font-size: 12px; color: #888;">&copy; 2026 Littiwale Barbil. All rights reserved.</span>
+                <div class="footer-bottom-links" style="display: flex; gap: 20px; align-items: center;">
+                    <a href="#" style="font-size: 12px; color: #888; text-decoration: none;">Privacy Policy</a>
+                    <a href="#" style="font-size: 12px; color: #888; text-decoration: none;">Terms of Service</a>
+                    <a href="https://brandnestagency.vercel.app" target="_blank" rel="noopener noreferrer" style="font-size: 12px; color: #F5A800; text-decoration: none; font-weight: 700;">
+                        Developed by BrandNest - India's First AI Powered Digital Agency
                     </a>
                 </div>
             </div>

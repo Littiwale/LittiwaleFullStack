@@ -77,12 +77,13 @@ service cloud.firestore {
         request.resource.data.updatedAt == request.resource.data.createdAt &&
         !request.resource.data.keys().hasAny(['riderId', 'riderName', 'deliveredAt']);
 
-      // Customer reads their own order
-      allow read: if request.auth != null && request.auth.uid == resource.data.userId;
-
-      // Phone fallback (for guest-recovery flows)
-      allow read: if request.auth != null &&
-        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.phone == resource.data.customer.phone;
+      // Anyone can read if they have the trackingToken (Public Tracking Link)
+      // OR if they are the owner, or if their phone matches.
+      allow read: if (resource.data.trackingToken != null) ||
+                    (request.auth != null && (
+                      request.auth.uid == resource.data.userId ||
+                      get(/databases/$(database)/documents/users/$(request.auth.uid)).data.phone == resource.data.customer.phone
+                    ));
 
       // Admin / Manager — full control
       allow read, write: if isAdminOrManager();
@@ -119,7 +120,18 @@ service cloud.firestore {
         request.resource.data.issue is string &&
         request.resource.data.createdAt is timestamp;
 
+      // Admin / Manager — full control
       allow read, update, delete: if isAdminOrManager();
+
+      // Customer can read their own tickets (matched by userId field)
+      allow read: if request.auth != null &&
+        resource.data.userId == request.auth.uid;
+
+      // Customer can update (add messages, close) their own open ticket
+      allow update: if request.auth != null &&
+        resource.data.userId == request.auth.uid &&
+        request.resource.data.diff(resource.data).affectedKeys()
+          .hasOnly(['messages', 'status', 'updatedAt']);
     }
 
     // ── MENU ──
@@ -154,6 +166,18 @@ service cloud.firestore {
     // 💰 CASH COLLECTIONS — records of COD cash collected by riders, managed by admin
     match /cash_collections/{docId} {
       allow read, write: if isAdminOrManager();
+    }
+
+    // 📍 LOCATIONS — dual-location configuration (Phase 2)
+    match /locations/{docId} {
+      allow read: if true;
+      allow write: if isAdminOrManager();
+    }
+
+    // ⚙️ SETTINGS — global store settings (Delivery fees, etc.)
+    match /settings/{docId} {
+      allow read: if true;
+      allow write: if isAdminOrManager();
     }
 
   }

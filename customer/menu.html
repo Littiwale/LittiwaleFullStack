@@ -10,7 +10,7 @@
     <meta property="og:title" content="Littiwale Menu - Litti Chokha, Pizza & More">
     <meta property="og:description" content="Order from our full menu: Litti Chokha, Pizza, Burgers, Thalis, Combos. Premium quality, fast delivery.">
     <meta property="og:image" content="https://firebasestorage.googleapis.com/v0/b/littiwale-ordering-system.appspot.com/o/images%2Fmenu%2FLittiwale%20Rice%20Bowl%20Combos%2Fbhook-lagi-hai-boss.png?alt=media">
-    <meta property="og:url" content="https://littiwale.food/customer/menu.html">
+    <meta property="og:url" content="https://littiwale.food/menu">
     <meta property="og:type" content="website">
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="Order Now from Littiwale Menu">
@@ -41,19 +41,66 @@
         <!-- NAVBAR (Same as index) -->
         <nav class="navbar">
             <div class="container nav-container">
-                <a href="./index.html" class="logo-link flex items-center gap-3">
+                <a href="/" class="logo-link flex items-center gap-3">
                     <img src="/images/logo.png" alt="Littiwale" class="nav-logo">
                     <span style="font-family: var(--font-futuristic); font-weight: 900; letter-spacing: 4px; font-size: 18px; color: var(--primary);">LITTIWALE</span>
                 </a>
                 <ul class="nav-links" style="font-family: var(--font-body); font-weight: 700; text-transform: uppercase; letter-spacing: 1px; font-size: 13px;">
-                    <li><a href="./index.html#home">Home</a></li>
-                    <li><a href="./menu.html" class="active">Menu</a></li>
-                    <li><a href="./index.html#about">About</a></li>
-                    <li><a href="./index.html#reach">Reach Us</a></li>
+                    <li><a href="/">Home</a></li>
+                    <li><a href="/menu" class="active">Menu</a></li>
+                    <li><a href="/#about">About</a></li>
+                    <li><a href="/#reach">Reach Us</a></li>
                 </ul>
-                <div class="nav-right">
-                    <button id="theme-toggle" type="button" data-theme-toggle class="theme-toggle-btn" aria-label="Toggle dark mode">🌙</button>
-                    <div id="nav-profile-area"></div>
+                <div class="nav-right" style="display: flex; align-items: center; gap: 16px;">
+                    <div class="location-switcher-wrapper" style="position: relative; display: flex; align-items: center;">
+                        <button id="nav-location-btn" type="button" aria-haspopup="true" aria-expanded="false" style="
+                            background: rgba(245, 168, 0, 0.1); border: 1px solid rgba(245, 168, 0, 0.3); border-radius: 12px;
+                            padding: 8px 14px; display: flex; align-items: center; gap: 8px; cursor: pointer;
+                            font-family: var(--font-body); font-size: 12px; font-weight: 800; color: #F5A800; transition: all 0.2s;
+                        ">
+                            <span style="font-size: 14px;">📍</span>
+                            <div style="display: flex; flex-direction: column; text-align: left; line-height: 1.1;">
+                                <span style="font-size: 9px; text-transform: uppercase; letter-spacing: 1px; color: #888;">Location</span>
+                                <span id="nav-location-label" style="color: #fff; font-weight: 700;">Cloud Kitchen</span>
+                            </div>
+                            <i class="fas fa-chevron-down" style="font-size: 10px; margin-left: 4px; color: #888;"></i>
+                        </button>
+
+                        <div id="nav-location-dropdown" class="lw-dropdown" style="
+                            position: absolute; top: calc(100% + 8px); right: 0; width: 280px; background: #131313;
+                            border: 1px solid rgba(245, 168, 0, 0.2); border-radius: 16px; box-shadow: 0 10px 40px rgba(0,0,0,0.8);
+                            padding: 12px; z-index: 1050; flex-direction: column; gap: 8px;
+                        ">
+                            <div class="lw-loc-option" data-loc="cloud" style="
+                                padding: 12px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.05); background: #181818;
+                                cursor: pointer; transition: all 0.2s; display: flex; align-items: flex-start; gap: 12px;
+                            ">
+                                <span style="font-size: 20px; margin-top: 2px;">🍳</span>
+                                <div style="flex: 1;">
+                                    <div style="display: flex; align-items: center; justify-content: space-between;">
+                                        <h5 style="color: #fff; font-size: 13px; font-weight: 800; margin: 0;">Cloud Kitchen</h5>
+                                        <span class="lw-loc-badge" style="font-size: 9px; padding: 2px 6px; background: rgba(16,185,129,0.15); color: #34d399; border-radius: 6px; font-weight: 700;">Full Menu</span>
+                                    </div>
+                                    <p style="color: #888; font-size: 11px; margin: 4px 0 0; line-height: 1.3;">Punjabi Para (9 AM - 11 PM)<br>Veg &amp; Non-Veg</p>
+                                </div>
+                            </div>
+
+                            <div class="lw-loc-option" data-loc="outlet" style="
+                                padding: 12px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.05); background: #181818;
+                                cursor: pointer; transition: all 0.2s; display: flex; align-items: flex-start; gap: 12px;
+                            ">
+                                <span style="font-size: 20px; margin-top: 2px;">🏪</span>
+                                <div style="flex: 1;">
+                                    <div style="display: flex; align-items: center; justify-content: space-between;">
+                                        <h5 style="color: #fff; font-size: 13px; font-weight: 800; margin: 0;">Physical Outlet</h5>
+                                        <span class="lw-loc-badge" style="font-size: 9px; padding: 2px 6px; background: rgba(245,168,0,0.15); color: #F5A800; border-radius: 6px; font-weight: 700;">100% Pure Veg</span>
+                                    </div>
+                                    <p style="color: #888; font-size: 11px; margin: 4px 0 0; line-height: 1.3;">Near Barbil Court (8 AM - 10 PM)<br>Pure Vegetarian Catalog</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="nav-profile-area" style="position:relative;z-index:1100;"></div>
                     <a href="#" class="cart-btn" id="nav-cart-btn">
                         🛒 <span class="cart-text">Cart</span> <span id="cart-count" class="cart-badge">0</span>
                     </a>
@@ -70,16 +117,16 @@
         <!-- MOBILE NAV DRAWER -->
         <div id="mobile-nav-drawer" class="mobile-nav-drawer" aria-hidden="true">
             <div class="mobile-nav-inner">
-                <a href="./index.html" class="mobile-nav-link">Home</a>
-                <a href="./menu.html" class="mobile-nav-link">Menu</a>
-                <a href="./index.html#about" class="mobile-nav-link">About</a>
-                <a href="./index.html#reach" class="mobile-nav-link">Reach Us</a>
+                <a href="/" class="mobile-nav-link">Home</a>
+                <a href="/menu" class="mobile-nav-link">Menu</a>
+                <a href="/#about" class="mobile-nav-link">About</a>
+                <a href="/#reach" class="mobile-nav-link">Reach Us</a>
             </div>
             <div class="mobile-nav-overlay" id="mobile-nav-overlay"></div>
         </div>
 
         <!-- MENU PAGE CONTENT -->
-        <section id="menu-page-section">
+        <section id="menu-page-section" style="padding-top: 120px;">
             
             <div class="container text-center mb-10">
                 <h1 class="section-title">Our Full Menu</h1>
@@ -152,14 +199,13 @@
                   <div class="footer-social-icon" style="width: 38px; height: 38px; background: #181818; border: 1px solid rgba(244,180,0,0.15); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 15px; cursor: pointer;"><i class="fab fa-instagram"></i></div>
                   <div class="footer-social-icon" style="width: 38px; height: 38px; background: #181818; border: 1px solid rgba(244,180,0,0.15); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 15px; cursor: pointer;"><i class="fab fa-facebook-f"></i></div>
                   <div class="footer-social-icon" style="width: 38px; height: 38px; background: #181818; border: 1px solid rgba(244,180,0,0.15); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 15px; cursor: pointer;"><i class="fab fa-whatsapp"></i></div>
-                  <div class="footer-social-icon" style="width: 38px; height: 38px; background: #181818; border: 1px solid rgba(244,180,0,0.15); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 15px; cursor: pointer;"><i class="fab fa-youtube"></i></div>
                 </div>
               </div>
               <!-- MENU COL -->
               <div class="footer-col">
                 <h5 style="font-family: var(--font-head); font-weight: 800; font-size: 12px; letter-spacing: 2px; text-transform: uppercase; color: #F4B400; margin-bottom: 20px;">Menu</h5>
                 <ul style="list-style: none; display: flex; flex-direction: column; gap: 12px;">
-                  <li><a href="./menu.html" style="font-size: 14px; color: #888; text-decoration: none;">Full Menu</a></li>
+                  <li><a href="/menu" style="font-size: 14px; color: #888; text-decoration: none;">Full Menu</a></li>
                   <li><a href="./index.html#reach" style="font-size: 14px; color: #888; text-decoration: none;">Order Now</a></li>
                 </ul>
               </div>
@@ -170,15 +216,29 @@
                   <li><a href="./index.html#about" style="font-size: 14px; color: #888; text-decoration: none;">About Littiwale</a></li>
                   <li><a href="./index.html#reach" style="font-size: 14px; color: #888; text-decoration: none;">Reach Us</a></li>
                   <li><a href="./index.html#faq" style="font-size: 14px; color: #888; text-decoration: none;">FAQ</a></li>
-                  <li><a href="./track.html" style="font-size: 14px; color: #888; text-decoration: none;">Track Order</a></li>
+                  <li><a href="/track" style="font-size: 14px; color: #888; text-decoration: none;">Track Order</a></li>
                 </ul>
               </div>
               <!-- VISIT COL -->
-              <div class="footer-col">
+              <div class="footer-col" style="min-width: 260px;">
                 <h5 style="font-family: var(--font-head); font-weight: 800; font-size: 12px; letter-spacing: 2px; text-transform: uppercase; color: #F4B400; margin-bottom: 20px;">Visit Us</h5>
-                <p style="font-size: 13px; color: #888; line-height: 1.8;">Ward No. 7, Punjabi Para<br>Barbil, Odisha 758035</p>
+                <div style="margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px solid rgba(255,255,255,0.1);">
+                    <p style="font-weight: 700; color: #F4B400; margin-bottom: 4px; font-size: 13px;">☁️ Cloud Kitchen</p>
+                    <p style="font-size: 13px; color: #888; line-height: 1.6;">Ward No. 7, Punjabi Para<br>Barbil, Odisha 758035</p>
+                    <p style="margin-top:4px; font-size: 13px; color: #888;">🕚 9 AM – 11 PM</p>
+                    <a href="https://g.page/r/CYlrxD6jO24cEAE/review" target="_blank" rel="noopener" style="display:inline-flex; align-items:center; gap:6px; color:#F4B400; font-size:11px; font-weight:700; margin-top:8px; background:rgba(244,180,0,0.1); padding:4px 10px; border-radius:6px; border:1px solid rgba(244,180,0,0.3); text-decoration:none;">
+                        ⭐⭐⭐⭐⭐ Review Cloud Kitchen
+                    </a>
+                </div>
+                <div>
+                    <p style="font-weight: 700; color: #10b981; margin-bottom: 4px; font-size: 13px;">🏪 Physical Outlet</p>
+                    <p style="font-size: 13px; color: #888; line-height: 1.6;">Near Barbil Court, Rabisons Mall<br>Barbil, Odisha</p>
+                    <p style="margin-top:4px; font-size: 13px; color: #888;">🕚 8 AM – 10 PM (Sun Closed)</p>
+                    <a href="https://g.page/r/CWt0NauZrydZEAE/review" target="_blank" rel="noopener" style="display:inline-flex; align-items:center; gap:6px; color:#10b981; font-size:11px; font-weight:700; margin-top:8px; background:rgba(16,185,129,0.1); padding:4px 10px; border-radius:6px; border:1px solid rgba(16,185,129,0.3); text-decoration:none;">
+                        ⭐⭐⭐⭐⭐ Review Physical Outlet
+                    </a>
+                </div>
                 <p style="margin-top:12px; font-size: 13px; color: #888;">📞 +91 63706 80744</p>
-                <p style="font-size: 13px; color: #888;">🕚 11 AM – 10:30 PM, Daily</p>
               </div>
             </div>
             <!-- FOOTER BOTTOM -->
@@ -187,8 +247,8 @@
               <div style="display:flex;gap:20px;align-items:center;flex-wrap:wrap;">
                 <a href="#" style="font-size:12px;color:#888;text-decoration:none;">Privacy Policy</a>
                 <a href="#" style="font-size:12px;color:#888;text-decoration:none;">Terms of Service</a>
-                <a href="https://tushkarmakar.vercel.app/client" target="_blank" style="font-size:12px;color:#888;text-decoration:none;font-family:var(--font-body);font-weight:700;">
-                  Developed by BrandNest <i class="fas fa-external-link-alt" style="font-size:9px;"></i>
+                <a href="https://brandnestagency.vercel.app" target="_blank" rel="noopener noreferrer" style="font-size:12px;color:#F5A800;text-decoration:none;font-family:var(--font-body);font-weight:700;">
+                  Developed by BrandNest - India's First AI Powered Digital Agency
                 </a>
               </div>
             </div>

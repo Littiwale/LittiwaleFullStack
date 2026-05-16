@@ -167,16 +167,25 @@ export const initCheckout = () => {
 
         // ── AUTOFILL name + phone from Firebase profile ──
         if (auth?.currentUser && !auth.currentUser.isAnonymous) {
-            try {
-                const snap = await getDoc(doc(db, 'users', auth.currentUser.uid));
-                if (snap.exists()) {
-                    const p = snap.data();
-                    const nameEl = document.querySelector('#cust-name');
-                    const phoneEl = document.querySelector('#cust-phone');
-                    if (nameEl && !nameEl.value && p.name) nameEl.value = p.name;
-                    if (phoneEl && !phoneEl.value && p.phone) phoneEl.value = p.phone;
-                }
-            } catch(e) { console.warn('Profile autofill failed', e); }
+            // Try attached profile first for speed
+            const profile = auth.currentUser.profile || {};
+            const nameEl = document.querySelector('#cust-name');
+            const phoneEl = document.querySelector('#cust-phone');
+            
+            if (nameEl && !nameEl.value && profile.name) nameEl.value = profile.name;
+            if (phoneEl && !phoneEl.value && profile.phone) phoneEl.value = profile.phone;
+
+            // Fallback: If profile wasn't attached, fetch it
+            if (nameEl && !nameEl.value || phoneEl && !phoneEl.value) {
+                try {
+                    const snap = await getDoc(doc(db, 'users', auth.currentUser.uid));
+                    if (snap.exists()) {
+                        const p = snap.data();
+                        if (nameEl && !nameEl.value && p.name) nameEl.value = p.name;
+                        if (phoneEl && !phoneEl.value && p.phone) phoneEl.value = p.phone;
+                    }
+                } catch(e) { console.warn('Profile autofill fallback failed', e); }
+            }
         }
         suggestBestCoupon();
 
@@ -1066,6 +1075,7 @@ const handleCheckoutSubmit = async (e) => {
             deliveryFee: DELIVERY_FEE,
             paymentMethod: paymentMethod,
             userId: auth?.currentUser?.uid || null,
+            locationId: localStorage.getItem('selectedLocation') || 'cloud',
             ...(appliedCouponCode ? {
                 coupon: {
                     code: appliedCouponCode,

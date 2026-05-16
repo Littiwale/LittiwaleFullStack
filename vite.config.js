@@ -33,27 +33,27 @@ export default defineConfig({
     {
       name: 'html-path-rewrites',
       configureServer(server) {
-        return () => {
-          server.middlewares.use((req, res, next) => {
-            const rewrites = {
-              '/login':    '/login.html',
-              '/admin':    '/admin/index.html',
-              '/rider':    '/rider/index.html',
-              '/customer': '/customer/index.html',
-              '/menu':     '/customer/menu.html',
-              '/track':    '/customer/track.html',
-            };
+        server.middlewares.use((req, res, next) => {
+          const rewrites = {
+            '/': '/customer/index.html',
+            '/index': '/customer/index.html',
+            '/menu': '/customer/menu.html',
+            '/track': '/customer/track.html',
+            '/checkout': '/customer/checkout.html',
+            '/login': '/login.html',
+            '/admin': '/admin/index.html',
+            '/rider': '/rider/index.html',
+          };
 
-            const pathname = req.url.split('?')[0];
-            const isHtmlNavigation = req.headers.accept?.includes('text/html');
-            const isInternalViteRequest = req.url.includes('html-proxy') || req.url.startsWith('/@vite');
+          const url = new URL(req.url, `http://${req.headers.host}`);
+          const pathname = url.pathname;
 
-            if (req.method === 'GET' && isHtmlNavigation && !isInternalViteRequest && rewrites[pathname]) {
-              req.url = rewrites[pathname] + (req.url.includes('?') ? req.url.slice(req.url.indexOf('?')) : '');
-            }
-            next();
-          });
-        };
+          if (rewrites[pathname]) {
+            console.log(`[Vite Rewrite] ${pathname} -> ${rewrites[pathname]}`);
+            req.url = rewrites[pathname] + url.search;
+          }
+          next();
+        });
       },
     },
   ],

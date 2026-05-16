@@ -67,6 +67,7 @@ const init = async () => {
                         <button type="button" class="lw-dropdown-item" id="dd-nav-profile">👤 My Profile</button>
                         <button type="button" class="lw-dropdown-item" id="dd-nav-orders">📦 My Orders</button>
                         <button type="button" class="lw-dropdown-item" id="dd-nav-track">🛵 Track Orders</button>
+                        <button type="button" class="lw-dropdown-item" id="dd-nav-tickets">🎫 My Tickets</button>
                     `;
                 }
 
@@ -121,12 +122,12 @@ const init = async () => {
                 document.getElementById('dd-nav-admin')?.addEventListener('click', function(e) {
                     e.stopPropagation();
                     closeDropdown();
-                    window.location.href = '/admin/index.html';
+                    window.location.href = '/admin';
                 });
                 document.getElementById('dd-nav-rider')?.addEventListener('click', function(e) {
                     e.stopPropagation();
                     closeDropdown();
-                    window.location.href = '/rider/index.html';
+                    window.location.href = '/rider';
                 });
                 document.getElementById('dd-nav-profile')?.addEventListener('click', function(e) {
                     e.stopPropagation();
@@ -134,14 +135,14 @@ const init = async () => {
                     openProfileModal({
                         onMyOrders: () => {
                             // On index page, redirect to menu for orders
-                            window.location.href = '/customer/menu.html';
+                            window.location.href = '/menu';
                         }
                     });
                 });
                 document.getElementById('dd-nav-orders')?.addEventListener('click', function(e) {
                     e.stopPropagation();
                     closeDropdown();
-                    window.location.href = '/customer/menu.html?openOrders=1';
+                    window.location.href = '/menu?openOrders=1';
                 });
                 document.getElementById('dd-nav-track')?.addEventListener('click', async function(e) {
                     e.stopPropagation();
@@ -152,23 +153,35 @@ const init = async () => {
                         const active = orders.find(o => !['DELIVERED','CANCELLED','REJECTED'].includes(o.status));
                         const target = active || orders[0];
                         if (target?.orderId && target?.trackingToken) {
-                            window.location.href = `/customer/track.html?id=${target.orderId}&token=${target.trackingToken}`;
+                            window.location.href = `/track?id=${target.orderId}&token=${target.trackingToken}`;
                         } else {
-                            window.location.href = '/customer/menu.html';
+                            window.location.href = '/menu';
                         }
                     } catch(e) { console.error(e); }
+                });
+                document.getElementById('dd-nav-tickets')?.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    closeDropdown();
+                    openProfileModal({
+                        onMyOrders: () => { window.location.href = '/menu?openOrders=1'; }
+                    });
+                    // Scroll to My Tickets section after modal opens
+                    setTimeout(() => {
+                        const ticketsList = document.getElementById('lw-tickets-list');
+                        if (ticketsList) ticketsList.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }, 300);
                 });
                 document.getElementById('dd-nav-logout')?.addEventListener('click', async function(e) {
                     e.stopPropagation();
                     closeDropdown();
                     await logoutUser();
-                    window.location.href = '/login.html';
+                    window.location.href = '/login';
                 });
 
             } else if (isGuest) {
                 profileArea.innerHTML = `<span style="font-size:12px;font-weight:700;color:var(--text-secondary);cursor:pointer;" onclick="window.location.href='/login'">Hi, Guest 👋</span>`;
             } else {
-                profileArea.innerHTML = `<a href="/login.html" class="btn btn-primary" style="padding:8px 16px;font-size:12px;">Login</a>`;
+                profileArea.innerHTML = `<a href="/login" class="btn btn-primary" style="padding:8px 16px;font-size:12px;">Login</a>`;
             }
         }
     });
@@ -190,9 +203,10 @@ const init = async () => {
                 const imageUrl = ann.image || ann.imageUrl;
                 if (imageUrl) {
                     slide.innerHTML = `
-                        <img src="${imageUrl}" alt="${ann.title || 'Announcement'}"
-                            style="max-width:100%;max-height:400px;height:auto;width:auto;object-fit:contain;border-radius:12px;display:block;margin:0 auto;">
-                        ${ann.title ? `<p style="margin-top:12px;font-size:13px;font-weight:700;text-align:center;">${ann.title}</p>` : ''}
+                        <div class="ann-img-wrap">
+                            <img src="${imageUrl}" alt="${ann.title || 'Announcement'}">
+                        </div>
+                        ${ann.title ? `<p style="margin-top:10px;font-size:13px;font-weight:700;text-align:center;color:var(--text-primary,#F0EAD6);">${ann.title}</p>` : ''}
                     `;
                 } else {
                     slide.innerHTML = `<p>${ann.title || ''}${ann.title && ann.description ? ' — ' : ''}${ann.description || ''}</p>`;
@@ -230,6 +244,17 @@ const init = async () => {
             initScrollReveal();
         }
     } catch (err) { console.error('Menu load failed:', err); }
+
+    window.refreshMenuGrid = async () => {
+        try {
+            menuData = await fetchMenuItems();
+            if (menuData.length > 0) {
+                renderHourlyDeals(menuData);
+                renderHallOfFame(menuData);
+                initScrollReveal();
+            }
+        } catch (err) { console.error('Menu load failed:', err); }
+    };
 
     // 4. CART & CHECKOUT
     updateCartUI();
@@ -314,28 +339,33 @@ const init = async () => {
         const name = document.querySelector('#complaint-name').value;
         const phone = document.querySelector('#complaint-phone').value;
         const issue = document.querySelector('#complaint-issue').value;
+        const submitBtn = complaintForm.querySelector('button[type="submit"]');
 
         // Show loading state
         complaintFeedback.textContent = 'Submitting your complaint...';
         complaintFeedback.style.color = '#C47F17';
+        if (submitBtn) { submitBtn.disabled = true; submitBtn.textContent = 'Submitting...'; }
 
         try {
-            await createTicket({ name, phone, issue });
+            const userId = auth.currentUser?.uid || null;
+            const ticket = await createTicket({ name, phone, issue, userId });
 
-            complaintFeedback.textContent = '✓ Thank you! Your complaint has been submitted. We will follow up soon.';
+            complaintFeedback.innerHTML = `✓ Ticket <strong style="color:#F5A800;">#${ticket.ticketId}</strong> raised! Check <em>My Profile → My Tickets</em> for updates.`;
             complaintFeedback.style.color = '#10B981';
 
             // Reset form
             complaintForm.reset();
 
-            // Close modal after 2 seconds
+            // Close modal after 3 seconds
             setTimeout(() => {
                 complaintModal.style.display = 'none';
                 complaintFeedback.textContent = '';
-            }, 2000);
+                if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = 'Send Ticket'; }
+            }, 3000);
         } catch (err) {
             complaintFeedback.textContent = '✗ Error submitting complaint. Please try again.';
             complaintFeedback.style.color = '#EF4444';
+            if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = 'Send Ticket'; }
         }
     });
 
@@ -598,7 +628,7 @@ const setupAbandonedCartRecovery = () => {
             checkoutBtn.addEventListener('click', () => {
                 clearTimeout(dismissTimer);
                 banner.style.display = 'none';
-                window.location.href = './menu.html';
+                window.location.href = '/menu';
             }, { once: true });
         }
     }, 1500);
