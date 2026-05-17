@@ -6,6 +6,7 @@ export default defineConfig({
   build: {
     rollupOptions: {
       input: {
+        main: resolve(__dirname, 'index.html'),
         login: resolve(__dirname, 'login.html'),
         customerHome: resolve(__dirname, 'customer/index.html'),
         customerMenu: resolve(__dirname, 'customer/menu.html'),
