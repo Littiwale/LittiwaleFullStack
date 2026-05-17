@@ -47,13 +47,27 @@ html[data-theme='light'] #lw-search-sticky-bar {
 
 #app {
     background: transparent;
+    padding-top: 0;
 }
 
 #menu-page-section {
     position: relative;
     background: var(--color-bg-dark);
-    padding: 120px 5% 60px;
+    padding: 80px 5% 60px;
     min-height: auto !important;
+    margin-top: 0;
+}
+
+@media (max-width: 768px) {
+    #menu-page-section {
+        padding: 60px 5% 40px;
+    }
+}
+
+@media (max-width: 480px) {
+    #menu-page-section {
+        padding: 50px 4% 30px;
+    }
 }
 
 #menu-page-section::before {

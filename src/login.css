@@ -191,6 +191,135 @@ body.signup-mode .right {
 
 @keyframes spin { to { transform: rotate(360deg); } }
 
+/* ── LITTI COOKING LOADER ── */
+.litti-loader {
+    position: relative;
+    width: 72px;
+    height: 72px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.litti-ball {
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 35%, #c8a040 0%, #8b5e1a 50%, #5a3a0a 100%);
+    box-shadow: 0 4px 20px rgba(200, 140, 20, 0.5), inset 0 -4px 12px rgba(0,0,0,0.4);
+    animation: litti-rock 1.2s ease-in-out infinite;
+    position: relative;
+    z-index: 2;
+}
+
+.litti-crack {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    z-index: 3;
+    animation: crack-glow 1.2s ease-in-out infinite;
+}
+
+.litti-crack::before {
+    content: '';
+    position: absolute;
+    top: 30%;
+    left: 20%;
+    width: 22px;
+    height: 3px;
+    background: rgba(255, 200, 80, 0.85);
+    border-radius: 2px;
+    box-shadow: 0 0 8px rgba(255,180,0,0.8);
+    transform: rotate(-25deg);
+    animation: crack-appear 1.2s ease-in-out infinite;
+}
+
+.litti-crack::after {
+    content: '';
+    position: absolute;
+    top: 45%;
+    left: 50%;
+    width: 14px;
+    height: 2px;
+    background: rgba(255, 200, 80, 0.7);
+    border-radius: 2px;
+    box-shadow: 0 0 6px rgba(255,180,0,0.7);
+    transform: rotate(15deg);
+    animation: crack-appear 1.2s ease-in-out infinite 0.3s;
+}
+
+.litti-fire {
+    position: absolute;
+    bottom: -8px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 4px;
+    z-index: 1;
+}
+
+.flame {
+    border-radius: 50% 50% 30% 30%;
+    animation: flicker 0.5s ease-in-out infinite alternate;
+    transform-origin: bottom center;
+}
+
+.f1 {
+    width: 10px; height: 16px;
+    background: linear-gradient(to top, #ff6600, #ffcc00, transparent);
+    animation-delay: 0s;
+}
+.f2 {
+    width: 14px; height: 22px;
+    background: linear-gradient(to top, #ff4400, #ff9900, #ffee00, transparent);
+    animation-delay: 0.1s;
+    margin-top: -6px;
+}
+.f3 {
+    width: 10px; height: 16px;
+    background: linear-gradient(to top, #ff6600, #ffcc00, transparent);
+    animation-delay: 0.2s;
+}
+
+@keyframes litti-rock {
+    0%, 100% { transform: rotate(-8deg) translateY(0px); }
+    50% { transform: rotate(8deg) translateY(-4px); }
+}
+
+@keyframes crack-glow {
+    0%, 100% { opacity: 0.6; }
+    50% { opacity: 1; }
+}
+
+@keyframes crack-appear {
+    0%, 40% { opacity: 0; width: 0; }
+    60%, 100% { opacity: 1; width: 22px; }
+}
+
+@keyframes flicker {
+    0% { transform: scaleX(0.85) scaleY(0.95) rotate(-3deg); }
+    100% { transform: scaleX(1.1) scaleY(1.05) rotate(3deg); }
+}
+
+.litti-loader-text {
+    color: var(--gold);
+    font-size: 10px;
+    margin-top: 16px;
+    font-weight: 900;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    animation: text-pulse 1.2s ease-in-out infinite;
+}
+
+@keyframes text-pulse {
+    0%, 100% { opacity: 0.6; }
+    50% { opacity: 1; }
+}
+
 /* tabs */
 .tabs { display: flex; gap: 8px; margin-bottom: 28px; }
 
@@ -370,17 +499,126 @@ html[data-theme='light'] {
     #mobile-panda-screen {
         display: flex;
         position: fixed;
-        top: 0;
-        left: 0;
+        top: 0; left: 0;
         width: 100vw;
         height: 100vh;
         z-index: 99999;
-        background: linear-gradient(170deg, #2a1500 0%, #160b00 40%, #0d0600 100%);
         flex-direction: column;
         align-items: center;
-        justify-content: center;
-        transition: transform 0.55s cubic-bezier(0.4, 0, 0.2, 1);
+        justify-content: flex-end;
+        transition: transform 0.65s cubic-bezier(0.22, 1, 0.36, 1);
         overflow: hidden;
+        background: #0d0600;
+    }
+
+    /* Full-screen panda image as background */
+    #mobile-panda-img {
+        position: absolute;
+        top: 0; left: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        object-position: center top;
+        z-index: 0;
+        animation: none;
+        filter: none;
+    }
+
+    /* Dark gradient overlay at bottom for text readability */
+    #mobile-panda-screen::before {
+        content: '';
+        position: absolute;
+        bottom: 0; left: 0;
+        width: 100%;
+        height: 55%;
+        background: linear-gradient(to top, rgba(5,2,0,0.97) 0%, rgba(5,2,0,0.7) 50%, transparent 100%);
+        z-index: 1;
+        pointer-events: none;
+    }
+
+    .panda-glow { display: none; }
+
+    .mobile-brand-name {
+        position: relative;
+        z-index: 2;
+        font-size: 32px;
+        font-weight: 900;
+        color: #FFB300;
+        letter-spacing: 6px;
+        text-align: center;
+        text-shadow: 0 0 40px rgba(255, 179, 0, 0.5);
+        margin-bottom: 8px;
+    }
+
+    /* TWO swipe hints stacked */
+    .mobile-swipe-hints {
+        position: relative;
+        z-index: 2;
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0;
+        padding-bottom: 48px;
+    }
+
+    .swipe-hint-up, .swipe-hint-down {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 14px 0;
+        width: 100%;
+    }
+
+    .swipe-hint-up {
+        border-bottom: 1px solid rgba(255,179,0,0.15);
+        animation: hint-up 1.8s ease-in-out infinite;
+    }
+
+    .swipe-hint-down {
+        animation: hint-down 1.8s ease-in-out infinite 0.4s;
+    }
+
+    .swipe-arrows-up {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: -4px;
+    }
+
+    .swipe-arrows-down {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: -4px;
+        transform: rotate(180deg);
+    }
+
+    .swipe-arr {
+        font-size: 18px;
+        color: #FFB300;
+        line-height: 1;
+        display: block;
+    }
+
+    .swipe-arr.dim { opacity: 0.3; }
+
+    .swipe-text-up, .swipe-text-down {
+        font-size: 10px;
+        letter-spacing: 2.5px;
+        text-transform: uppercase;
+        color: rgba(255,255,255,0.6);
+        margin-top: 4px;
+    }
+
+    @keyframes hint-up {
+        0%, 100% { transform: translateY(0); opacity: 0.7; }
+        50% { transform: translateY(-6px); opacity: 1; }
+    }
+
+    @keyframes hint-down {
+        0%, 100% { transform: translateY(0); opacity: 0.7; }
+        50% { transform: translateY(6px); opacity: 1; }
     }
 
     #mobile-panda-screen.mpanda-hidden {
@@ -388,80 +626,9 @@ html[data-theme='light'] {
         pointer-events: none;
     }
 
-    .panda-glow {
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -60%);
-        width: 380px;
-        height: 380px;
-        background: radial-gradient(circle, rgba(255, 140, 0, 0.35) 0%, rgba(255, 80, 0, 0.1) 50%, transparent 70%);
-        border-radius: 50%;
-        animation: glow-pulse 3s ease-in-out infinite;
-    }
-
-    #mobile-panda-img {
-        position: relative;
-        z-index: 1;
-        width: 82%;
-        max-width: 340px;
-        object-fit: contain;
-        filter: drop-shadow(0 30px 60px rgba(255, 120, 0, 0.25));
-        animation: panda-float 4s ease-in-out infinite;
-    }
-
-    .mobile-brand-name {
-        font-size: 28px;
-        font-weight: 900;
-        color: #FFB300;
-        letter-spacing: 5px;
-        margin: 16px 0 6px;
-        z-index: 1;
-        text-shadow: 0 0 30px rgba(255, 179, 0, 0.4);
-    }
-
-    .mobile-swipe-hint {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: 2px;
-        margin: 20px 0 0;
-        z-index: 1;
-        animation: swipe-pulse 1.6s ease-in-out infinite;
-    }
-
-    .swipe-arrow {
-        font-size: 22px;
-        color: #FFB300;
-        line-height: 1;
-    }
-
-    .swipe-arrow.dim {
-        opacity: 0.4;
-        margin-top: -8px;
-    }
-
-    .swipe-label {
-        font-size: 11px;
-        color: rgba(255, 255, 255, 0.55);
-        letter-spacing: 1.5px;
-        text-transform: uppercase;
-        margin-top: 4px;
-    }
-
-    @keyframes swipe-pulse {
-        0%, 100% { transform: translateY(0); opacity: 0.75; }
-        50% { transform: translateY(-8px); opacity: 1; }
-    }
-
-    @keyframes panda-float {
-        0%, 100% { transform: translateY(0px); }
-        50% { transform: translateY(-12px); }
-    }
-
-    @keyframes glow-pulse {
-        0%, 100% { transform: translate(-50%, -60%) scale(1); opacity: 0.8; }
-        50% { transform: translate(-50%, -60%) scale(1.15); opacity: 1; }
+    #mobile-panda-screen.mpanda-hidden-down {
+        transform: translateY(100%);
+        pointer-events: none;
     }
 
     .left {

@@ -280,7 +280,13 @@ h1, h2, h3, h4 {
   .drawer-panel {
     width: 100%;
   }
-}
+  
+  /* Ensure dropdown doesn't get clipped */
+  .admin-wrapper,
+  .admin-sidebar,
+  .admin-main {
+    overflow-x: visible;
+  }
 
 /* ─────────────────────────────────────────────
    FORM ELEMENTS

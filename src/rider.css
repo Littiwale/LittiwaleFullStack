@@ -90,6 +90,7 @@ body {
     align-items: center;
     justify-content: space-between;
     padding: 0 20px;
+    overflow: visible;
 }
 .rider-logo { display: flex; align-items: center; gap: 10px; }
 .rider-logo img { height: 32px; }
@@ -311,6 +312,7 @@ body {
     .rider-header {
         height: 64px;
         padding: 0 12px;
+        overflow: visible;
     }
     
     .rider-logo {
@@ -323,6 +325,18 @@ body {
     
     .rider-logo-text {
         display: none;
+    }
+    
+    /* Dropdown positioning fix for mobile */
+    .lw-dropdown {
+        right: auto;
+        left: 50%;
+        transform: translateY(-8px) scale(0.97) translateX(-50%);
+        min-width: 160px;
+    }
+    
+    .lw-dropdown.open {
+        transform: translateY(0) scale(1) translateX(-50%);
     }
     
     /* ── MAIN CONTENT ADJUSTMENTS ── */
