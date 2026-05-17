@@ -73,6 +73,16 @@
     <meta name="theme-color" content="#0d0d0d">
     <link rel="manifest" href="/manifest.json">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/typed.js/2.0.12/typed.min.js"></script>
+    <script type="module">
+        import { onAuthChange } from '/src/api/auth.js';
+        onAuthChange((user, isLoading) => {
+            if (isLoading) return;
+            // Force unauthenticated users to login page
+            if (!user) {
+                window.location.replace('/login');
+            }
+        });
+    </script>
 </head>
 
 <body>
