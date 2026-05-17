@@ -24,7 +24,25 @@ window.refreshMenuGrid = async () => {
     const container = document.querySelector('#menu-grid-container');
     if (!container) return;
     
-    container.innerHTML = '<div class="text-center py-20"><div class="animate-pulse flex flex-col items-center"><div class="h-12 w-12 border-4 border-t-accent border-gray-800 rounded-full animate-spin mb-4"></div><p class="text-gray-500 font-bold tracking-widest uppercase text-xs">Switching location & reloading menu...</p></div></div>';
+    container.innerHTML = `
+        <div class="text-center py-20 flex flex-col items-center">
+            <div class="litti-fire-loader">
+                <div class="lfl-scene">
+                    <div class="lfl-tawa"></div>
+                    <div class="lfl-litti"></div>
+                    <div class="lfl-crack"></div>
+                    <div class="lfl-flames">
+                        <div class="lfl-flame f1"></div>
+                        <div class="lfl-flame f2"></div>
+                        <div class="lfl-flame f3"></div>
+                    </div>
+                    <div class="lfl-smoke s1"></div>
+                    <div class="lfl-smoke s2"></div>
+                </div>
+                <p class="lfl-text">Location Badal Rahi Hai…</p>
+            </div>
+        </div>
+    `;
     
     try {
         const { fetchMenuItems } = await import('./api/menu');
@@ -524,43 +542,10 @@ function initMenuSearch(items) {
 
     window.addEventListener('scroll', () => {
         const scrolled = window.scrollY > 120;
-
-        // Sticky search bar scroll class (existing)
         if (scrolled) {
             stickyBar.classList.add('lw-scrolled');
         } else {
             stickyBar.classList.remove('lw-scrolled');
-        }
-
-        // Hide BOTH filters together on scroll
-        const categoryStrip = document.getElementById('category-tabs');
-
-        let shouldHide = scrolled;
-        // Prevent hiding during programmatic programmatic scroll up
-        if (window.isMenuScrollingToFilter) {
-            shouldHide = false;
-        }
-
-        if (categoryFilter) {
-            if (shouldHide) {
-                categoryFilter.classList.add('filter-hidden');
-            } else {
-                categoryFilter.classList.remove('filter-hidden');
-            }
-        }
-
-        if (categoryStrip) {
-            if (shouldHide) {
-                categoryStrip.classList.add('strip-hidden');
-            } else {
-                categoryStrip.classList.remove('strip-hidden');
-            }
-        }
-
-        // Floating filter button: opposite of filter section visibility
-        if (floatingFilterBtn) {
-            // Only show floating button if we actually hide the filters
-            floatingFilterBtn.style.display = shouldHide ? 'inline-flex' : 'none';
         }
     }, { passive: true });
 

@@ -407,10 +407,24 @@ const initAdmin = () => {
         'display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px'
     ].join(';');
     loadingOverlay.innerHTML = `
-        <div style="width:40px;height:40px;border:3px solid #252830;border-top-color:#F5A800;border-radius:50%;animation:spin 0.8s linear infinite;"></div>
-        <p style="color:#F5A800;font-size:11px;font-weight:900;letter-spacing:2px;text-transform:uppercase;">Verifying Session…</p>
-        <style>@keyframes spin{to{transform:rotate(360deg)}}</style>
-    `;
+  <div style="display:flex;flex-direction:column;align-items:center;gap:20px;">
+    <div style="position:relative;width:80px;height:80px;display:flex;align-items:flex-end;justify-content:center;">
+      <div style="position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:72px;height:10px;background:radial-gradient(ellipse at center,#3a2a10 0%,#1a1200 100%);border-radius:50%;box-shadow:0 2px 12px rgba(255,100,0,0.4)"></div>
+      <div style="position:absolute;bottom:7px;left:50%;transform:translateX(-50%);width:44px;height:44px;border-radius:50%;background:radial-gradient(circle at 35% 32%,#d4a030 0%,#8b5a18 45%,#4a2e08 100%);box-shadow:0 4px 16px rgba(180,100,10,0.5),inset 0 -6px 14px rgba(0,0,0,0.5);animation:lfl-rock 1.4s ease-in-out infinite;z-index:2;"></div>
+      <div style="position:absolute;bottom:-2px;left:50%;transform:translateX(-50%);display:flex;gap:3px;align-items:flex-end;">
+        <div style="width:9px;height:14px;border-radius:50% 50% 30% 30%;background:linear-gradient(to top,#ff5500,#ffaa00 70%,transparent);animation:lfl-flicker 0.45s ease-in-out infinite alternate;"></div>
+        <div style="width:13px;height:20px;border-radius:50% 50% 30% 30%;background:linear-gradient(to top,#ff3300,#ff8800 50%,#ffee00 85%,transparent);animation:lfl-flicker 0.45s 0.08s ease-in-out infinite alternate;margin-bottom:4px;"></div>
+        <div style="width:9px;height:14px;border-radius:50% 50% 30% 30%;background:linear-gradient(to top,#ff5500,#ffaa00 70%,transparent);animation:lfl-flicker 0.45s 0.16s ease-in-out infinite alternate;"></div>
+      </div>
+    </div>
+    <p style="color:#F5A800;font-size:10px;font-weight:900;letter-spacing:2.5px;text-transform:uppercase;font-family:'Space Mono',monospace;animation:lfl-text-pulse 1.4s ease-in-out infinite;">Admin Panel Load Ho Raha Hai…</p>
+  </div>
+  <style>
+    @keyframes lfl-rock{0%,100%{transform:translateX(-50%) rotate(-7deg) translateY(0)}50%{transform:translateX(-50%) rotate(7deg) translateY(-5px)}}
+    @keyframes lfl-flicker{0%{transform:scaleX(.8) scaleY(.92) rotate(-4deg)}100%{transform:scaleX(1.15) scaleY(1.08) rotate(4deg)}}
+    @keyframes lfl-text-pulse{0%,100%{opacity:.55}50%{opacity:1}}
+  </style>
+`;
     document.body.appendChild(loadingOverlay);
 
     onAuthChange(async (user, isLoading) => {

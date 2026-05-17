@@ -432,15 +432,23 @@ const initFilterScrollBehavior = () => {
     topFilter.dataset.scrollInit = 'true';
 
     let lastScrollY = window.scrollY;
+    let ticking = false;
 
     const updateTopFilterVisibility = () => {
         const currentScroll = window.scrollY;
         const isScrollingDown = currentScroll > lastScrollY;
-        const shouldHideTop = currentScroll > 150 && isScrollingDown;
+        const shouldHideTop = currentScroll > 150 && isScrollingDown && !window.isMenuScrollingToFilter;
 
         topFilter.classList.toggle('filter-hidden', shouldHideTop);
-        if (!shouldHideTop) {
-            topFilter.classList.remove('filter-hidden');
+
+        const categoryStrip = document.getElementById('category-tabs');
+        if (categoryStrip) {
+            categoryStrip.classList.toggle('strip-hidden', shouldHideTop);
+        }
+
+        const floatingFilterBtn = document.getElementById('floating-filter-btn');
+        if (floatingFilterBtn) {
+            floatingFilterBtn.style.display = shouldHideTop ? 'inline-flex' : 'none';
         }
 
         if (header) {
@@ -449,9 +457,15 @@ const initFilterScrollBehavior = () => {
         document.body.classList.toggle('page-scrolled', currentScroll > 50);
 
         lastScrollY = currentScroll;
+        ticking = false;
     };
 
-    window.addEventListener('scroll', updateTopFilterVisibility, { passive: true });
+    window.addEventListener('scroll', () => {
+        if (!ticking) {
+            window.requestAnimationFrame(updateTopFilterVisibility);
+            ticking = true;
+        }
+    }, { passive: true });
     updateTopFilterVisibility();
 };
 

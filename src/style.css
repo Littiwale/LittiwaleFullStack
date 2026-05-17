@@ -3803,3 +3803,27 @@ html[data-theme='light'] #mobile-cart-total {
   border-radius: 20px;
   border: 2px solid #0d0f14;
 }
+
+/* ═══ LITTI FIRE LOADER — Global ═══ */
+.litti-fire-loader{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px}
+.lfl-scene{position:relative;width:80px;height:80px;display:flex;align-items:flex-end;justify-content:center}
+.lfl-tawa{position:absolute;bottom:0;left:50%;transform:translateX(-50%);width:72px;height:10px;background:radial-gradient(ellipse at center,#3a2a10 0%,#1a1200 100%);border-radius:50%;box-shadow:0 2px 12px rgba(255,100,0,0.4),0 0 0 2px #2a1c00}
+.lfl-litti{position:absolute;bottom:7px;left:50%;transform:translateX(-50%);width:44px;height:44px;border-radius:50%;background:radial-gradient(circle at 35% 32%,#d4a030 0%,#8b5a18 45%,#4a2e08 100%);box-shadow:0 4px 16px rgba(180,100,10,0.5),inset 0 -6px 14px rgba(0,0,0,0.5);animation:lfl-rock 1.4s ease-in-out infinite;z-index:2}
+.lfl-crack{position:absolute;bottom:7px;left:50%;transform:translateX(-50%);width:44px;height:44px;border-radius:50%;z-index:3;pointer-events:none}
+.lfl-crack::before{content:'';position:absolute;top:32%;left:18%;width:0;height:2.5px;background:rgba(255,210,80,0.9);border-radius:2px;box-shadow:0 0 8px rgba(255,180,0,0.9);transform:rotate(-28deg);animation:lfl-crack1 1.4s ease-in-out infinite}
+.lfl-crack::after{content:'';position:absolute;top:48%;left:48%;width:0;height:2px;background:rgba(255,200,80,0.75);border-radius:2px;box-shadow:0 0 6px rgba(255,180,0,0.8);transform:rotate(18deg);animation:lfl-crack2 1.4s ease-in-out infinite 0.35s}
+.lfl-flames{position:absolute;bottom:-2px;left:50%;transform:translateX(-50%);display:flex;gap:3px;align-items:flex-end;z-index:1}
+.lfl-flame{border-radius:50% 50% 30% 30%;transform-origin:bottom center;animation:lfl-flicker 0.45s ease-in-out infinite alternate}
+.lfl-flame.f1{width:9px;height:14px;background:linear-gradient(to top,#ff5500,#ffaa00 70%,transparent);animation-delay:0s}
+.lfl-flame.f2{width:13px;height:20px;background:linear-gradient(to top,#ff3300,#ff8800 50%,#ffee00 85%,transparent);animation-delay:0.08s;margin-bottom:4px}
+.lfl-flame.f3{width:9px;height:14px;background:linear-gradient(to top,#ff5500,#ffaa00 70%,transparent);animation-delay:0.16s}
+.lfl-smoke{position:absolute;border-radius:50%;background:rgba(200,180,140,0.18);animation:lfl-smoke-rise 2.2s ease-out infinite;pointer-events:none}
+.lfl-smoke.s1{width:14px;height:14px;left:22px;bottom:50px;animation-delay:0s}
+.lfl-smoke.s2{width:10px;height:10px;left:44px;bottom:50px;animation-delay:1.1s}
+.lfl-text{color:#F5A800;font-size:10px;font-weight:900;letter-spacing:2.5px;text-transform:uppercase;text-align:center;animation:lfl-text-pulse 1.4s ease-in-out infinite;font-family:'Space Mono','Inter',monospace;max-width:200px}
+@keyframes lfl-rock{0%,100%{transform:translateX(-50%) rotate(-7deg) translateY(0)}50%{transform:translateX(-50%) rotate(7deg) translateY(-5px)}}
+@keyframes lfl-crack1{0%,38%{width:0;opacity:0}55%,100%{width:18px;opacity:1}}
+@keyframes lfl-crack2{0%,38%{width:0;opacity:0}55%,100%{width:12px;opacity:1}}
+@keyframes lfl-flicker{0%{transform:scaleX(.8) scaleY(.92) rotate(-4deg)}100%{transform:scaleX(1.15) scaleY(1.08) rotate(4deg)}}
+@keyframes lfl-smoke-rise{0%{transform:translateY(0) scale(.5);opacity:.5}100%{transform:translateY(-28px) scale(2.2);opacity:0}}
+@keyframes lfl-text-pulse{0%,100%{opacity:.55}50%{opacity:1}}

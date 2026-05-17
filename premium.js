@@ -195,122 +195,12 @@ const prepareSectionTransition = () => {
   });
 };
 
-const buildRecommendationCard = (item) => {
-  return `
-    <div class="recommendation-card">
-      <div class="recommendation-media">
-        <img src="${escapeHtml(item.image || '/images/logo.png')}" alt="${escapeHtml(item.name)}" loading="lazy" decoding="async">
-        <span class="card-badge">Γ¡É Popular</span>
-      </div>
-      <div class="recommendation-body">
-        <h3 class="recommendation-title">${escapeHtml(item.name)}</h3>
-        <p class="text-sm text-secondary leading-relaxed">${escapeHtml(item.description || item.category || 'Delicious choice')}</p>
-        <div class="recommendation-footer">
-          <div class="flex items-center justify-between gap-4 mb-3">
-            <span class="font-bold">Γé╣${item.price ?? 0}</span>
-            <span class="text-xs uppercase tracking-[0.18em] text-white/70">${escapeHtml(item.category || 'Menu')}</span>
-          </div>
-          <button type="button" class="btn-primary w-full h-12 rounded-xl flex items-center justify-center gap-2 text-sm font-medium" data-add="${escapeHtml(item.id)}">
-            ADD TO CART ≡ƒ¢Æ
-          </button>
-        </div>
-      </div>
-    </div>
-  `;
-};
-
-const getRecommendations = () => {
-  const menuData = getMenuData();
-  if (!menuData.length) return [];
-
-  const cartItems = getCart();
-  if (cartItems.length === 0) {
-    return menuData.slice(0, 4);
-  }
-
-  const cartCategories = new Set(cartItems.map((entry) => entry.category).filter(Boolean));
-  const byCategory = menuData.filter((item) => cartCategories.has(item.category));
-  const uniqueRecommendations = [];
-  const seenIds = new Set();
-
-  for (const item of byCategory) {
-    if (uniqueRecommendations.length >= 4) break;
-    if (!seenIds.has(item.id)) {
-      seenIds.add(item.id);
-      uniqueRecommendations.push(item);
-    }
-  }
-
-  if (uniqueRecommendations.length < 4) {
-    for (const item of menuData) {
-      if (uniqueRecommendations.length >= 4) break;
-      if (!seenIds.has(item.id)) {
-        seenIds.add(item.id);
-        uniqueRecommendations.push(item);
-      }
-    }
-  }
-
-  return uniqueRecommendations.slice(0, 4);
-};
-
-const renderRecommendations = () => {
-  const menuGrid = document.querySelector(selectors.menuGrid);
-  if (!menuGrid) return;
-
-  let recommendationsSection = document.querySelector(selectors.recommendationsSection);
-  if (!recommendationsSection) {
-    recommendationsSection = document.createElement('section');
-    recommendationsSection.id = 'recommendations-section';
-    recommendationsSection.innerHTML = `
-      <div class="section-header">
-        <h2>Recommended for You ≡ƒöÑ</h2>
-      </div>
-      <div class="recommendation-grid"></div>
-    `;
-    menuGrid.parentNode.insertBefore(recommendationsSection, menuGrid);
-  }
-
-  const recommendedItems = getRecommendations();
-  const grid = recommendationsSection.querySelector('.recommendation-grid');
-  if (!grid) return;
-
-  if (!recommendedItems.length) {
-    recommendationsSection.style.display = 'none';
-    return;
-  }
-
-  recommendationsSection.style.display = '';
-  grid.innerHTML = recommendedItems.map(buildRecommendationCard).join('');
-};
-
-const setupRecommendationActions = () => {
-  document.addEventListener('click', (event) => {
-    const button = event.target.closest('#recommendations-section button[data-add]');
-    if (!button) return;
-    const itemId = button.dataset.add;
-    const menuData = getMenuData();
-    const item = menuData.find((entry) => entry.id === itemId);
-    if (!item) return;
-    addItem(item, 'single', item.price);
-  });
-};
-
 const initPremium = () => {
   injectSkeletonLoaders();
   setupSkeletonObserver();
   setupScrollHide();
   setupCartAnimation();
   prepareSectionTransition();
-  setupRecommendationActions();
-  renderRecommendations();
-
-  window.addEventListener('menuDataReady', renderRecommendations);
-  window.addEventListener('cartUpdated', renderRecommendations);
-
-  if (getMenuData().length) {
-    renderRecommendations();
-  }
 };
 
 if (document.readyState === 'loading') {
