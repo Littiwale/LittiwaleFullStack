@@ -8,7 +8,9 @@
     { "source": "/rider/(.*)", "destination": "/rider/index.html" },
     { "source": "/customer",   "destination": "/customer/index.html" },
     { "source": "/menu",       "destination": "/customer/menu.html" },
-    { "source": "/track",      "destination": "/customer/track.html" }
+    { "source": "/track",      "destination": "/customer/track.html" },
+    { "source": "/customer/(.*)", "destination": "/customer/index.html" },
+    { "source": "/(.*)",       "destination": "/index.html" }
   ],
   "cleanUrls": true,
   "trailingSlash": false,
