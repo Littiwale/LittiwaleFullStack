@@ -501,7 +501,7 @@ window.markDelivered = async (docId) => {
 };
 
 
-document.addEventListener('DOMContentLoaded', () => {
+const initRiderPanel = () => {
     initRider();
     
     // Ledger Modal Events
@@ -528,4 +528,10 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     }
-});
+};
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initRiderPanel);
+} else {
+    initRiderPanel();
+}

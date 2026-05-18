@@ -3104,7 +3104,7 @@ window.openRiderAnalytics = async (riderId, riderName) => {
     }
 };
 
-document.addEventListener('DOMContentLoaded', () => {
+const initRiderPaymentListener = () => {
     const payBtn = document.getElementById('admin-pay-rider-btn');
     if (payBtn) {
         payBtn.addEventListener('click', async () => {
@@ -3164,7 +3164,13 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     }
-});
+};
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initRiderPaymentListener);
+} else {
+    initRiderPaymentListener();
+}
 
 // Calculate online duration in hours
 const calculateOnlineDuration = (rider) => {
@@ -3574,11 +3580,17 @@ const setupNotificationBell = () => {
     });
 };
 
-// Fire it up
-document.addEventListener('DOMContentLoaded', () => {
+// Fire it up safely
+const bootstrapAdmin = () => {
     initAdmin();
     initMobileSidebarToggle();
-});
+};
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', bootstrapAdmin);
+} else {
+    bootstrapAdmin();
+}
 
 /**
  * 🎟️ COUPON ADMIN (Item 6)

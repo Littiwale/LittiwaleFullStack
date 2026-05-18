@@ -558,4 +558,8 @@ function initMenuSearch(items) {
 }
 
 // Start the engine
-document.addEventListener('DOMContentLoaded', initMenu);
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initMenu);
+} else {
+    initMenu();
+}
