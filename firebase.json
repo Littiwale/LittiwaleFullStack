@@ -5,6 +5,8 @@
   },
   "hosting": {
     "public": "dist",
+    "cleanUrls": true,
+    "trailingSlash": false,
     "ignore": [
       "firebase.json",
       "**/.*",
@@ -12,8 +14,36 @@
     ],
     "rewrites": [
       {
-        "source": "**",
-        "destination": "/index.html"
+        "source": "/login",
+        "destination": "/login.html"
+      },
+      {
+        "source": "/admin",
+        "destination": "/admin/index.html"
+      },
+      {
+        "source": "/admin/**",
+        "destination": "/admin/index.html"
+      },
+      {
+        "source": "/rider",
+        "destination": "/rider/index.html"
+      },
+      {
+        "source": "/rider/**",
+        "destination": "/rider/index.html"
+      },
+      {
+        "source": "/customer",
+        "destination": "/customer/index.html"
+      },
+      {
+        "source": "/menu",
+        "destination": "/customer/menu.html"
+      },
+      {
+        "source": "/track",
+        "destination": "/customer/track.html"
       }
     ],
     "headers": [
