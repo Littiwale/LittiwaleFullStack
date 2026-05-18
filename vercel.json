@@ -12,7 +12,7 @@
     { "source": "/customer/(.*)", "destination": "/customer/index.html" },
     { "source": "/(.*)",       "destination": "/index.html" }
   ],
-  "cleanUrls": true,
+  "cleanUrls": false,
   "trailingSlash": false,
   "headers": [
     {
