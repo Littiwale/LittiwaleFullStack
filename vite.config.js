@@ -13,6 +13,7 @@ export default defineConfig({
         customerTrack: resolve(__dirname, 'customer/track.html'),
         admin: resolve(__dirname, 'admin/index.html'),
         rider: resolve(__dirname, 'rider/index.html'),
+        kitchen: resolve(__dirname, 'kitchen/index.html'),
       },
     },
   },
@@ -43,6 +44,7 @@ export default defineConfig({
             '/login': '/login.html',
             '/admin': '/admin/index.html',
             '/rider': '/rider/index.html',
+            '/kitchen': '/kitchen/index.html',
           };
 
           const url = new URL(req.url, `http://${req.headers.host}`);

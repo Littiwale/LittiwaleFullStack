@@ -63,16 +63,14 @@ const initRider = () => {
         if (ddName)  ddName.textContent  = name;
         if (ddRole)  ddRole.textContent  = role.toUpperCase();
 
+        const ddAdmin = document.getElementById('rider-dd-admin');
+        const ddKitchen = document.getElementById('rider-dd-kitchen');
+        
         if (role === 'admin' || role === 'manager') {
-            const dropdown      = document.getElementById('rider-profile-dropdown');
-            const storefrontBtn = document.getElementById('rider-dd-storefront');
-            if (dropdown && storefrontBtn) {
-                const adminBtn = document.createElement('button');
-                adminBtn.className   = 'lw-dropdown-item';
-                adminBtn.id          = 'rider-dd-admin';
-                adminBtn.textContent = '🏠 Admin Panel';
-                dropdown.insertBefore(adminBtn, storefrontBtn);
-            }
+            if (ddAdmin) { ddAdmin.style.display = 'block'; ddAdmin.classList.remove('hidden'); }
+            if (ddKitchen) { ddKitchen.style.display = 'block'; ddKitchen.classList.remove('hidden'); }
+        } else if (role === 'kitchen') {
+            if (ddKitchen) { ddKitchen.style.display = 'block'; ddKitchen.classList.remove('hidden'); }
         }
 
         const dropdown = document.getElementById('rider-profile-dropdown');
@@ -87,7 +85,9 @@ const initRider = () => {
         });
 
         document.getElementById('rider-dd-admin')?.addEventListener('click',      () => { window.location.href = '/admin'; });
+        document.getElementById('rider-dd-kitchen')?.addEventListener('click',    () => { window.location.href = '/kitchen'; });
         document.getElementById('rider-dd-storefront')?.addEventListener('click', () => { window.location.href = '/'; });
+        document.getElementById('rider-dd-orders')?.addEventListener('click',     () => { window.location.href = '/menu?openOrders=1'; });
         document.getElementById('rider-dd-logout')?.addEventListener('click', async () => { await logoutUser(); window.location.href = '/login'; });
         document.getElementById('bnav-profile')?.addEventListener('click', () => {
             alert(`👤 ${name}\nRole: ${role.toUpperCase()}\n\nTo update your profile, contact the admin.`);
@@ -219,8 +219,8 @@ const startRiderListener = (riderId) => {
         });
 
         const activeOrders  = allOrders.filter(o => ![ORDER_STATUS.DELIVERED, ORDER_STATUS.CANCELLED, ORDER_STATUS.REJECTED].includes(o.status));
-        const pendingOrders = activeOrders.filter(o => o.status === ORDER_STATUS.READY);
-        const currentOrders = activeOrders.filter(o => o.status === ORDER_STATUS.ASSIGNED);
+        const pendingOrders = activeOrders.filter(o => o.status === ORDER_STATUS.ASSIGNED);
+        const currentOrders = activeOrders.filter(o => o.status === ORDER_STATUS.PICKED_UP);
 
         renderPendingPickups(pendingOrders);
         renderCurrentDelivery(currentOrders);
@@ -235,6 +235,7 @@ window.addEventListener('beforeunload', () => {
 /* ── RIDER NOTIFICATIONS (NEW ASSIGNMENTS) ──────── */
 let riderNotificationUnsubscribe = null;
 let riderNotificationId = null;
+const shownNotifIds = new Set();
 
 const startRiderNotificationListener = (riderId) => {
     if (typeof riderNotificationUnsubscribe === 'function') riderNotificationUnsubscribe();
@@ -247,27 +248,18 @@ const startRiderNotificationListener = (riderId) => {
     );
 
     riderNotificationUnsubscribe = onSnapshot(q, (snapshot) => {
-        console.log('[RIDER] Notifications received:', snapshot.size, snapshot.docs.map(d => ({id: d.id, read: d.data().read, createdAt: d.data().createdAt})));
+        console.log('[RIDER] Notifications received:', snapshot.size);
         
-        // Sort manually since we can't use orderBy with composite index yet
-        const docs = snapshot.docs.sort((a, b) => {
-            const aTime = a.data().createdAt?.toMillis ? a.data().createdAt.toMillis() : 0;
-            const bTime = b.data().createdAt?.toMillis ? b.data().createdAt.toMillis() : 0;
-            return bTime - aTime;
-        });
-        
-        docs.forEach(docSnapshot => {
-            const change = {type: 'added', doc: docSnapshot};
+        snapshot.docChanges().forEach(change => {
             if (change.type === 'added') {
                 const notif = change.doc.data();
                 const notifDocId = change.doc.id;
                 
-                // Client-side filter: only show unread notifications
-                if (notif.read === true) {
-                    console.log('[RIDER] Skipping read notification:', notifDocId);
-                    return;
-                }
+                // Client-side filter: only show unread notifications and avoid duplicates
+                if (notif.read === true) return;
+                if (shownNotifIds.has(notifDocId)) return;
                 
+                shownNotifIds.add(notifDocId);
                 console.log('[RIDER] ✅ Showing notification:', notifDocId, notif);
                 
                 // Show persistent modal notification with buttons
@@ -484,7 +476,7 @@ const renderCurrentDelivery = (orders) => {
 /* ── GLOBAL ACTIONS ──────────────────────────────── */
 window.pickupOrder = async (docId) => {
     try {
-        await updateOrderDetails(docId, { status: ORDER_STATUS.ASSIGNED });
+        await updateOrderDetails(docId, { status: ORDER_STATUS.PICKED_UP });
     } catch (e) {
         console.error('Pickup failed:', e);
         alert('Could not update order. Try again.');

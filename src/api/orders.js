@@ -260,3 +260,52 @@ export const fetchOrdersByUser = async (uid) => {
     }
 };
 
+/**
+ * Assigns a kitchen to an order
+ * @param {string} docId - Firestore document ID of the order
+ * @param {string} kitchenId - 'kitchen_a' or 'kitchen_b'
+ * @param {string} kitchenName - Display name e.g. 'Kitchen A'
+ */
+export const assignKitchenToOrder = async (docId, kitchenId, kitchenName) => {
+    try {
+        await updateDoc(doc(db, 'orders', docId), {
+            kitchenId,
+            kitchenName,
+            kitchenStatus: 'pending',   // pending | preparing | packing | ready
+            kitchenAssignedAt: serverTimestamp(),
+            updatedAt: serverTimestamp()
+        });
+        return { success: true };
+    } catch (error) {
+        console.error('Error assigning kitchen:', error);
+        throw error;
+    }
+};
+
+/**
+ * Kitchen updates the cooking status of their assigned order
+ * @param {string} docId
+ * @param {'pending'|'preparing'|'packing'|'ready'} kitchenStatus
+ */
+export const updateKitchenStatus = async (docId, kitchenStatus) => {
+    try {
+        const updates = {
+            kitchenStatus,
+            updatedAt: serverTimestamp()
+        };
+        // When kitchen marks ready → also update main order status to READY
+        if (kitchenStatus === 'ready') {
+            updates.status = ORDER_STATUS.READY;
+        }
+        if (kitchenStatus === 'preparing') {
+            updates.status = ORDER_STATUS.PREPARING;
+        }
+        await updateDoc(doc(db, 'orders', docId), updates);
+        return { success: true };
+    } catch (error) {
+        console.error('Error updating kitchen status:', error);
+        throw error;
+    }
+};
+
+

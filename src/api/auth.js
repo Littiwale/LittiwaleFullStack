@@ -292,6 +292,8 @@ export const isManager = (user) => getUserRole(user) === 'manager';
 export const isAdminOrManager = (user) => ['admin', 'manager'].includes(getUserRole(user));
 export const isRider = (user) => getUserRole(user) === 'rider';
 export const isCustomer = (user) => getUserRole(user) === 'customer' || user?.isAnonymous || Boolean(user?.profile?.isAnonymous);
+export const isKitchen = (user) => getUserRole(user) === 'kitchen';
+export const isKitchenStaff = (user) => ['kitchen', 'admin'].includes(getUserRole(user));
 
 /**
  * Global auth state listener — with error-safe profile fetch.

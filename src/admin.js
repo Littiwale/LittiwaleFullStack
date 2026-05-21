@@ -2,7 +2,7 @@ import { collection, query, orderBy, onSnapshot, doc, updateDoc, serverTimestamp
 import { db } from './firebase/config';
 import { onAuthChange, logoutUser, getUserRole, isAdminOrManager } from './api/auth';
 import { fetchAllUsers, fetchUsersByRole, updateUserRole, getRiderFinancialStats, addRiderPayment } from './api/users';
-import { assignRiderToOrder, updateOrderDetails } from './api/orders';
+import { assignRiderToOrder, updateOrderDetails, assignKitchenToOrder } from './api/orders';
 import { fetchAnalyticsData } from './api/analytics';
 import { ORDER_STATUS } from './constants/orderStatus';
 import { fetchAllCoupons, createCoupon, updateCoupon, deleteCoupon, getCouponAnalytics, getTopCoupons, getCouponTimeline } from './api/coupons';
@@ -462,14 +462,21 @@ const initAdmin = () => {
         setupOrderFiltering();
         setupDashboardCardHandlers();
 
-        // Load riders FIRST, then start order listener
+        // Load riders FIRST (include admin so admin can also do delivery), then start order listener
         Promise.all([
             fetchUsersByRole('rider'),
+            fetchUsersByRole('admin'),
             loadCustomers(),
             loadDashboardAnalytics()
-        ]).then(([riders]) => {
-            console.log('[ADMIN INIT] Riders fetched:', riders ? riders.length : 0, riders);
-            ridersList = riders || [];
+        ]).then(([riders, admins]) => {
+            // Merge riders + admin into ridersList (admin marked with 👑)
+            const adminAsRiders = (admins || []).map(a => ({
+                ...a,
+                _isAdmin: true,
+                profile: { ...(a.profile || {}), name: (a.profile?.name || a.name || 'Admin') + ' 👑' }
+            }));
+            console.log('[ADMIN INIT] Riders fetched:', riders ? riders.length : 0, 'Admins as riders:', adminAsRiders.length);
+            ridersList = [...(riders || []), ...adminAsRiders];
             renderRiders(ridersList);
             
             // Start order listener AFTER riders are loaded
@@ -534,11 +541,20 @@ const setupProfileDropdown = (triggerId, dropdownId, logoutId) => {
     });
 
     // Navigation items — plain click, no preventDefault so navigation is never blocked
+    document.getElementById('admin-dd-admin')?.addEventListener('click', function () {
+        window.location.href = '/admin';
+    });
     document.getElementById('admin-dd-storefront')?.addEventListener('click', function () {
         window.location.href = '/';
     });
+    document.getElementById('admin-dd-kitchen')?.addEventListener('click', function () {
+        window.location.href = '/kitchen';
+    });
     document.getElementById('admin-dd-rider')?.addEventListener('click', function () {
         window.location.href = '/rider';
+    });
+    document.getElementById('admin-dd-orders')?.addEventListener('click', function () {
+        window.location.href = '/menu?openOrders=1';
     });
 
     // Logout
@@ -571,6 +587,11 @@ const navigateToView = (viewName) => {
     const pageTitle = document.querySelector('#page-title');
     if (pageTitle) {
         pageTitle.textContent = normalizedView.charAt(0).toUpperCase() + normalizedView.slice(1);
+    }
+
+    const backBtn = document.getElementById('global-back-to-dashboard');
+    if (backBtn) {
+        backBtn.style.display = (normalizedView === 'dashboard') ? 'none' : 'flex';
     }
 };
 
@@ -2554,6 +2575,7 @@ const createOrderCard = (order) => {
             .lw-order-card.st-preparing::before { background: #F5A800; }
             .lw-order-card.st-ready::before     { background: #34d399; }
             .lw-order-card.st-assigned::before  { background: #a78bfa; }
+            .lw-order-card.st-picked_up::before { background: #60a5fa; }
             .lw-order-card.st-delivered::before { background: #34d399; }
             .lw-order-card.st-cancelled::before { background: #f87171; }
             .lw-order-card-header { padding: 16px 18px 12px 20px; border-bottom: 1px solid #1a1d28; }
@@ -2569,6 +2591,7 @@ const createOrderCard = (order) => {
             .lw-status-preparing{ background:rgba(245,168,0,.1);   color:#F5A800; border-color:rgba(245,168,0,.3); }
             .lw-status-ready    { background:rgba(16,185,129,.1);  color:#34d399; border-color:rgba(16,185,129,.3); }
             .lw-status-assigned { background:rgba(139,92,246,.1);  color:#a78bfa; border-color:rgba(139,92,246,.3); }
+            .lw-status-picked_up{ background:rgba(59,130,246,.1);  color:#60a5fa; border-color:rgba(59,130,246,.3); }
             .lw-status-delivered{ background:rgba(16,185,129,.1);  color:#34d399; border-color:rgba(16,185,129,.3); }
             .lw-status-cancelled{ background:rgba(239,68,68,.1);   color:#f87171; border-color:rgba(239,68,68,.3); }
             .lw-status-rejected { background:rgba(239,68,68,.1);   color:#f87171; border-color:rgba(239,68,68,.3); }
@@ -2649,7 +2672,8 @@ const createOrderCard = (order) => {
         'PREPARING': { label: 'In Kitchen',        cls: 'lw-status-preparing', icon: '👨‍🍳', step: 2, cardCls: 'st-preparing' },
         'READY':     { label: 'Ready',             cls: 'lw-status-ready',     icon: '🔔', step: 3, cardCls: 'st-ready'    },
         'ASSIGNED':  { label: 'Out for Delivery',  cls: 'lw-status-assigned',  icon: '🛵', step: 4, cardCls: 'st-assigned'  },
-        'DELIVERED': { label: 'Delivered',         cls: 'lw-status-delivered', icon: '🎉', step: 5, cardCls: 'st-delivered' },
+        'PICKED_UP': { label: 'In Transit',        cls: 'lw-status-picked_up', icon: '🚀', step: 5, cardCls: 'st-picked_up' },
+        'DELIVERED': { label: 'Delivered',         cls: 'lw-status-delivered', icon: '🎉', step: 6, cardCls: 'st-delivered' },
         'CANCELLED': { label: 'Cancelled',         cls: 'lw-status-cancelled', icon: '❌', step: -1, cardCls: 'st-cancelled' },
         'REJECTED':  { label: 'Rejected',          cls: 'lw-status-rejected',  icon: '🚫', step: -1, cardCls: 'st-cancelled' },
     };
@@ -2662,7 +2686,8 @@ const createOrderCard = (order) => {
         { label: 'Accepted',  icon: '✅' },
         { label: 'Kitchen',   icon: '👨‍🍳' },
         { label: 'Ready',     icon: '🔔' },
-        { label: 'Delivery',  icon: '🛵' },
+        { label: 'Assigned',  icon: '🛵' },
+        { label: 'Transit',   icon: '🚀' },
     ];
     const showProgress = currentStep >= 0;
     const progressHTML = showProgress ? `
@@ -2700,10 +2725,38 @@ const createOrderCard = (order) => {
                 </div>`;
             break;
         case ORDER_STATUS.ACCEPTED:
-            actionsHTML = `<button onclick="updateOrderStatus('${order.id}', '${ORDER_STATUS.PREPARING}')" class="lw-order-btn lw-btn-kitchen">👨‍🍳 Send to Kitchen</button>`;
+            actionsHTML = `<button onclick="updateOrderStatus('${order.id}', '${ORDER_STATUS.PREPARING}')" class="lw-order-btn lw-btn-kitchen">👨‍🍳 Send to Kitchen</button>
+            ${order.kitchenId
+                ? `<div style="margin-top:10px;padding:10px;background:rgba(255,165,0,0.08);border:1px solid rgba(255,165,0,0.2);border-radius:8px;position:relative;">
+                       <p style="font-size:11px;color:#F5A800;font-weight:700;margin:0 0 4px 0;letter-spacing:0.5px;">🍳 KITCHEN ASSIGN</p>
+                       <span style="font-size:12px;color:#10b981;font-weight:600;">✅ ${order.kitchenName || order.kitchenId} — ${(order.kitchenStatus||'').toUpperCase()}</span>
+                       <button onclick="changeKitchenAssignment('${order.id}')" style="position:absolute;top:10px;right:10px;background:transparent;border:none;color:#60a5fa;font-size:10px;font-weight:600;cursor:pointer;text-decoration:underline;">Change</button>
+                   </div>`
+                : (() => {
+                    const isOutlet = order.locationId === 'outlet';
+                    const kId   = isOutlet ? 'kitchen_outlet' : 'kitchen_cloud';
+                    const kName = isOutlet ? 'Outlet Kitchen' : 'Cloud Kitchen';
+                    const kIcon = isOutlet ? '🏠' : '☁️';
+                    return `<div style="margin-top:10px;padding:10px;background:rgba(255,165,0,0.08);border:1px solid rgba(255,165,0,0.2);border-radius:8px;"><p style="font-size:11px;color:#F5A800;font-weight:700;margin:0 0 8px 0;letter-spacing:0.5px;">🍳 KITCHEN ASSIGN</p><button onclick="assignKitchen('${order.id}','${kId}','${kName}')" style="width:100%;padding:8px;background:#1e2130;color:#fff;border:1px solid #374151;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;">${kIcon} Send to ${kName}</button></div>`;
+                })()
+            }`;
             break;
         case ORDER_STATUS.PREPARING:
-            actionsHTML = `<button onclick="updateOrderStatus('${order.id}', '${ORDER_STATUS.READY}')" class="lw-order-btn lw-btn-ready">🔔 Mark Ready</button>`;
+            actionsHTML = `<button onclick="updateOrderStatus('${order.id}', '${ORDER_STATUS.READY}')" class="lw-order-btn lw-btn-ready">🔔 Mark Ready</button>
+            ${order.kitchenId
+                ? `<div style="margin-top:10px;padding:10px;background:rgba(255,165,0,0.08);border:1px solid rgba(255,165,0,0.2);border-radius:8px;position:relative;">
+                       <p style="font-size:11px;color:#F5A800;font-weight:700;margin:0 0 4px 0;letter-spacing:0.5px;">🍳 KITCHEN ASSIGN</p>
+                       <span style="font-size:12px;color:#10b981;font-weight:600;">✅ ${order.kitchenName || order.kitchenId} — ${(order.kitchenStatus||'').toUpperCase()}</span>
+                       <button onclick="changeKitchenAssignment('${order.id}')" style="position:absolute;top:10px;right:10px;background:transparent;border:none;color:#60a5fa;font-size:10px;font-weight:600;cursor:pointer;text-decoration:underline;">Change</button>
+                   </div>`
+                : (() => {
+                    const isOutlet = order.locationId === 'outlet';
+                    const kId   = isOutlet ? 'kitchen_outlet' : 'kitchen_cloud';
+                    const kName = isOutlet ? 'Outlet Kitchen' : 'Cloud Kitchen';
+                    const kIcon = isOutlet ? '🏠' : '☁️';
+                    return `<div style="margin-top:10px;padding:10px;background:rgba(255,165,0,0.08);border:1px solid rgba(255,165,0,0.2);border-radius:8px;"><p style="font-size:11px;color:#F5A800;font-weight:700;margin:0 0 8px 0;letter-spacing:0.5px;">🍳 KITCHEN ASSIGN</p><button onclick="assignKitchen('${order.id}','${kId}','${kName}')" style="width:100%;padding:8px;background:#1e2130;color:#fff;border:1px solid #374151;border-radius:6px;font-size:12px;font-weight:600;cursor:pointer;">${kIcon} Send to ${kName}</button></div>`;
+                })()
+            }`;
             break;
         case ORDER_STATUS.READY:
             actionsHTML = `
@@ -2723,6 +2776,7 @@ const createOrderCard = (order) => {
                 </div>`;
             break;
         case ORDER_STATUS.ASSIGNED:
+        case ORDER_STATUS.PICKED_UP:
             actionsHTML = `<button onclick="updateOrderStatus('${order.id}', '${ORDER_STATUS.DELIVERED}')" class="lw-order-btn lw-btn-deliver">🎉 Mark Delivered</button>`;
             break;
         default:
@@ -2808,6 +2862,14 @@ window.updateOrderStatus = async (docId, newStatus) => {
     } catch (e) { console.error('Status Update Failed:', e); }
 };
 
+window.changeKitchenAssignment = async (docId) => {
+    try {
+        await updateOrderDetails(docId, { kitchenId: null, kitchenName: null, kitchenStatus: null });
+    } catch (e) {
+        console.error('Kitchen reassignment failed:', e);
+    }
+};
+
 window.handleRiderAssignment = async (orderId) => {
     const dropdown = document.getElementById(`rider-select-${orderId}`);
     if (!dropdown) return;
@@ -2839,6 +2901,16 @@ window.handleRiderAssignment = async (orderId) => {
     }
 };
 
+window.assignKitchen = async (docId, kitchenId, kitchenName) => {
+    try {
+        await assignKitchenToOrder(docId, kitchenId, kitchenName);
+        showToast(`Order assigned to ${kitchenName} ✅`, 'success');
+    } catch (e) {
+        showToast('Failed to assign kitchen. Try again.', 'error');
+        console.error(e);
+    }
+};
+
 /**
  * 👥 People & Directory
  */
@@ -2849,7 +2921,7 @@ const loadCustomers = async () => {
             <tr class="hover:bg-white/5 transition">
                 <td class="p-4">
                     <p class="font-bold text-white">${u.name}</p>
-                    <p class="text-[10px] text-gray-500 font-bold uppercase tracking-wider">${u.email}</p>
+                    <p class="text-[10px] ${u.isAnonymous ? 'text-accent' : 'text-gray-500'} font-bold uppercase tracking-wider">${u.email || (u.isAnonymous ? 'GUEST ACCOUNT' : 'NO EMAIL')}</p>
                 </td>
                 <td class="p-4 text-gray-300 font-mono">${u.phone || 'N/A'}</td>
                 <td class="p-4">
@@ -2918,7 +2990,7 @@ const getRiderDeliveryStats = async (riderId) => {
         const q = query(
             ordersRef,
             where('riderId', '==', riderId),
-            where('status', '==', 'delivered')
+            where('status', '==', 'DELIVERED')
         );
         const snapshot = await getDocs(q);
         return snapshot.size; // Count of delivered orders
@@ -2942,7 +3014,7 @@ const getRiderAnalytics = async (riderId) => {
         const deliveredQuery = query(
             ordersRef,
             where('riderId', '==', riderId),
-            where('status', '==', 'delivered')
+            where('status', '==', 'DELIVERED')
         );
         const deliveredSnap = await getDocs(deliveredQuery);
         const deliveredOrders = deliveredSnap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
@@ -2951,7 +3023,7 @@ const getRiderAnalytics = async (riderId) => {
         const activeQuery = query(
             ordersRef,
             where('riderId', '==', riderId),
-            where('status', 'in', ['accepted', 'out_for_delivery'])
+            where('status', 'in', ['ASSIGNED', 'PICKED_UP'])
         );
         const activeSnap = await getDocs(activeQuery);
         const activeOrders = activeSnap.docs.map(doc => ({ id: doc.id, ...doc.data() }));

@@ -49,21 +49,30 @@ const init = async () => {
                 // Admin = super user → gets all panels + My Orders.
                 // Rider  → gets Rider Panel + My Orders (can also order from storefront).
                 // Customer → My Orders only.
-                let menuItems = '';
+                let menuItems = `
+                    <button type="button" class="lw-dropdown-item" id="dd-nav-storefront" style="color:#F5A800;font-weight:700;">✓ 🛒 Storefront</button>
+                `;
+
                 if (role === 'admin' || role === 'manager') {
-                    menuItems = `
-                        <button type="button" class="lw-dropdown-item" id="dd-nav-admin">🏠 Admin Panel</button>
+                    menuItems += `
+                        <button type="button" class="lw-dropdown-item" id="dd-nav-admin">👑 Admin Panel</button>
+                        <button type="button" class="lw-dropdown-item" id="dd-nav-kitchen">🍳 Kitchen Panel</button>
                         <button type="button" class="lw-dropdown-item" id="dd-nav-rider">🛵 Rider Panel</button>
                         <button type="button" class="lw-dropdown-item" id="dd-nav-orders">📦 My Orders</button>
                     `;
+                } else if (role === 'kitchen') {
+                    menuItems += `
+                        <button type="button" class="lw-dropdown-item" id="dd-nav-kitchen">🍳 Kitchen Panel</button>
+                        <button type="button" class="lw-dropdown-item" id="dd-nav-orders">📦 My Orders</button>
+                    `;
                 } else if (role === 'rider') {
-                    menuItems = `
-                        <button type="button" class="lw-dropdown-item" id="dd-nav-rider">🏍️ Rider Panel</button>
+                    menuItems += `
+                        <button type="button" class="lw-dropdown-item" id="dd-nav-rider">🛵 Rider Panel</button>
                         <button type="button" class="lw-dropdown-item" id="dd-nav-orders">📦 My Orders</button>
                     `;
                 } else {
                     // customer (and any unknown role)
-                    menuItems = `
+                    menuItems += `
                         <button type="button" class="lw-dropdown-item" id="dd-nav-profile">👤 My Profile</button>
                         <button type="button" class="lw-dropdown-item" id="dd-nav-orders">📦 My Orders</button>
                         <button type="button" class="lw-dropdown-item" id="dd-nav-track">🛵 Track Orders</button>
@@ -119,10 +128,20 @@ const init = async () => {
                 };
 
                 // Role-specific nav actions
+                document.getElementById('dd-nav-storefront')?.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    closeDropdown();
+                    window.location.href = '/';
+                });
                 document.getElementById('dd-nav-admin')?.addEventListener('click', function(e) {
                     e.stopPropagation();
                     closeDropdown();
                     window.location.href = '/admin';
+                });
+                document.getElementById('dd-nav-kitchen')?.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    closeDropdown();
+                    window.location.href = '/kitchen';
                 });
                 document.getElementById('dd-nav-rider')?.addEventListener('click', function(e) {
                     e.stopPropagation();

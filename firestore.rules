@@ -22,6 +22,18 @@ service cloud.firestore {
       return isAdmin() || isManager();
     }
 
+    function isKitchen() {
+      return isAuthenticated() && getUserData().role == 'kitchen';
+    }
+
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function getUserData() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
+    }
+
     // ── USERS ──
     match /users/{uid} {
       allow read: if request.auth != null && request.auth.uid == uid;
@@ -32,6 +44,7 @@ service cloud.firestore {
           (resource != null && request.resource.data.role == resource.data.role)
         );
       allow read, write: if isAdmin(); // Admin reads ALL users
+      allow read: if isKitchen(); // Kitchen needs to read users to fetch riders list
 
       // Saved addresses subcollection (max 3 enforced client-side)
       match /addresses/{addressId} {
@@ -94,6 +107,13 @@ service cloud.firestore {
         resource.data.riderId == request.auth.uid &&
         request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status', 'deliveredAt', 'updatedAt', 'riderStatus', 'riderAcceptedAt', 'riderRejectedAt', 'paymentStatus']);
 
+      // Kitchen — read orders assigned to them and update kitchenStatus, rider assignment, and main status
+      allow read: if isKitchen() && resource.data.kitchenId == getUserData().kitchenId;
+      allow update: if isKitchen()
+          && resource.data.kitchenId == getUserData().kitchenId
+          && request.resource.data.diff(resource.data).affectedKeys()
+              .hasOnly(['kitchenStatus', 'updatedAt', 'status', 'riderId', 'riderName', 'riderStatus', 'riderAssignedAt']);
+
       // Customer may only update fcmToken on their own order after creation
       allow update: if request.auth != null && request.auth.uid == resource.data.userId &&
         request.resource.data.diff(resource.data).affectedKeys().hasOnly(['fcmToken']);
@@ -137,7 +157,8 @@ service cloud.firestore {
     // ── MENU ──
     match /menu/{itemId} {
       allow read: if true;
-      allow write: if isAdminOrManager();
+      allow create, delete: if isAdminOrManager();
+      allow update: if isAdminOrManager() || isKitchen();
     }
 
     // ── ANNOUNCEMENTS ──
@@ -159,7 +180,7 @@ service cloud.firestore {
     match /riderNotifications/{notificationId} {
       allow read: if isRider() && resource.data.riderId == request.auth.uid;
       allow read, write: if isAdminOrManager();
-      allow create: if isAdminOrManager();
+      allow create: if isAdminOrManager() || isKitchen();
       allow update: if isRider() && resource.data.riderId == request.auth.uid;
     }
 

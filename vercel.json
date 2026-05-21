@@ -10,6 +10,8 @@
     { "source": "/menu",       "destination": "/customer/menu.html" },
     { "source": "/track",      "destination": "/customer/track.html" },
     { "source": "/customer/(.*)", "destination": "/customer/index.html" },
+    { "source": "/kitchen",      "destination": "/kitchen/index.html" },
+    { "source": "/kitchen/(.*)", "destination": "/kitchen/index.html" },
     { "source": "/(.*)",       "destination": "/index.html" }
   ],
   "cleanUrls": false,

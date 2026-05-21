@@ -98,7 +98,7 @@ export function openKPIModal(type) {
 
   if (type === 'revenue') {
     title = '💰 Today\'s Revenue';
-    const paidOrders = todayOrders.filter(o => o.status === 'delivered' || o.paymentStatus === 'paid');
+    const paidOrders = todayOrders.filter(o => o.status === 'DELIVERED' || o.paymentStatus === 'paid');
     const total = paidOrders.reduce((sum, o) => sum + (o.total || 0), 0);
     content = `
       <div style="margin-bottom: 20px; padding-bottom: 20px; border-bottom: 1px solid rgba(255,255,255,0.06);">

@@ -6,6 +6,7 @@ export const ORDER_STATUS = {
   PREPARING: 'PREPARING', // In kitchen
   READY:     'READY',     // Ready for pickup/dispatch
   ASSIGNED:  'ASSIGNED',  // Rider assigned
+  PICKED_UP: 'PICKED_UP', // Rider picked up from kitchen
   DELIVERED: 'DELIVERED', // Order completed
 
   // System/Exception Statuses

@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kitchen Panel - Littiwale</title>
+    <link rel="manifest" href="/manifest.json">
+    <link rel="icon" type="image/png" href="/images/logo.png">
+    <meta name="theme-color" content="#080b12">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&family=Space+Mono:wght@700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/src/style.css">
+    <style>
+        .kitchen-dropdown-wrap { position: relative; display: inline-block; }
+        .kitchen-dropdown-menu {
+            position: absolute; top: calc(100% + 8px); right: 0; background: #161820; border: 1px solid #252830;
+            border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); width: 200px;
+            opacity: 0; visibility: hidden; transform: translateY(-10px); transition: all 0.2s; z-index: 999;
+        }
+        .kitchen-dropdown-menu.open { opacity: 1; visibility: visible; transform: translateY(0); }
+        .kitchen-dd-header { padding: 16px; border-bottom: 1px solid #252830; }
+        .kitchen-dd-item { 
+            width: 100%; text-align: left; padding: 12px 16px; background: none; border: none; 
+            color: #e5e7eb; cursor: pointer; font-size: 13px; font-family: 'Poppins', sans-serif;
+            transition: background 0.2s;
+        }
+        .kitchen-dd-item:hover { background: rgba(255,165,0,0.1); color: #F5A800; }
+        .kitchen-dd-item.danger:hover { background: rgba(239,68,68,0.1); color: #ef4444; }
+    </style>
+</head>
+<body style="background:#080b12;color:#fff;font-family:'Poppins',sans-serif;margin:0;">
+
+    <!-- HEADER -->
+    <header style="background:#0d1117;border-bottom:1px solid rgba(255,165,0,0.15);padding:12px 20px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;">
+        <div style="display:flex;align-items:center;gap:12px;">
+            <img src="/images/logo.png" alt="Littiwale" style="height:36px;" onerror="this.style.display='none'">
+            <div>
+                <div style="font-size:14px;font-weight:800;color:#fff;letter-spacing:1px;">LITTIWALE</div>
+                <div id="kitchen-name-header" style="font-size:10px;color:#F5A800;font-weight:700;letter-spacing:0.5px;">KITCHEN PANEL</div>
+            </div>
+        </div>
+        
+        <div id="kitchen-location-toggle" style="display:none;align-items:center;background:#161820;padding:4px;border-radius:12px;border:1px solid #252830;gap:4px;">
+            <button id="toggle-cloud" style="padding:6px 12px;background:#F5A800;color:#000;border:none;border-radius:8px;font-size:11px;font-weight:700;cursor:pointer;">☁️ Cloud</button>
+            <button id="toggle-outlet" style="padding:6px 12px;background:transparent;color:#9ca3af;border:none;border-radius:8px;font-size:11px;font-weight:700;cursor:pointer;">🏠 Outlet</button>
+        </div>
+        <div style="display:flex;align-items:center;gap:16px;">
+            <div id="kitchen-live-badge" style="font-size:11px;color:#10b981;font-weight:700;font-family:'Space Mono',monospace;"></div>
+            
+            <div class="kitchen-dropdown-wrap" id="kitchen-profile-wrap">
+                <button id="kitchen-avatar-trigger" aria-haspopup="true" aria-expanded="false" 
+                        style="width:36px;height:36px;border-radius:50%;background:#F5A800;color:#000;font-weight:800;border:none;cursor:pointer;font-family:'Poppins',sans-serif;">K</button>
+                <div class="kitchen-dropdown-menu" id="kitchen-profile-dropdown" role="menu">
+                    <div class="kitchen-dd-header">
+                        <p id="kitchen-dd-name" style="margin:0;font-weight:800;font-size:14px;color:#fff;">Kitchen</p>
+                        <span id="kitchen-dd-email" style="font-size:11px;color:#9ca3af;word-break:break-all;">Loading...</span>
+                    </div>
+                    <button type="button" class="kitchen-dd-item" id="kitchen-dd-kitchen" style="color:#F5A800;font-weight:700;">✓ 🍳 Kitchen Panel</button>
+                    <button type="button" class="kitchen-dd-item" id="kitchen-dd-storefront">🛒 Storefront</button>
+                    <button type="button" class="kitchen-dd-item hidden" id="kitchen-dd-admin" style="display:none;">👑 Admin Panel</button>
+                    <button type="button" class="kitchen-dd-item hidden" id="kitchen-dd-rider" style="display:none;">🛵 Rider Panel</button>
+                    <button type="button" class="kitchen-dd-item" id="kitchen-dd-orders">📦 My Orders</button>
+                    <div style="border-top:1px solid #252830;margin:4px 0;"></div>
+                    <button type="button" class="kitchen-dd-item danger" id="kitchen-logout-btn">🚪 Logout</button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- STATS BAR -->
+    <div id="kitchen-stats-bar" style="background:#0d1117;border-bottom:1px solid rgba(255,255,255,0.05);padding:12px 20px;display:flex;gap:20px;">
+        <div style="text-align:center;">
+            <div id="stat-pending" style="font-size:22px;font-weight:900;color:#F5A800;font-family:'Space Mono',monospace;">0</div>
+            <div style="font-size:10px;color:#9ca3af;font-weight:600;">PENDING</div>
+        </div>
+        <div style="text-align:center;">
+            <div id="stat-preparing" style="font-size:22px;font-weight:900;color:#3b82f6;font-family:'Space Mono',monospace;">0</div>
+            <div style="font-size:10px;color:#9ca3af;font-weight:600;">PREPARING</div>
+        </div>
+        <div style="text-align:center;">
+            <div id="stat-ready" style="font-size:22px;font-weight:900;color:#10b981;font-family:'Space Mono',monospace;">0</div>
+            <div style="font-size:10px;color:#9ca3af;font-weight:600;">READY TODAY</div>
+        </div>
+    </div>
+
+    <!-- TABS -->
+    <div style="max-width:600px;margin:0 auto;display:flex;gap:12px;padding:16px 16px 0;">
+        <button id="tab-orders" style="padding:10px 20px;background:#F5A800;color:#000;border:none;border-radius:8px;font-weight:700;cursor:pointer;flex:1;">Orders</button>
+        <button id="tab-menu" style="padding:10px 20px;background:#1e2130;color:#e5e7eb;border:1px solid #374151;border-radius:8px;font-weight:700;cursor:pointer;flex:1;">Menu Stock</button>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <main style="padding:16px;max-width:600px;margin:0 auto;">
+        <div id="kitchen-orders-section">
+            <div id="kitchen-orders-container">
+                <div id="kitchen-empty-state" style="text-align:center;padding:60px 20px;color:#6b7280;">
+                    <div style="font-size:48px;margin-bottom:16px;">🍳</div>
+                    <div style="font-size:16px;font-weight:600;color:#9ca3af;">No orders assigned yet</div>
+                    <div style="font-size:13px;margin-top:8px;">Orders assigned by admin will appear here</div>
+                </div>
+            </div>
+        </div>
+        <div id="kitchen-menu-section" style="display:none;">
+            <div style="margin-bottom:16px;">
+                <input type="search" id="kitchen-menu-search" placeholder="Search menu items..." style="width:100%;padding:12px 16px;background:#161820;border:1px solid #252830;border-radius:8px;color:#fff;font-family:'Poppins',sans-serif;box-sizing:border-box;">
+            </div>
+            <div id="kitchen-menu-container"></div>
+        </div>
+    </main>
+
+    <script type="module" src="/src/kitchen.js"></script>
+</body>
+</html>

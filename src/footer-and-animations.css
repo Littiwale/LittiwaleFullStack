@@ -20,7 +20,7 @@ html {
 /* 4-column grid — WareX style */
 .footer-grid {
   display: grid;
-  grid-template-columns: 1.5fr 1fr 1fr 1fr;
+  grid-template-columns: 1.2fr 1fr 1fr 2.5fr;
   gap: 40px;
   padding: 0 40px 52px 40px;
   width: 100%;
@@ -172,7 +172,7 @@ html {
 /* ─── RESPONSIVE ─────────────────────────────────────────────── */
 @media (max-width: 1200px) {
   .footer-grid { 
-    grid-template-columns: 1.2fr 1fr 1fr 1fr; 
+    grid-template-columns: 1fr 1fr 1fr 2fr; 
     gap: 32px;
     padding: 0 32px 48px 32px;
   }

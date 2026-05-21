@@ -34,6 +34,14 @@
         "destination": "/rider/index.html"
       },
       {
+        "source": "/kitchen",
+        "destination": "/kitchen/index.html"
+      },
+      {
+        "source": "/kitchen/**",
+        "destination": "/kitchen/index.html"
+      },
+      {
         "source": "/customer",
         "destination": "/customer/index.html"
       },
